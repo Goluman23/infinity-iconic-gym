@@ -12,7 +12,7 @@ Everything is controlled from the `OFFER` block in `index.html` (search for `FES
 | Phase 1 — Early-bird | until 5 Nov 2026, 23:59 IST |
 | Phase 2 — Last chance | until 15 Nov 2026, 23:59 IST |
 | Switches off | automatically after 15 Nov — band, section, menu items all disappear; no redeploy needed |
-| Plans | `plans: [...]` — total price per plan; the cheapest per-day plan drives the "from ₹XX/day" anchor everywhere |
+| Pricing | `price: 17000`, `paidMonths: 12`, `bonusMonths: 2`, `market: 14500` — hold ₹17K, add 2 free months → ₹1,214/mo (≈ market ₹1,208) ≈ ₹40/day. Every figure on the page is computed from these four numbers |
 
 Preview any state: `?offer=early`, `?offer=final`, `?offer=off`.
 

@@ -806,7 +806,7 @@ body.offer-on .js-offer{display:flex!important}
 .cmp{background:var(--cream-2);color:var(--ink);border-radius:20px;padding:clamp(22px,2.6vw,36px);box-shadow:0 40px 80px -40px rgba(0,0,0,.6)}
 .cmp-hd{display:flex;justify-content:space-between;align-items:end;gap:16px;flex-wrap:wrap;padding-bottom:18px;border-bottom:2px solid var(--ink)}
 .cmp-hd h3{margin:0;font:400 clamp(28px,2.6vw,36px)/1 var(--f-display);text-transform:uppercase}
-.cmp-hd span{font:500 11.5px/1 var(--f-cond);letter-spacing:.24em;text-transform:uppercase;color:var(--copper-dk)}
+.cmp-hd>span{font:500 11.5px/1 var(--f-cond);letter-spacing:.24em;text-transform:uppercase;color:var(--copper-dk)}
 .cmp-rows{list-style:none;margin:0;padding:0}
 .cmp-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px 18px;padding:18px 0;border-bottom:1px solid var(--line-lt);position:relative}
 .cmp-row .nm{font:500 15px/1.2 var(--f-cond);letter-spacing:.14em;text-transform:uppercase}
@@ -821,9 +821,23 @@ body.offer-on .js-offer{display:flex!important}
 .cmp-row.best .pm{color:var(--copper)}
 .cmp-row.best::before{content:attr(data-flag);position:absolute;top:-11px;left:14px;padding:5px 10px;border-radius:999px;background:var(--copper);color:#fff;font:600 10.5px/1 var(--f-cond);letter-spacing:.2em;text-transform:uppercase}
 .cmp-ft{margin:16px 0 0;font-size:12.5px;color:var(--ink-soft)}
+.cmp-hd h3 .cu{color:var(--copper)}
+.cmp-row.muted .nm,.cmp-row.muted .pm{color:var(--ink-soft)}
+.cmp-row .pm s{display:block;margin-bottom:4px;font:500 13px/1 var(--f-body);color:var(--ink-soft);text-decoration-color:var(--energy)}
+.gap{display:flex;align-items:center;gap:18px;margin-top:22px;padding:18px 20px;border-radius:14px;background:var(--graphite);color:var(--cream)}
+.gap-n{flex:none;display:flex;align-items:flex-start;font:400 64px/.85 var(--f-display);color:#FFC98F}
+.gap-n .r{font-size:.45em;margin:.1em .04em 0 0}
+.gap-t b{display:block;font:500 15px/1.2 var(--f-cond);letter-spacing:.14em;text-transform:uppercase}
+.gap-t span{display:block;margin-top:6px;font-size:13.5px;line-height:1.5;color:rgba(236,230,218,.72)}
+.off-plus{list-style:none;margin:24px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+.off-plus li{display:inline-flex;align-items:center;gap:8px;height:34px;padding:0 14px;border-radius:999px;border:1px solid var(--line-dk);background:rgba(22,24,26,.5);font:500 12px/1 var(--f-cond);letter-spacing:.12em;text-transform:uppercase;color:rgba(236,230,218,.85)}
+.off-plus li::before{content:"✓";color:var(--copper-lt)}
+.off-plus li:first-child{background:var(--copper);border-color:var(--copper);color:#fff}
+.off-plus li:first-child::before{content:"✦";color:#FFE2B8}
+.off-plus li b{font-weight:600}
 
 /* gift card */
-.gift{margin-top:clamp(48px,6vw,80px);display:grid;grid-template-columns:auto minmax(0,1fr) auto;min-width:0;gap:clamp(18px,3vw,40px);align-items:center;padding:clamp(24px,3vw,40px);border-radius:20px;background:var(--emerald);position:relative;overflow:hidden}
+.gift{margin-top:clamp(48px,6vw,80px);min-width:0;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:clamp(18px,3vw,40px);align-items:center;padding:clamp(24px,3vw,40px);border-radius:20px;background:var(--emerald);position:relative;overflow:hidden}
 .gift::after{content:"∞";position:absolute;right:-.04em;bottom:-.42em;font:400 clamp(180px,22vw,320px)/1 var(--f-body);color:rgba(236,230,218,.06);pointer-events:none}
 .gift-card{width:clamp(120px,13vw,168px);aspect-ratio:1.6;border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;justify-content:space-between;color:var(--graphite);
   background:linear-gradient(135deg,#E9C89C,#C98A5C 55%,#B06B3E);box-shadow:0 18px 36px -12px rgba(0,0,0,.5);transform:rotate(-6deg)}
@@ -854,6 +868,9 @@ body.offer-on .js-offer{display:flex!important}
   .off-cd .box{min-width:0;flex:1;padding:12px 6px 10px}
   .off-cd .box b{font-size:32px}
   .off-cta .btn{flex:1 1 100%;justify-content:center}
+  .gap{align-items:flex-start;padding:16px}
+  .off-from{letter-spacing:.18em;font-size:12px}
+  .gap-n{font-size:52px}
   .gift{grid-template-columns:minmax(0,1fr);text-align:left}
   .gift .btn{white-space:normal;height:auto;min-height:54px;padding:14px 20px;text-align:center;line-height:1.3}
   .gift-card{width:140px}
@@ -886,11 +903,11 @@ body.offer-on .js-offer{display:flex!important}
 </svg>
 
 <!-- ================= FESTIVE OFFER BAND (auto-shows only inside the offer window) ================= -->
-<a class="obar" id="obar" href="#offer" aria-label="Diwali festive offer — see details">
+<a class="obar" id="obar" href="#offer" aria-label="Diwali offer: pay for 12 months, train for 14 — see details">
   <div class="wrap">
     <span class="ob-tag"><i aria-hidden="true">✦</i><span>Diwali<span class="ob-long"> offer</span></span></span>
     <span class="ob-sep" aria-hidden="true"></span>
-    <span class="ob-price"><span class="ob-long">Memberships from </span><b class="js-pd">₹40</b>/day</span>
+    <span class="ob-price"><span class="ob-long">Pay 12, train 14 · </span><b class="js-pd">₹40</b>/day</span>
     <span class="ob-sep" aria-hidden="true"></span>
     <span class="ob-cd"><span id="obLbl">Ends in</span><b id="obCd">--</b></span>
     <span class="ob-go"><span class="t">Claim</span><svg><use href="#i-arr"/></svg></span>
@@ -976,9 +993,15 @@ body.offer-on .js-offer{display:flex!important}
 
     <div class="off-grid">
       <div class="off-lead rv">
-        <div class="off-from">Memberships from</div>
+        <div class="off-from">Pay for 12 months · Train for 14</div>
         <p class="off-price" id="offPrice" aria-label="Rupees 40 per day"><span class="r">₹</span><span id="offPd">40</span><small>/day</small></p>
-        <p class="off-lede">The full 10,000 sq ft floor, Group-X, the rooftop CrossFit zone, steam &amp; shower — <b>at festive pricing</b>. Lock it in before the countdown runs out.</p>
+        <p class="off-lede" id="offLede"><b>₹17,000 for 14 months</b> of the full Infinity floor — 2 months on us. That's ₹1,214 a month — about what an ordinary gym charges.</p>
+        <ul class="off-plus" aria-label="Included">
+          <li><b id="offBonus">+2 months</b> free</li>
+          <li>Body-composition analysis</li>
+          <li>Personalised workout card</li>
+          <li>ACSM health screening</li>
+        </ul>
 
         <div class="off-cd" aria-live="off">
           <div class="lbl"><b id="offPhase">Early-bird</b> · <span id="offEnds">ends 5 Nov</span></div>
@@ -991,16 +1014,24 @@ body.offer-on .js-offer{display:flex!important}
         </div>
 
         <div class="off-cta">
-          <a class="btn btn-wa" href="#" data-wa="diwali" data-src="offer"><svg><use href="#i-wa"/></svg>Lock the festive price</a>
+          <a class="btn btn-wa" href="#" data-wa="diwali" data-src="offer"><svg><use href="#i-wa"/></svg>Lock my 14 months</a>
           <a class="btn btn-ghost" href="tel:+919953004008" data-track="call"><svg><use href="#i-ph"/></svg>Call the desk</a>
         </div>
-        <p class="off-fine" id="offFine">Festive pricing valid till 15 Nov 2026 · early-bird till 5 Nov. Per member, subject to T&amp;C at the front desk.</p>
+        <p class="off-fine" id="offFine">Diwali plan valid on new annual memberships till 15 Nov 2026 · early-bird till 5 Nov. 14 months of access from your start date. T&amp;C at the front desk.</p>
       </div>
 
       <div class="cmp rv d1" aria-labelledby="cmp-h">
-        <div class="cmp-hd"><h3 id="cmp-h">What it costs a month</h3><span>Festive prices</span></div>
+        <div class="cmp-hd"><h3 id="cmp-h">Same monthly cost.<br><span class="cu">A different league.</span></h3><span>Per month, compared</span></div>
         <ul class="cmp-rows" id="cmpRows"></ul>
-        <p class="cmp-ft">Longer plan, lower monthly cost. All plans include the full floor, Group-X, CrossFit zone, steam &amp; lockers.</p>
+
+        <div class="gap">
+          <div class="gap-n"><span class="r">₹</span><span id="gapN">6</span></div>
+          <div class="gap-t">
+            <b>a month is the whole difference</b>
+            <span>Less than one cutting chai — for a 10,000 sq ft floor, HYROX &amp; CrossFit, in-house physio, Faridabad's biggest Group-X hall, steam and valet.</span>
+          </div>
+        </div>
+        <p class="cmp-ft" id="cmpFt">*Typical annual membership at comparable gyms nearby: ₹14,000–15,000. Outside Diwali, Infinity's premium is about ₹7 a day.</p>
       </div>
     </div>
 
@@ -1008,7 +1039,7 @@ body.offer-on .js-offer{display:flex!important}
       <div class="gift-card" aria-hidden="true"><svg><use href="#i-logo"/></svg><span>Gift membership</span></div>
       <div>
         <h3>Gift a membership<br><span class="cu">this Diwali.</span></h3>
-        <p>For family, a friend, or your whole team. Pick a plan and tell us who it's for — we'll arrange the gift card for you to hand over.</p>
+        <p>Give 14 months of Infinity to family, a friend, or your whole team. Tell us who it's for — we'll arrange the gift card for you to hand over.</p>
       </div>
       <a class="btn btn-cu" href="#" data-wa="gift" data-src="gift-card"><svg><use href="#i-wa"/></svg>Gift card enquiry</a>
     </div>
@@ -1235,7 +1266,7 @@ body.offer-on .js-offer{display:flex!important}
         <h3>Ask us<br><span class="cu">anything.</span></h3>
         <p>Pick a topic — WhatsApp opens with your question already typed. Our front desk replies through the day.</p>
         <div class="intents">
-          <button class="intent js-offer" data-wa="diwali" data-src="quick"><span>✦ Diwali offer · <span class="js-pd">₹40</span>/day</span><svg><use href="#i-wa"/></svg></button>
+          <button class="intent js-offer" data-wa="diwali" data-src="quick"><span>✦ Diwali · 2 months free</span><svg><use href="#i-wa"/></svg></button>
           <button class="intent js-offer" data-wa="gift" data-src="quick"><span>Gift a membership</span><svg><use href="#i-wa"/></svg></button>
           <button class="intent" data-wa="price" data-src="quick"><span>Membership plans &amp; fees</span><svg><use href="#i-wa"/></svg></button>
           <button class="intent" data-wa="trial" data-src="quick"><span>Book a free trial</span><svg><use href="#i-wa"/></svg></button>
@@ -1473,7 +1504,7 @@ body.offer-on .js-offer{display:flex!important}
     <div class="panel-bd">
       <div class="bubble"><span id="greet">Hi</span> 👋 Welcome to Infinity Iconic. What can we help you with today?</div>
       <button class="opt" data-wa="trial" data-src="concierge">Book my free trial <svg><use href="#i-arr"/></svg></button>
-      <button class="opt js-offer" data-wa="diwali" data-src="concierge">✦ Diwali offer · from <span class="js-pd">₹40</span>/day <svg><use href="#i-arr"/></svg></button>
+      <button class="opt js-offer" data-wa="diwali" data-src="concierge">✦ Diwali offer · pay 12, train 14 <svg><use href="#i-arr"/></svg></button>
       <button class="opt js-offer" data-wa="gift" data-src="concierge">Gift a membership this Diwali <svg><use href="#i-arr"/></svg></button>
       <button class="opt" data-wa="price" data-src="concierge">Membership plans &amp; fees <svg><use href="#i-arr"/></svg></button>
       <button class="opt" data-wa="hyrox" data-src="concierge">HYROX / CrossFit training <svg><use href="#i-arr"/></svg></button>
@@ -1535,7 +1566,7 @@ body.offer-on .js-offer{display:flex!important}
     careers: "Hi Infinity! I'm a fitness professional interested in working with you. Whom should I send my CV to?",
     feedback:"Hi Infinity! I'd like to share some feedback:",
     hello:   "Hi Infinity! I have a question:",
-    diwali:  "Hi Infinity! I saw your Diwali offer (memberships from ₹40/day). Please share the festive plans — I'd like to lock the price.",
+    diwali:  "Hi Infinity! I saw your Diwali offer — 14 months for the price of 12. I'd like to lock it in.",
     gift:    "Hi Infinity! I'd like to gift an Infinity membership this Diwali. Please share the gift-card options and prices."
   };
 
@@ -1710,23 +1741,21 @@ body.offer-on .js-offer{display:flex!important}
   }, NUDGE_DELAY);
 
   /* ============ FESTIVE OFFER — edit here ============
-     The top band + offer section switch on by themselves at START and switch off after the last
-     phase ends (IST) — no redeploy needed. Preview a phase with ?offer=early, ?offer=final or ?offer=off */
+     Strategy: hold the ₹17,000 annual price (no discount) and add 2 free months →
+     ₹17,000 / 14 months = ₹1,214/month ≈ market (₹14,500 / 12 = ₹1,208) and ≈ ₹40/day.
+     Every number on the page (band, ₹/day, comparison, ₹6 gap, ₹7/day line, WhatsApp text)
+     is calculated from this block. The band + section switch on at START and off after the
+     last phase ends (IST) — no redeploy. Preview with ?offer=early, ?offer=final or ?offer=off */
   var OFFER = {
     start: "2026-10-20T00:00:00+05:30",
     phases: [
-      {id:"early", end:"2026-11-05T23:59:59+05:30", name:"Early-bird",  ends:"ends 5 Nov",  band:"Early-bird ends in",    label:"Diwali early-bird (till 5 Nov)"},
-      {id:"final", end:"2026-11-15T23:59:59+05:30", name:"Last chance", ends:"ends 15 Nov", band:"Festive offer ends in", label:"Diwali festive offer (till 15 Nov)"}
+      {id:"early", end:"2026-11-05T23:59:59+05:30", name:"Early-bird",  ends:"ends 5 Nov",  band:"Early-bird ends in"},
+      {id:"final", end:"2026-11-15T23:59:59+05:30", name:"Last chance", ends:"ends 15 Nov", band:"Offer ends in"}
     ],
-    /* Festive plan prices in ₹ — total payable per plan.
-       ⚠ PLACEHOLDERS: replace with the gym's real festive prices before going live.
-       The cheapest per-day plan sets the "from ₹XX/day" anchor everywhere on the page. */
-    plans: [
-      {name:"1 month",   months:1,  price:2500},
-      {name:"3 months",  months:3,  price:6000},
-      {name:"6 months",  months:6,  price:9500},
-      {name:"12 months", months:12, price:14600, best:true}
-    ]
+    price: 17000,        // Infinity annual membership, ₹ (unchanged)
+    paidMonths: 12,
+    bonusMonths: 2,      // Diwali bonus
+    market: 14500        // typical annual price at comparable gyms nearby (midpoint of ₹14,000–15,000)
   };
 
   var OFFER_NOW = null;
@@ -1748,27 +1777,41 @@ body.offer-on .js-offer{display:flex!important}
     var inr = function(n){ return "₹" + Math.round(n).toLocaleString("en-IN"); };
     var pad = function(n){ return (n < 10 ? "0" : "") + n; };
 
+    /* the maths */
+    var O = OFFER, total = O.paidMonths + O.bonusMonths;
+    var offerPm = O.price / total, regPm = O.price / O.paidMonths, mktPm = O.market / 12;
+    var perDay = Math.round(O.price / (total * 365 / 12));             // 14 months ≈ 426 days → ₹40
+    var gapPm = Math.max(0, Math.round(offerPm - mktPm));               // ₹6 a month
+    var premDay = Math.round((O.price - O.market) / 365);               // ₹7 a day, rest of the year
+    ph.label = "Diwali plan — " + inr(O.price) + " for " + total + " months (" + ph.name.toLowerCase() + ", " + ph.ends + ")";
+
     $("obLbl").textContent = ph.band;
     $("offPhase").textContent = ph.name;
     $("offEnds").textContent = ph.ends;
     $("offTag").textContent = ph.name + " · " + ph.ends;
+    $("offPd").textContent = perDay;
+    $("offPrice").setAttribute("aria-label", "Rupees " + perDay + " per day");
+    document.querySelectorAll(".js-pd").forEach(function(el){ el.textContent = "₹" + perDay; });
+    $("offBonus").textContent = "+" + O.bonusMonths + " months";
+    $("offLede").innerHTML = "<b>" + inr(O.price) + " for " + total + " months</b> of the full Infinity floor — " + O.bonusMonths +
+      " months on us. That's " + inr(offerPm) + " a month — about what an ordinary gym charges.";
+    $("gapN").textContent = gapPm;
+    $("cmpFt").textContent = "*Typical annual membership at comparable gyms nearby: ₹14,000–15,000. Outside Diwali, Infinity's premium is about ₹" + premDay + " a day.";
 
     /* per-month comparison */
-    var P = OFFER.plans.map(function(p){
-      var days = p.months === 12 ? 365 : p.months * 30.4;
-      return {p:p, pm:p.price / p.months, pd:p.price / days};
-    });
-    var base = P[0].pm, maxPm = Math.max.apply(null, P.map(function(x){ return x.pm; }));
-    var anchor = Math.min.apply(null, P.map(function(x){ return x.pd; }));
-    var ul = $("cmpRows");
-    P.forEach(function(x){
-      var save = Math.round((1 - x.pm / base) * 100), li = document.createElement("li");
-      li.className = "cmp-row" + (x.p.best ? " best" : "");
-      if(x.p.best) li.setAttribute("data-flag", "Best value · " + inr(x.pd) + "/day");
-      li.innerHTML = '<div><div class="nm">' + x.p.name + (save > 0 ? '<em>Save ' + save + '%</em>' : '') + '</div>' +
-        '<div class="tot">' + inr(x.p.price) + ' total · ' + inr(x.pd) + ' a day</div></div>' +
-        '<div class="pm">' + inr(x.pm) + '<small>per month</small></div>' +
-        '<div class="bar"><i data-w="' + (x.pm / maxPm * 100).toFixed(1) + '"></i></div>';
+    var rows = [
+      {nm:"Typical gym nearby*",     tot:inr(O.market) + " · 12 months",                               pm:mktPm,   cls:"muted"},
+      {nm:"Infinity · Diwali plan",  tot:inr(O.price) + " · " + O.paidMonths + " + " + O.bonusMonths + " months free · ₹" + perDay + " a day", pm:offerPm, was:regPm, cls:"best",
+       flag:"Diwali · " + O.bonusMonths + " months free"}
+    ];
+    var maxPm = Math.max(regPm, mktPm), ul = $("cmpRows");
+    rows.forEach(function(r){
+      var li = document.createElement("li");
+      li.className = "cmp-row " + r.cls;
+      if(r.flag) li.setAttribute("data-flag", r.flag);
+      li.innerHTML = '<div><div class="nm">' + r.nm + '</div><div class="tot">' + r.tot + '</div></div>' +
+        '<div class="pm">' + (r.was ? '<s>' + inr(r.was) + '/mo</s>' : '') + inr(r.pm) + '<small>per month</small></div>' +
+        '<div class="bar"><i data-w="' + (r.pm / maxPm * 100).toFixed(1) + '"></i></div>';
       ul.appendChild(li);
     });
     function fillBars(){ ul.querySelectorAll(".bar i").forEach(function(i){ i.style.width = i.getAttribute("data-w") + "%"; }); }
@@ -1777,12 +1820,10 @@ body.offer-on .js-offer{display:flex!important}
       bo.observe(ul);
     } else fillBars();
 
-    /* the ₹/day anchor, kept in sync with the plans above */
-    var a = Math.round(anchor);
-    $("offPd").textContent = a;
-    document.querySelectorAll(".js-pd").forEach(function(el){ el.textContent = "₹" + a; });
-    $("offPrice").setAttribute("aria-label", "Rupees " + a + " per day");
-    MSG.diwali = MSG.diwali.replace("₹40/day", "₹" + a + "/day");
+    /* WhatsApp text */
+    MSG.diwali = "Hi Infinity! I saw your Diwali offer — " + inr(O.price) + " for " + total + " months (pay for " + O.paidMonths +
+      ", get " + O.bonusMonths + " free). I'd like to lock it in. What's the next step?";
+    MSG.gift = "Hi Infinity! I'd like to gift an Infinity membership this Diwali (the " + total + "-month plan). Please share how the gift card works.";
 
     /* countdown */
     var end = Date.parse(ph.end), timer;
@@ -1798,9 +1839,9 @@ body.offer-on .js-offer{display:flex!important}
     /* the 25-second nudge becomes the offer during the window */
     var nb = document.querySelector("#nudge b"), np = document.querySelector("#nudge p"), na = document.querySelector("#nudge a");
     if(nb && np && na){
-      nb.textContent = "Diwali offer is live.";
-      np.textContent = "Memberships from ₹" + a + "/day. " + ph.name + " " + ph.ends + ".";
-      na.setAttribute("data-wa", "diwali"); na.setAttribute("data-src", "nudge"); na.textContent = "Lock the price on WhatsApp →";
+      nb.textContent = "Pay for " + O.paidMonths + ". Train for " + total + ".";
+      np.textContent = "Diwali offer: " + inr(O.price) + " for " + total + " months — just ₹" + perDay + "/day. " + ph.name + " " + ph.ends + ".";
+      na.setAttribute("data-wa", "diwali"); na.setAttribute("data-src", "nudge"); na.textContent = "Lock it on WhatsApp →";
     }
   })();
 
