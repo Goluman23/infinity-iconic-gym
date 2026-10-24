@@ -911,7 +911,7 @@ body.offer-on .js-offer{display:flex!important}
   <div class="wrap">
     <span class="ob-tag"><i aria-hidden="true">✦</i><span>Diwali<span class="ob-long"> offer</span></span></span>
     <span class="ob-sep" aria-hidden="true"></span>
-    <span class="ob-price"><span class="ob-long">Pay 12, train 14 · </span><b class="js-pd">₹40</b>/day</span>
+    <span class="ob-price"><span class="ob-long">Pay 12, train 14 · </span><b class="js-pd">₹41</b>/day</span>
     <span class="ob-sep" aria-hidden="true"></span>
     <span class="ob-cd"><span id="obLbl">Ends in</span><b id="obCd">--</b></span>
     <span class="ob-go"><span class="t">Claim</span><svg><use href="#i-arr"/></svg></span>
@@ -998,8 +998,8 @@ body.offer-on .js-offer{display:flex!important}
     <div class="off-grid">
       <div class="off-lead rv">
         <div class="off-from">Pay for 12 months · Train for 14</div>
-        <p class="off-price" id="offPrice" aria-label="Rupees 40 per day"><span class="r">₹</span><span id="offPd">40</span><small>/day</small></p>
-        <p class="off-lede" id="offLede"><b>₹17,000 for 14 months</b> of the full Infinity floor — 2 months on us. That's ₹1,214 a month — about what an ordinary gym charges.</p>
+        <p class="off-price" id="offPrice" aria-label="Rupees 41 per day"><span class="r">₹</span><span id="offPd">41</span><small>/day</small></p>
+        <p class="off-lede" id="offLede"><b>₹17,500 for 14 months</b> of the full Infinity floor — 2 months on us. That's ₹1,250 a month — just ₹42 more than an ordinary gym.</p>
         <ul class="off-plus" aria-label="Included">
           <li><b id="offBonus">+2 months</b> free</li>
           <li>Body-composition analysis</li>
@@ -1025,17 +1025,17 @@ body.offer-on .js-offer{display:flex!important}
       </div>
 
       <div class="cmp rv d1" aria-labelledby="cmp-h">
-        <div class="cmp-hd"><h3 id="cmp-h">Same monthly cost.<br><span class="cu">A different league.</span></h3><span>Per month, compared</span></div>
+        <div class="cmp-hd"><h3 id="cmp-h">Barely more a month.<br><span class="cu">A different league.</span></h3><span>Per month, compared</span></div>
         <ul class="cmp-rows" id="cmpRows"></ul>
 
         <div class="gap">
-          <div class="gap-n"><span class="r">₹</span><span id="gapN">6</span></div>
+          <div class="gap-n"><span class="r">₹</span><span id="gapN">42</span></div>
           <div class="gap-t">
             <b>a month is the whole difference</b>
-            <span>Less than one cutting chai — for a 10,000 sq ft floor, HYROX &amp; CrossFit, in-house physio, Faridabad's biggest Group-X hall, steam and valet.</span>
+            <span id="gapT">About ₹1.37 a day — less than one cutting chai a week — for a 10,000 sq ft floor, HYROX &amp; CrossFit, in-house physio, Faridabad's biggest Group-X hall, steam and valet.</span>
           </div>
         </div>
-        <p class="cmp-ft" id="cmpFt">*Typical annual membership at comparable gyms nearby: ₹14,000–15,000. Outside Diwali, Infinity's premium is about ₹7 a day.</p>
+        <p class="cmp-ft" id="cmpFt">*Typical annual membership at comparable gyms nearby: ₹14,000–15,000. Outside Diwali, Infinity's premium is about ₹8 a day.</p>
       </div>
     </div>
 
@@ -1731,8 +1731,8 @@ body.offer-on .js-offer{display:flex!important}
   }, NUDGE_DELAY);
 
   /* ============ FESTIVE OFFER — edit here ============
-     Strategy: hold the ₹17,000 annual price (no discount) and add 2 free months →
-     ₹17,000 / 14 months = ₹1,214/month ≈ market (₹14,500 / 12 = ₹1,208) and ≈ ₹40/day.
+     Strategy: hold the ₹17,500 annual price (no discount) and add 2 free months →
+     ₹17,500 / 14 months = ₹1,250/month vs market ₹14,500 / 12 = ₹1,208 → ₹42/month gap (≈ ₹1.40/day), ≈ ₹41/day.
      Every number on the page (band, ₹/day, comparison, ₹6 gap, ₹7/day line, WhatsApp text)
      is calculated from this block. The band + section switch on at START and off after the
      last phase ends (IST) — no redeploy. Preview with ?offer=early, ?offer=final or ?offer=off */
@@ -1742,7 +1742,7 @@ body.offer-on .js-offer{display:flex!important}
       {id:"early", end:"2026-11-05T23:59:59+05:30", name:"Early-bird",  ends:"ends 5 Nov",  band:"Early-bird ends in"},
       {id:"final", end:"2026-11-15T23:59:59+05:30", name:"Last chance", ends:"ends 15 Nov", band:"Offer ends in"}
     ],
-    price: 17000,        // Infinity annual membership, ₹ (unchanged)
+    price: 17500,        // Infinity annual membership, ₹ (unchanged)
     paidMonths: 12,
     bonusMonths: 2,      // Diwali bonus
     market: 14500        // typical annual price at comparable gyms nearby (midpoint of ₹14,000–15,000)
@@ -1770,9 +1770,9 @@ body.offer-on .js-offer{display:flex!important}
     /* the maths */
     var O = OFFER, total = O.paidMonths + O.bonusMonths;
     var offerPm = O.price / total, regPm = O.price / O.paidMonths, mktPm = O.market / 12;
-    var perDay = Math.round(O.price / (total * 365 / 12));             // 14 months ≈ 426 days → ₹40
-    var gapPm = Math.max(0, Math.round(offerPm - mktPm));               // ₹6 a month
-    var premDay = Math.round((O.price - O.market) / 365);               // ₹7 a day, rest of the year
+    var perDay = Math.round(O.price / (total * 365 / 12));             // 14 months ≈ 426 days → ₹41
+    var gapPm = Math.max(0, Math.round(offerPm - mktPm));               // ₹42 a month
+    var premDay = Math.round((O.price - O.market) / 365);               // ₹8 a day, rest of the year
     ph.label = "Diwali plan — " + inr(O.price) + " for " + total + " months (" + ph.name.toLowerCase() + ", " + ph.ends + ")";
 
     $("obLbl").textContent = ph.band;
@@ -1784,8 +1784,11 @@ body.offer-on .js-offer{display:flex!important}
     document.querySelectorAll(".js-pd").forEach(function(el){ el.textContent = "₹" + perDay; });
     $("offBonus").textContent = "+" + O.bonusMonths + " months";
     $("offLede").innerHTML = "<b>" + inr(O.price) + " for " + total + " months</b> of the full Infinity floor — " + O.bonusMonths +
-      " months on us. That's " + inr(offerPm) + " a month — about what an ordinary gym charges.";
+      " months on us. That's " + inr(offerPm) + " a month — just " + inr(gapPm) + " more than an ordinary gym.";
     $("gapN").textContent = gapPm;
+    var gapDay = (offerPm - mktPm) * 12 / 365, gapWeek = (offerPm - mktPm) * 12 / 52;
+    $("gapT").textContent = "About ₹" + gapDay.toFixed(2).replace(/0$/, "") + " a day" + (gapWeek < 10 ? " — less than one cutting chai a week" : "") +
+      " — for a 10,000 sq ft floor, HYROX & CrossFit, in-house physio, Faridabad's biggest Group-X hall, steam and valet.";
     $("cmpFt").textContent = "*Typical annual membership at comparable gyms nearby: ₹14,000–15,000. Outside Diwali, Infinity's premium is about ₹" + premDay + " a day.";
 
     /* per-month comparison */
