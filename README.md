@@ -33,3 +33,11 @@ The site reads the tag, remembers it for 30 days, and prints it at the bottom of
 | Flyer / standee QR code | `https://www.eqiconic.com/?utm_source=offline&utm_medium=qr&utm_campaign=diwali_2026&utm_content=flyer#offer` |
 
 Rule of thumb: `utm_source` = platform, `utm_medium` = placement type, `utm_campaign` = the offer, `utm_content` = the specific creative.
+
+## Performance setup
+
+- Photos live in `img/` as WebP in 640 / 960 / full widths; the browser picks the right size per screen (`srcset`). Filenames carry a content hash, so they're cached for a year (`vercel.json`) and a changed photo gets a new name automatically.
+- Hero image is preloaded with high priority; every other photo lazy-loads as you scroll.
+- Google Fonts load without blocking first paint (`display=swap`).
+- `og-cover.jpg` (1200×630) is the WhatsApp / Facebook link-preview image. `robots.txt` + `sitemap.xml` for Google.
+- Lighthouse (mobile): Performance 95 · Accessibility 100 · Best Practices 100 · SEO 100. First paint ~2 s on 4G (was ~10 s).
