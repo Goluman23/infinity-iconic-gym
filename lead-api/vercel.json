@@ -1,0 +1,13 @@
+{
+  "functions": {
+    "api/bulk.js": {
+      "maxDuration": 300
+    },
+    "api/es/concierge.js": {
+      "maxDuration": 20
+    },
+    "api/es/webhook.js": {
+      "maxDuration": 20
+    }
+  }
+}

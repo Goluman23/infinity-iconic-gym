@@ -1,5 +1,8 @@
 {
   "cleanUrls": true,
+  "redirects": [
+    { "source": "/lead-api/:path*", "destination": "/", "permanent": false }
+  ],
   "headers": [
     {
       "source": "/img/(.*)",

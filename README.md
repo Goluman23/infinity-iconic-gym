@@ -41,3 +41,7 @@ Rule of thumb: `utm_source` = platform, `utm_medium` = placement type, `utm_camp
 - Google Fonts load without blocking first paint (`display=swap`).
 - `og-cover.jpg` (1200×630) is the WhatsApp / Facebook link-preview image. `robots.txt` + `sitemap.xml` for Google.
 - Lighthouse (mobile): Performance 95 · Accessibility 100 · Best Practices 100 · SEO 100. First paint ~2 s on 4G (was ~10 s).
+
+## lead-api/
+
+The Instagram + WhatsApp chatbot back end (EasySocial lead engine, AI concierge, desk alerts) lives in `lead-api/` and deploys as its own Vercel project (root directory `lead-api`). The website blocks `/lead-api/*`, so none of it is served on eqiconic.com. See `lead-api/README.md`.
