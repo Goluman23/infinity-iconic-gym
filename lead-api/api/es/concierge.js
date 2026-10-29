@@ -7,7 +7,7 @@
 import { waitUntil } from '@vercel/functions';
 import { send } from '../../lib/http.js';
 import { input } from '../../lib/es-brain-http.js';
-import { handleMessage } from '../../lib/concierge/index.js';
+import { handleMessage, pickMessage } from '../../lib/concierge/index.js';
 import { sendToSheet } from '../../lib/concierge/log.js';
 
 export function keyOk(req, q) {
@@ -26,6 +26,9 @@ export default async function handler(req, res) {
   const { p } = await input(req);
   if (!keyOk(req, p)) return send(res, 401, { error: 'Missing or wrong key' });
   try {
+    const src = pickMessage(p);
+    // Which parameter carried the text (helps confirm EasySocial's wiring; never logs the key).
+    console.log('[concierge] in', JSON.stringify({ from: src.key || 'none', platform: p.platform || '', params: Object.keys(p).filter(k => k !== 'key') }));
     const { out, log, state } = await handleMessage(p);
     const job = sendToSheet(log);
     try { waitUntil(job); } catch { await job; } // outside Vercel (local server) just wait

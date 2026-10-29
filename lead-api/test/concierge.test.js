@@ -121,5 +121,11 @@ const { classify } = await import('../lib/concierge/ai.js');
 ok('placeholder key "sk-ant-…" skips Claude', (await classify('hi', { apiKey: 'sk-ant-…' })).source === 'ai-off');
 ok('empty key skips Claude', (await classify('hi', { apiKey: '' })).source === 'ai-off');
 
+const { pickMessage } = await import('../lib/concierge/index.js');
+ok('message from last_message when message is an unfilled placeholder', pickMessage({ message: '[n8n_input_message]', last_message: 'kal aaunga' }).value === 'kal aaunga');
+ok('first filled wins', pickMessage({ message: 'hi', last_message: 'x' }).key === 'message');
+r = await call('/api/es/concierge?key=k123&message=%5Bn8n_input_message%5D&last_message=' + encodeURIComponent('evening mein aata hu') + '&debug=1');
+ok('visit read from last_message via HTTP', r.body.debug.intent === 'visit_plan');
+
 console.log(`${pass}/${pass + fail} concierge checks passed`);
 if (fail) process.exit(1);
