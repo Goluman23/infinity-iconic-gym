@@ -11,9 +11,17 @@ const clean = v => {
   return /^(\[[^\]]*\]|\{\{[^}]*\}\}|undefined|null)$/i.test(s) ? '' : s;
 };
 
+// EasySocial can hand the customer's text over under different names depending on the node,
+// so take the first one that actually has a value (unreplaced "[field]" placeholders count as empty).
+const MESSAGE_KEYS = ['message', 'last_message', 'n8n_input_message', 'user_input', 'input', 'text', 'msg'];
+export function pickMessage(p) {
+  for (const k of MESSAGE_KEYS) { const v = clean(p[k]); if (v) return { value: v, key: k }; }
+  return { value: '', key: '' };
+}
+
 export function readParams(p) {
   return {
-    message: clean(p.message ?? p.n8n_input_message ?? p.text ?? p.last_message).slice(0, 1000),
+    message: pickMessage(p).value.slice(0, 1000),
     name: clean(p.name),
     phone: clean(p.phone ?? p.contact_number).replace(/[^\d+]/g, ''),
     leadId: clean(p.leadId ?? p.lead_id),
