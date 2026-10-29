@@ -1,0 +1,18 @@
+{
+  "name": "infinity-lead-api",
+  "version": "2.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Infinity Iconic lead engine: lead intake \u2192 first WhatsApp message, and the chatbot brain for EasySocial (ManyChat optional)",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "DRY_RUN=1 node server.js",
+    "test": "node test/run.js && node test/brain.test.js && node test/easysocial.test.js && node test/concierge.test.js"
+  },
+  "dependencies": {
+    "@vercel/functions": "3.10.0"
+  }
+}

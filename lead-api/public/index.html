@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Infinity Iconic — Lead Intake</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Oswald:wght@400;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--graphite:#16181A;--copper:#B06B3E;--emerald:#15503A;--cream:#ECE6DA;--page:#F6F2EA;--wood:#C8A579;--energy:#E4553A;--ink:#1d1d1e;--muted:#6f675c;--line:#E2DACB;--card:#fff;--r:10px}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--page:#121314;--card:#1b1d20;--ink:#ece6da;--muted:#a59d90;--line:#2c2f33;--cream:#24272b}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--page);color:var(--ink);font:15px/1.55 Inter,system-ui,sans-serif}
+.wrap{max-width:1000px;margin:0 auto;padding:0 16px}
+header{background:var(--graphite);color:#fff;padding:34px 0 26px;position:relative}
+header::before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px;background:var(--copper)}
+.inf{font-family:Oswald,sans-serif;color:var(--copper);font-size:22px}
+h1{font-family:Anton,Impact,sans-serif;font-weight:400;text-transform:uppercase;font-size:clamp(34px,6vw,56px);line-height:.95;margin:8px 0 10px}
+h1 span{color:var(--copper)}
+.sub{font-family:Oswald,sans-serif;font-weight:400;color:#d9d3c7;max-width:680px;margin:0;font-size:16px}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:18px;font-size:13px;color:#c9c2b6}
+.pill{font-family:Oswald,sans-serif;font-size:11px;letter-spacing:.16em;text-transform:uppercase;padding:4px 10px;border-radius:99px;border:1px solid #3a3d41}
+.pill.ok{border-color:#2f7a5c;color:#9be0c2}.pill.warn{border-color:#8a5a33;color:#f0c49b}.pill.bad{border-color:#8a3a2f;color:#f2a99b}
+main{padding:24px 0 60px}
+.tabs{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+.tab{font-family:Oswald,sans-serif;font-weight:600;letter-spacing:.14em;text-transform:uppercase;font-size:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:9px 16px;border-radius:99px;cursor:pointer}
+.tab[aria-selected="true"]{background:var(--graphite);color:#fff;border-color:var(--graphite)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.grid>*{min-width:0}
+label{display:block;font-family:Oswald,sans-serif;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+input,select,textarea{width:100%;font:14px Inter,sans-serif;color:var(--ink);background:var(--page);border:1px solid var(--line);border-radius:8px;padding:10px 11px}
+textarea{min-height:70px;resize:vertical}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--copper);outline-offset:1px}
+.consent{display:flex;gap:10px;align-items:flex-start;background:var(--cream);border-radius:8px;padding:12px;margin-top:14px;font-size:13.5px}
+.consent input{width:auto;margin-top:3px}
+.btn{font-family:Oswald,sans-serif;font-weight:600;letter-spacing:.14em;text-transform:uppercase;font-size:13px;background:var(--copper);color:#fff;border:0;border-radius:99px;padding:12px 22px;cursor:pointer}
+.btn:disabled{opacity:.5;cursor:default}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:16px}
+.err{color:var(--energy);font-size:13px;margin-top:6px;min-height:18px}
+.result{margin-top:16px;border-radius:var(--r);padding:16px;border:1px solid var(--line);background:var(--card)}
+.result h3{font-family:Oswald,sans-serif;text-transform:uppercase;letter-spacing:.08em;margin:0 0 6px;font-size:16px}
+.result.sent{border-left:4px solid var(--emerald)}.result.skip{border-left:4px solid var(--wood)}.result.bad{border-left:4px solid var(--energy)}
+.result p{margin:4px 0;font-size:14px}.result small{color:var(--muted)}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);margin-top:14px}
+table{width:100%;border-collapse:collapse;font-size:13px;background:var(--card)}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{background:var(--graphite);color:var(--cream);font-family:Oswald,sans-serif;font-size:11px;letter-spacing:.14em;text-transform:uppercase}
+.st{font-family:Oswald,sans-serif;font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:2px 8px;border-radius:99px;color:#fff;white-space:nowrap}
+.st.sent{background:var(--emerald)}.st.invalid,.st.error{background:var(--energy)}.st.deferred,.st.duplicate,.st.duplicate_in_file{background:var(--copper)}.st.skipped_opted_out,.st.skipped_member,.st.skipped_booked,.st.skipped_invalid_number{background:#5b5f63}
+.help{font-size:13px;color:var(--muted)}
+code{font-size:12px;background:var(--cream);padding:1px 5px;border-radius:4px}
+.hidden{display:none}
+.settings summary{cursor:pointer;font-family:Oswald,sans-serif;letter-spacing:.14em;text-transform:uppercase;font-size:12px;color:var(--muted)}
+footer{color:var(--muted);font-size:12.5px;padding:0 0 40px}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <div class="inf">∞</div>
+  <h1>Lead <span>Intake</span></h1>
+  <p class="sub">Enter a lead with their consent. They get Infinity's first WhatsApp message in seconds, and the booking flow takes over.</p>
+  <div class="bar"><span id="hApi" class="pill">Not connected</span><span id="hMode" class="pill"></span><span id="hSeason" class="pill"></span><span id="hQuiet" class="pill"></span></div>
+</div></header>
+<main class="wrap">
+  <details class="card settings" id="settings" style="margin-bottom:16px">
+    <summary>Connection settings</summary>
+    <div class="grid" style="margin-top:12px">
+      <div><label for="api">API address</label><input id="api" placeholder="https://your-project.vercel.app"></div>
+      <div><label for="key">Intake key</label><input id="key" type="password" autocomplete="off" placeholder="X-Intake-Key"></div>
+    </div>
+    <div class="row"><button class="btn ghost" id="saveConn" type="button">Save &amp; check</button><span class="help">Saved only in this browser.</span></div>
+  </details>
+
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" aria-selected="true" data-t="one">One lead</button>
+    <button class="tab" role="tab" aria-selected="false" data-t="many">Many leads (CSV)</button>
+  </div>
+
+  <section id="one" class="card">
+    <form id="f" novalidate>
+      <div class="grid">
+        <div><label for="name">Full name</label><input id="name" required placeholder="Riya Sharma"></div>
+        <div><label for="phone">WhatsApp number</label><input id="phone" required inputmode="tel" placeholder="98123 45610"></div>
+        <div><label for="entry">Where they came from</label><select id="entry">
+          <option value="walk_in_now">Walk-in at the desk (now)</option>
+          <option value="phone_call">Phone call (agreed to WhatsApp)</option>
+          <option value="website_form">Website form</option>
+          <option value="google_form">Google ad landing form</option>
+          <option value="meta_form">Meta lead form</option>
+          <option value="missed_call">Missed call</option>
+          <option value="ig_phone">Shared number on Instagram</option>
+          <option value="email">Email enquiry</option>
+          <option value="corporate">Corporate / society group</option>
+          <option value="broadcast_walkin">Broadcast · old walk-in enquiry</option>
+          <option value="broadcast_camp">Broadcast · society camp sign-up</option>
+          <option value="broadcast_lapsed">Broadcast · lapsed member</option>
+        </select></div>
+        <div><label for="goal">Goal</label><select id="goal"><option value="">Not asked yet</option><option>Fat loss</option><option>Muscle gain</option><option>HYROX / CrossFit</option><option>General fitness</option><option>Rehab / pain recovery</option><option>Training with partner</option><option>Family (3+)</option></select></div>
+        <div><label for="time">Preferred time</label><select id="time"><option value="">Not asked yet</option><option>5–8 AM</option><option>8–11 AM</option><option>12–4 PM</option><option>5–8 PM</option><option>8–11 PM</option></select></div>
+        <div><label for="area">Area / society</label><input id="area" placeholder="Omaxe Heights"></div>
+        <div><label for="lang">Language</label><select id="lang"><option value="">Auto (from note)</option><option value="en">English</option><option value="hi">Hindi / Hinglish</option></select></div>
+        <div><label for="source">Campaign tag (optional)</label><input id="source" placeholder="CAMP-OMAXE-31OCT"></div>
+      </div>
+      <div style="margin-top:14px"><label for="note">Note for the desk (optional)</label><textarea id="note" placeholder="Asked about ladies batches; wants evening slots"></textarea></div>
+      <label class="consent"><input type="checkbox" id="consent"> <span>This person agreed to receive WhatsApp messages from Infinity Iconic. <small>Without this, nothing is sent.</small></span></label>
+      <div class="err" id="ferr" role="alert"></div>
+      <div class="row"><button class="btn" id="send" type="submit">Send first message</button><span class="help" id="sending"></span></div>
+    </form>
+    <div id="out" aria-live="polite"></div>
+  </section>
+
+  <section id="many" class="card hidden">
+    <p class="help" style="margin-top:0">Columns: <code>name, phone, entry, consent, goal, time, area, lang, source, note, expiry</code>. <code>entry</code> uses the same values as the form (e.g. <code>broadcast_camp</code>); <code>consent</code> must be <code>yes</code>. Up to 200 rows per upload; broadcasts are held between 9 PM and 9 AM.</p>
+    <div class="row" style="margin-top:6px"><input type="file" id="csv" accept=".csv,text/csv" style="max-width:320px"><button class="btn ghost" type="button" id="tmpl">Download template</button></div>
+    <div class="err" id="cerr" role="alert"></div>
+    <div id="preview"></div>
+    <div class="row hidden" id="bulkRow"><button class="btn" id="bulkSend" type="button">Send to valid rows</button><span class="help" id="bulkInfo"></span></div>
+    <div id="bulkOut"></div>
+  </section>
+</main>
+<footer class="wrap">Every send is checked first: opted-out contacts, members, booked leads and repeats within 24 hours are never messaged again. Prepared by 4SYSTMS for Infinity Gym by EQ Iconic.</footer>
+
+<script>
+(function(){
+var $=function(id){return document.getElementById(id)};
+var store={get:function(k){try{return localStorage.getItem(k)||''}catch(e){return ''}},set:function(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+$('api').value=store.get('inf_api')||(location.protocol.indexOf('http')===0?location.origin:'');
+$('key').value=store.get('inf_key');
+if(!$('api').value||!$('key').value)$('settings').open=true;
+
+var LABEL={sent:['First message sent','sent'],deferred:['Held until morning','skip'],duplicate:['Already messaged today','skip'],skipped_opted_out:['Not sent — opted out','skip'],skipped_member:['Not sent — active member','skip'],skipped_booked:['Not sent — session already booked','skip'],skipped_invalid_number:['Not sent — marked wrong number','skip'],invalid:['Please fix and resend','bad'],error:['Could not send','bad']};
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function api(path,body){var base=$('api').value.replace(/\/$/,'');return fetch(base+path,{method:body?'POST':'GET',headers:{'Content-Type':'application/json','X-Intake-Key':$('key').value},body:body?JSON.stringify(body):undefined}).then(function(r){return r.json().then(function(j){j._http=r.status;return j})})}
+function health(){if(!$('api').value){return}
+ api('/api/health').then(function(h){$('hApi').textContent='Connected';$('hApi').className='pill ok';
+  $('hMode').textContent=h.dry_run?'Test mode — nothing is sent':'Live';$('hMode').className='pill '+(h.dry_run?'warn':'ok');
+  $('hSeason').textContent='Season: '+h.season_today;$('hSeason').className='pill';
+  $('hQuiet').textContent=h.quiet_hours_now?'Broadcasts paused (night)':'Broadcasts open';$('hQuiet').className='pill '+(h.quiet_hours_now?'warn':'ok');
+  if(h.flows_missing&&h.flows_missing.length&&!h.dry_run){$('hMode').textContent='Live · missing flows: '+h.flows_missing.join(', ');$('hMode').className='pill bad'}
+ }).catch(function(){$('hApi').textContent='Cannot reach the API';$('hApi').className='pill bad'})}
+$('saveConn').onclick=function(){store.set('inf_api',$('api').value.trim());store.set('inf_key',$('key').value.trim());health()};
+health();
+
+document.querySelectorAll('.tab').forEach(function(t){t.onclick=function(){document.querySelectorAll('.tab').forEach(function(x){x.setAttribute('aria-selected',x===t)});$('one').classList.toggle('hidden',t.dataset.t!=='one');$('many').classList.toggle('hidden',t.dataset.t!=='many')}});
+
+function phoneOk(p){var d=String(p||'').replace(/\D/g,'');if(d.length===12&&d.indexOf('91')===0)d=d.slice(2);if(d.length===11&&d[0]==='0')d=d.slice(1);return /^[6-9]\d{9}$/.test(d)}
+function showResult(r){var L=LABEL[r.status]||[r.status,'bad'];
+ var h='<div class="result '+L[1]+'"><h3>'+esc(L[0])+'</h3><p><b>'+esc(r.name||'')+'</b> · '+esc(r.phone||'')+(r.season?' · season '+esc(r.season):'')+'</p>';
+ if(r.next)h+='<p><small>Next:</small> '+esc(r.next)+'</p>';
+ if(r.reason)h+='<p>'+esc(r.reason)+'</p>';
+ if(r.retry_after)h+='<p>Send again after '+esc(r.retry_after)+'.</p>';
+ if(r.errors)h+='<p>'+r.errors.map(esc).join('<br>')+'</p>';
+ $('out').innerHTML=h+'</div>'}
+['name','phone'].forEach(function(id){$(id).addEventListener('input',function(){$('ferr').textContent=''})});
+$('consent').addEventListener('change',function(){$('ferr').textContent=''});
+$('f').addEventListener('submit',function(e){e.preventDefault();
+ var errs=[];if(!$('name').value.trim())errs.push('Enter their name.');if(!phoneOk($('phone').value))errs.push('Enter a valid 10-digit mobile number.');if(!$('consent').checked)errs.push('Tick consent — without it nothing can be sent.');if(!$('api').value||!$('key').value)errs.push('Add the API address and intake key in Connection settings.');
+ if(errs.length){$('ferr').textContent=errs.join(' ');return}
+ var body={name:$('name').value.trim(),phone:$('phone').value,entry:$('entry').value,goal:$('goal').value,time:$('time').value,area:$('area').value.trim(),lang:$('lang').value,source:$('source').value.trim(),note:$('note').value.trim(),consent:true};
+ $('send').disabled=true;$('sending').textContent='Sending…';
+ api('/api/lead',body).then(function(r){if(r._http===401){r={status:'error',errors:['Intake key is wrong.']}}showResult(r);if(r.status==='sent'){$('f').reset()}}).catch(function(){showResult({status:'error',errors:['Could not reach the API. Check the address and your connection.']})}).then(function(){$('send').disabled=false;$('sending').textContent=''})});
+
+/* ---- CSV ---- */
+var COLS=['name','phone','entry','consent','goal','time','area','lang','source','note','expiry'],rows=[];
+$('tmpl').onclick=function(){var csv=COLS.join(',')+'\nRiya Sharma,9812345610,broadcast_camp,yes,Fat loss,5–8 PM,Omaxe Heights,,CAMP-OMAXE-31OCT,,\n';var a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['﻿'+csv],{type:'text/csv'}));a.download='infinity-leads-template.csv';a.click()};
+function parseCSV(t){var out=[],row=[],f='',q=false;for(var i=0;i<t.length;i++){var c=t[i];if(q){if(c==='"'&&t[i+1]==='"'){f+='"';i++}else if(c==='"')q=false;else f+=c}else if(c==='"')q=true;else if(c===','){row.push(f);f=''}else if(c==='\n'||c==='\r'){if(c==='\r'&&t[i+1]==='\n')i++;row.push(f);f='';if(row.some(function(x){return x.trim()}))out.push(row);row=[]}else f+=c}row.push(f);if(row.some(function(x){return x.trim()}))out.push(row);return out}
+$('csv').addEventListener('change',function(){$('cerr').textContent='';$('bulkOut').innerHTML='';var file=this.files[0];if(!file)return;
+ file.text().then(function(t){var m=parseCSV(t.replace(/^﻿/,''));if(m.length<2){$('cerr').textContent='The file has no data rows.';return}
+  var head=m[0].map(function(h){return h.trim().toLowerCase()});var miss=['name','phone','entry','consent'].filter(function(c){return head.indexOf(c)<0});if(miss.length){$('cerr').textContent='Missing columns: '+miss.join(', ');return}
+  rows=m.slice(1).map(function(r){var o={};head.forEach(function(h,i){o[h]=(r[i]||'').trim()});o.consent=/^(yes|y|true|1)$/i.test(o.consent);o._issues=[];if(!o.name)o._issues.push('no name');if(!phoneOk(o.phone))o._issues.push('bad phone');if(!o.consent)o._issues.push('no consent');return o});
+  if(rows.length>200){$('cerr').textContent='Only the first 200 rows will be sent. Split the file for the rest.'}
+  var ok=rows.filter(function(r){return !r._issues.length}).length;
+  $('preview').innerHTML='<div class="tbl"><table><thead><tr><th>#</th><th>Name</th><th>Phone</th><th>Entry</th><th>Check</th></tr></thead><tbody>'+rows.slice(0,200).map(function(r,i){return '<tr><td>'+(i+1)+'</td><td>'+esc(r.name)+'</td><td>'+esc(r.phone)+'</td><td>'+esc(r.entry)+'</td><td>'+(r._issues.length?'<span class="st invalid">'+esc(r._issues.join(', '))+'</span>':'<span class="st sent">ready</span>')+'</td></tr>'}).join('')+'</tbody></table></div>';
+  $('bulkRow').classList.remove('hidden');$('bulkInfo').textContent=ok+' of '+rows.length+' rows ready';$('bulkSend').disabled=!ok})});
+$('bulkSend').onclick=function(){var send=rows.slice(0,200).filter(function(r){return !r._issues.length}).map(function(r){var o=Object.assign({},r);delete o._issues;return o});if(!send.length)return;
+ if(!$('api').value||!$('key').value){$('cerr').textContent='Add the API address and intake key in Connection settings.';return}
+ $('bulkSend').disabled=true;$('bulkInfo').textContent='Sending '+send.length+' — about '+Math.ceil(send.length*1.4)+' seconds…';
+ api('/api/bulk',{leads:send}).then(function(r){if(r._http!==200){$('cerr').textContent=r.error||'The upload failed.';return}
+  var sum=Object.keys(r.summary).map(function(k){return '<span class="st '+k+'">'+esc((LABEL[k]||[k])[0])+': '+r.summary[k]+'</span>'}).join(' ');
+  $('bulkOut').innerHTML='<div class="row">'+sum+'</div><div class="tbl"><table><thead><tr><th>#</th><th>Name</th><th>Phone</th><th>Result</th><th>Detail</th></tr></thead><tbody>'+r.rows.map(function(x){return '<tr><td>'+x.row+'</td><td>'+esc(x.name||'')+'</td><td>'+esc(x.phone||'')+'</td><td><span class="st '+x.status+'">'+esc((LABEL[x.status]||[x.status])[0])+'</span></td><td>'+esc(x.reason||x.next||(x.errors||[]).join('; ')||x.retry_after||'')+'</td></tr>'}).join('')+'</tbody></table></div>';
+  $('bulkInfo').textContent='Done';
+ }).catch(function(){$('cerr').textContent='Could not reach the API.'}).then(function(){$('bulkSend').disabled=false})};
+})();
+</script>
+</body>
+</html>
