@@ -1,7 +1,7 @@
 // Concierge (AI fallback) against a fake Claude and a fake sheet script — nothing real is sent.
 // Run: node test/concierge.test.js
 process.env.CONCIERGE_KEY = 'k123';
-process.env.ANTHROPIC_API_KEY = 'test-key';
+process.env.ANTHROPIC_API_KEY = 'sk-ant-test-0123456789abcdefghijklmnopqrstuvwxyz';
 process.env.SHEET_LOG_URL = 'https://script.google.com/macros/s/TEST/exec';
 process.env.SHEET_LOG_SECRET = 's3cret';
 
@@ -109,13 +109,17 @@ ok('sheet got the conversation + alert', sheetCalls.length === 1 && sheetCalls[0
 r = await call('/api/es/concierge?key=k123&message=' + encodeURIComponent('the AC was not working today') + '&phone=919800000002&debug=1');
 ok('complaint via Claude', r.body.debug.intent === 'complaint' && r.body.lead_attributes.inf_handoff === 'yes');
 ok('Claude request is well-formed', aiCalls.length === 1 && aiCalls[0].url === 'https://api.anthropic.com/v1/messages'
-  && aiCalls[0].opt.headers['x-api-key'] === 'test-key' && JSON.parse(aiCalls[0].opt.body).model === 'claude-haiku-5-5');
+  && aiCalls[0].opt.headers['x-api-key'].startsWith('sk-ant-test') && JSON.parse(aiCalls[0].opt.body).model === 'claude-haiku-5-5');
 setAiFetch(async () => { throw new Error('network down'); });
 r = await call('/api/es/concierge?key=k123&message=' + encodeURIComponent('qwerty') + '&debug=1');
 ok('Claude down → still replies', r.status === 200 && r.body.debug.intent === 'unclear' && r.body.message.length > 20);
 setLogFetch(async () => { throw new Error('sheet down'); });
 r = await call('/api/es/concierge?key=k123&message=CALL%20ME&phone=919800000003');
 ok('sheet down → reply still sent', r.status === 200 && r.body.message.includes('call you'));
+
+const { classify } = await import('../lib/concierge/ai.js');
+ok('placeholder key "sk-ant-…" skips Claude', (await classify('hi', { apiKey: 'sk-ant-…' })).source === 'ai-off');
+ok('empty key skips Claude', (await classify('hi', { apiKey: '' })).source === 'ai-off');
 
 console.log(`${pass}/${pass + fail} concierge checks passed`);
 if (fail) process.exit(1);

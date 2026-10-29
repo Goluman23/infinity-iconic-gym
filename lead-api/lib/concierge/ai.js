@@ -57,7 +57,8 @@ export async function classify(message, {
   model = (process.env.CONCIERGE_MODEL || 'claude-haiku-5-5').trim(),
   timeoutMs = Number(process.env.CONCIERGE_AI_TIMEOUT_MS || 6000),
 } = {}) {
-  if (!apiKey) return { ...parseAnswer(null), source: 'ai-off' };
+  // Skip Claude when the key is missing or clearly not a real key (placeholder, stray "…", spaces).
+  if (!/^sk-ant-[\x21-\x7e]{30,}$/.test(apiKey)) return { ...parseAnswer(null), source: 'ai-off' };
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), timeoutMs);
   try {
