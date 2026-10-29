@@ -13,6 +13,8 @@
  *    logged and emailed once.
  *  • "WhatsApp messages" tab — every incoming WhatsApp message, once EasySocial support
  *    switches on their message webhook (it reaches this script through /api/es/webhook).
+ *  • Follow-ups — every customer message also feeds the follow-up engine (FollowupRunner.gs +
+ *    FollowupEngine.gs in the same project; run installFollowupTrigger() once).
  */
 const SECRET = 'PASTE_A_LONG_RANDOM_SECRET_HERE';          // same value as SHEET_LOG_SECRET in Vercel
 const DESK_EMAIL = 'frontdesk@example.com';                // who gets the alerts (comma-separate several)
@@ -39,6 +41,7 @@ function doPost(e) {
   try {
     if (body.kind === 'concierge') {
       append_('conversations', body.conversation || {});
+      try { if (body.followup && typeof fuIngest_ === 'function') fuIngest_(body.followup); } catch (err) { console.log('follow-up ingest failed: ' + err); }
       if (body.alert) {
         const cache = CacheService.getScriptCache();
         const key = 'alert:' + String(body.alert.key).slice(0, 200);
@@ -57,6 +60,9 @@ function doPost(e) {
         if (ev.type !== 'wa_message' && ev.type !== 'wa_status') return;
         if (ev.type === 'wa_status' && ev.status !== 'failed') return; // keep the log about conversations
         const at = ev.at ? new Date(Number(ev.at) * (String(ev.at).length > 11 ? 1 : 1000)) : new Date();
+        if (ev.type === 'wa_message' && ev.from && typeof fuIngest_ === 'function') {
+          try { fuIngest_({ type: 'inbound', at: at.toISOString(), text: ev.text || '', phone: String(ev.from), channel: 'wa', id: String(ev.from) }); } catch (err) { console.log('follow-up ingest failed: ' + err); }
+        }
         append_('whatsapp', {
           'Received (IST)': Utilities.formatDate(at, 'Asia/Kolkata', 'dd MMM yyyy, h:mm a'),
           From: ev.from || ev.to || '', Type: ev.kind || ev.type, Text: ev.text || '', Status: ev.status || '', Error: ev.error || '',

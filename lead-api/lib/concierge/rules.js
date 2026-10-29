@@ -54,6 +54,14 @@ export function fastRules(message) {
     price: /\b(price|prices|pricing|how much|fee|fees|kitn[aei]|cost|charges?|rate|package|membership (fee|cost|price))\b/,
   };
 
+  // A short reply that is just a slot ("tomorrow evening at 7", "Saturday 7 AM", "kal subah 7 baje")
+  // answers "which day suits you?" — treat it as a visit plan. Questions and price/timing asks are not.
+  function slotOnly(text) {
+    if (/\?/.test(text) || text.split(' ').length > 7 || RX.price.test(text) || RX.timing.test(text.replace(/\bbaje\b/g, ''))) return false;
+    const x = when(text);
+    return !!x.day && x.day !== 'tonight' ? !!(x.part || /\d/.test(x.phrase)) : x.day === 'tonight';
+  }
+
   let intent = '';
   let w = { phrase: '', day: '', part: '', hour: null };
   // A typed Indian mobile number (usually the answer to "type your number") → log it and alert the desk.
@@ -62,6 +70,7 @@ export function fastRules(message) {
   if (sharedPhone) { intent = 'phone_shared'; w = when(m.replace(/(?:\+?91[\s-]*)?[6-9](?:[\s-]*\d){9}/, ' ')); }
   else if (RX.callback.test(m)) intent = 'callback';
   else if (RX.visit.test(m)) { intent = 'visit_plan'; w = when(m); }
+  else if (slotOnly(m)) { intent = 'visit_plan'; w = when(m); }
   else if (RX.human.test(m)) intent = 'human';
   else if (RX.price.test(m) && !RX.timing.test(m)) intent = 'price';
 

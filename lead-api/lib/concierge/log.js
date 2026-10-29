@@ -18,7 +18,7 @@ export function istTime(d = new Date()) {
 
 // Builds what the sheet script receives. Pure, so it is easy to test.
 export function buildLogPayload(s, out, now = new Date()) {
-  const platform = s.platform === 'instagram' ? 'Instagram' : 'WhatsApp';
+  const platform = s.platform === 'instagram' ? 'Instagram' : s.platform === 'messenger' ? 'Messenger' : 'WhatsApp';
   const callNo = s.sharedPhone || (/\d{10}/.test(s.phone || '') ? s.phone : '');
   const ist = istTime(now);
   const conversation = {
@@ -47,7 +47,14 @@ export function buildLogPayload(s, out, now = new Date()) {
       },
     };
   }
-  return { kind: 'concierge', conversation, alert };
+  // Feeds the follow-up engine (sheet "Follow-ups" tab): every customer message is an inbound event.
+  const channel = s.platform === 'instagram' ? 'ig' : s.platform === 'messenger' ? 'fb' : 'wa';
+  const followup = {
+    type: 'inbound', at: now.toISOString(), text: s.message || '', intent: out.intent, when: s.when || '',
+    lang: s.lang || 'en', name: s.name || '', phone: channel === 'wa' ? (callNo || '') : (s.sharedPhone || ''),
+    leadId: s.leadId || '', channel, id: channel === 'wa' && callNo ? callNo : (s.leadId || s.sharedPhone || s.name || ''),
+  };
+  return { kind: 'concierge', conversation, alert, followup };
 }
 
 let fetchImpl = (...a) => fetch(...a);
