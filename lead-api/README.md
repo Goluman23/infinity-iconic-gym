@@ -54,6 +54,10 @@ Without `ANTHROPIC_API_KEY` it still works: rules + the helpful menu reply. With
    `https://<project>.vercel.app/api/es/concierge?key=CONCIERGE_KEY&message=[n8n_input_message]&phone=[phone]&name=[name]&leadId=[leadId]&platform=instagram` (`platform=whatsapp` on WhatsApp). Use whichever variable EasySocial offers for the customer's last message.
 4. Test: `…/api/es/concierge?key=…&message=evening%20mein%20aata%20hu&debug=1`.
 
+## Follow-ups & retargeting
+
+Timed follow-ups for every lead: a 30-minute nudge, then day 1/3/7/14/30. Visit reminders the evening before, 3 h before and 1 h before. No-show recovery, post-visit nurture and member onboarding. Stops on reply or opt-out. Learns which message version converts best. It runs in the Google Sheet (Apps Script, every 10 min) and sends through `POST /api/es/followup-send`. That endpoint is a dry run until `FOLLOWUP_LIVE=1`. Setup, cadence and going live: [docs/FOLLOWUPS.md](docs/FOLLOWUPS.md). Simulator: `docs/followup-simulator.html`. Template pack: `docs/followup-templates.csv`.
+
 ## What it does for every lead
 
 | Situation | Result |

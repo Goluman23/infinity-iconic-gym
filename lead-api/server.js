@@ -9,9 +9,10 @@ import esButtons from './api/es/buttons.js';
 import esList from './api/es/list.js';
 import esWebhook from './api/es/webhook.js';
 import esConcierge from './api/es/concierge.js';
+import esFollowupSend from './api/es/followup-send.js';
 
 const routes = { '/api/lead': lead, '/api/bulk': bulk, '/api/health': health,
-  '/api/es/brain': esBrain, '/api/es/buttons': esButtons, '/api/es/list': esList, '/api/es/webhook': esWebhook, '/api/es/concierge': esConcierge };
+  '/api/es/brain': esBrain, '/api/es/buttons': esButtons, '/api/es/list': esList, '/api/es/webhook': esWebhook, '/api/es/concierge': esConcierge, '/api/es/followup-send': esFollowupSend };
 http.createServer(async (req, res) => {
   const path = req.url.split('?')[0];
   if (routes[path]) return routes[path](req, res);
