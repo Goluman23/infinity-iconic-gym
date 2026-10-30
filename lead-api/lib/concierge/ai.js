@@ -68,7 +68,11 @@ export async function classify(message, {
       body: JSON.stringify({ model, max_tokens: 300, temperature: 0, system: SYSTEM,
         messages: [{ role: 'user', content: `Message: """${String(message).slice(0, 1000)}"""` }] }),
     });
-    if (!r.ok) { console.log('[concierge] AI status', r.status); return parseAnswer(null); }
+    if (!r.ok) {
+      const err = await r.text().catch(() => '');
+      console.log('[concierge] AI status', r.status, model, err.slice(0, 300));
+      return parseAnswer(null);
+    }
     return parseAnswer(await r.json());
   } catch (e) {
     console.log('[concierge] AI failed', e.name === 'AbortError' ? 'timeout' : e.message);
