@@ -65,7 +65,7 @@ export async function classify(message, {
     const r = await fetchImpl('https://api.anthropic.com/v1/messages', {
       method: 'POST', signal: ctrl.signal,
       headers: { 'content-type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
-      body: JSON.stringify({ model, max_tokens: 300, system: SYSTEM,
+      body: JSON.stringify({ model, max_tokens: 600, system: SYSTEM,
         messages: [{ role: 'user', content: `Message: """${String(message).slice(0, 1000)}"""` }] }),
     });
     if (!r.ok) {
@@ -73,7 +73,11 @@ export async function classify(message, {
       console.log('[concierge] AI status', r.status, model, err.slice(0, 300));
       return parseAnswer(null);
     }
-    return parseAnswer(await r.json());
+    const body = await r.json();
+    const out = parseAnswer(body);
+    if (out.source === 'ai-failed') console.log('[concierge] AI unparsed', body?.stop_reason, JSON.stringify(body?.content || []).slice(0, 400));
+    else console.log('[concierge] AI ok', out.intent, out.lang);
+    return out;
   } catch (e) {
     console.log('[concierge] AI failed', e.name === 'AbortError' ? 'timeout' : e.message);
     return parseAnswer(null);
