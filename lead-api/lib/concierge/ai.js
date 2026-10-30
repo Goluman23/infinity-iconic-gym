@@ -65,7 +65,7 @@ export async function classify(message, {
     const r = await fetchImpl('https://api.anthropic.com/v1/messages', {
       method: 'POST', signal: ctrl.signal,
       headers: { 'content-type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
-      body: JSON.stringify({ model, max_tokens: 300, temperature: 0, system: SYSTEM,
+      body: JSON.stringify({ model, max_tokens: 300, system: SYSTEM,
         messages: [{ role: 'user', content: `Message: """${String(message).slice(0, 1000)}"""` }] }),
     });
     if (!r.ok) {
