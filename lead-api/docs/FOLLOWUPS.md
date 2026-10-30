@@ -55,6 +55,13 @@ Until you go live, every message is written to *Follow-up log* as **DRY RUN** an
 - **Session (IST)**: type the time a lead booked by phone or button, e.g. `03/11/2026 19:00`. The engine schedules the reminders.
 - **Next step / Next due**: shows what goes out next and when.
 
+## Status (30 Oct 2026)
+
+- The 20 priority-1 templates have been submitted in EasySocial and are pending Meta approval. They were all submitted with the English language setting, because Hinglish written in Latin script gets approved more reliably under English.
+- Marketing templates carry Meta's "Stop promotions" opt-out button. A tap on it counts as an opt-out.
+- The EasySocial auto-reminder sends after 30 minutes on WhatsApp and Instagram. Its text now pushes for a free-session booking.
+- The WhatsApp webhook callback is set to `https://api.eqiconic.com/api/es/webhook` and verified (`ES_WEBHOOK_VERIFY_TOKEN` is set in Vercel). The **messages** field still has to be switched on in EasySocial → WhatsApp → Webhook.
+
 ## Going live (only after you approve)
 
 1. In EasySocial, submit the templates in `followup-templates.csv` for Meta approval.
@@ -64,7 +71,7 @@ Until you go live, every message is written to *Follow-up log* as **DRY RUN** an
    - Add it to the Vercel env var `ES_CAMPAIGNS` under its campaign key, e.g. `fu_new_d1_A_en`.
    - The engine falls back from `fu_<step>_<A|B>_<en|hi>` to `fu_<step>_<en|hi>` to `fu_<step>`.
 3. Add `ES_AUTH_KEY` (EasySocial API key) in Vercel. This is used for free replies inside 24 h.
-4. Set `FOLLOWUP_LIVE=1` in Vercel and redeploy.
+4. Set `FOLLOWUP_LIVE=1` in Vercel and redeploy. At the same moment, turn **off** "Enable Auto Reminder" for WhatsApp in EasySocial → Chatbot Settings. From then on the engine's 30-minute nudge (with A/B learning) replaces it, so leads don't get two nudges.
 5. Ask EasySocial support to turn on the WhatsApp message webhook to `https://api.eqiconic.com/api/es/webhook`. Without it, replies that don't go through the concierge (for example button taps) are not seen.
 
 ## Changing the messages

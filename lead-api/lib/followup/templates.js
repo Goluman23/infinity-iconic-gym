@@ -23,7 +23,7 @@ export function templatePack() {
         template_name: `infinity_${id}_${v}_${code}`.toLowerCase(),
         campaign_key: `fu_${id}_${v}_${code}`,
         category: c.kind === 'utility' ? 'UTILITY' : 'MARKETING',
-        language: lang === 'hinglish' ? 'Hindi (hi) — written in Hinglish' : 'English (en)',
+        language: lang === 'hinglish' ? 'English (en) — Hinglish text' : 'English (en)',
         when_used: c.label, body: text,
         variables: order.map((k, i) => `{{${i + 1}}} = ${FIELD[k]}`).join('; '),
         sample: order.map((k, i) => `{{${i + 1}}} = ${{ NAME: 'Rohit', WHEN: 'tomorrow at 7 AM', TIME: '7 AM' }[k]}`).join('; '),
