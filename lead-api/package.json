@@ -10,7 +10,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "DRY_RUN=1 node server.js",
-    "test": "node test/run.js && node test/brain.test.js && node test/easysocial.test.js && node test/concierge.test.js && node test/followup.test.js && node test/followup-send.test.js"
+    "test": "node test/run.js && node test/brain.test.js && node test/easysocial.test.js && node test/concierge.test.js && node test/followup.test.js && node test/followup-send.test.js && node test/contacts.test.js"
   },
   "dependencies": {
     "@vercel/functions": "3.10.0"

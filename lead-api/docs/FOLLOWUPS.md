@@ -93,3 +93,24 @@ node -e "import('./lib/followup/templates.js').then(m=>require('fs').writeFileSy
 ```
 
 Paste the new `FollowupEngine.gs` into Apps Script. If you changed the wording of a message that is sent as a template, resubmit that template.
+
+## Broadcast filtering (contact codes and send lists)
+
+Contact names carry the desk's source codes — they say where a contact came from, not whether they are a member:
+IF = Infinity Faridabad · YC = Yadvinder Chauhan's client · Ref = member referral (referrer in brackets) ·
+DC = direct call · WE = WhatsApp enquiry · TB = trial booked on the website. "&1 More" marks a group/couple.
+
+`lib/contacts.js` strips the codes so messages say "Hi Shivam", not "Hi Shivam Dang IF" (no name → "there"),
+and `tools/send-list.mjs` builds the upload file for each broadcast from an EasySocial contacts export:
+
+```
+node tools/send-list.mjs contacts.csv --campaign offer --active active.csv --inactive inactive.csv --exclude already-sent.csv
+```
+
+| Campaign | Who gets it | Always left out |
+|---|---|---|
+| offer (Diwali / Detox) | non-members; YC only if in Inactive Members | Active Members, SUPPRESS_* tags, duplicates, bad numbers, gym's own numbers, already-sent list |
+| winback (Detox to lapsed) | everyone who isn't an active member | same |
+| members (hours reminder, greeting) | Active Members only | duplicates, bad numbers, gym's own numbers |
+
+Member status comes from EasySocial's synced segments (export each segment and pass it with --active / --inactive).
