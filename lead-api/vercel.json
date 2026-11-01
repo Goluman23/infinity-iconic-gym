@@ -8,6 +8,9 @@
     },
     "api/es/webhook.js": {
       "maxDuration": 20
+    },
+    "api/es/campaign-push.js": {
+      "maxDuration": 90
     }
   }
 }
