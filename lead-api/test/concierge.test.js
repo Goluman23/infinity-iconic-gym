@@ -80,6 +80,12 @@ o = await run('timings?', { ai: { intent: 'timings', lang: 'en' }, now: new Date
 ok('no festival-hours line after the festival', !o.reply.includes('Festival hours'));
 o = await run('any offer?', { ai: { intent: 'offer', lang: 'en' }, now: new Date('2026-11-12T06:00:00Z') });
 ok('Detox offer 11–15 Nov', o.reply.includes('Detox Starter Kit') && o.reply.includes('15 Nov') && !/₹\s?\d/.test(o.reply.split('Detox')[1] || ''));
+o = await run('Stop promotions');
+ok('"Stop promotions" button → polite opt-out, no menu', o.intent === 'optout' && o.reply.includes("won't get any more offers") && !o.reply.includes('Just type') && o.response.lead_attributes.inf_optout === 'yes');
+o = await run('mat bhejo');
+ok('Hinglish opt-out', o.intent === 'optout' && o.reply.includes('nahi bhejenge'));
+o = await run('will the offer stop on 8 nov?', { ai: { intent: 'offer', lang: 'en' } });
+ok('a question mentioning "stop" is not an opt-out', o.intent === 'offer');
 o = await run('Shaam ko 5 baje aa jaunga', { ai: { intent: 'visit_plan', lang: 'hinglish', when: 'this evening at 5 PM', hours_conflict: false } });
 ok('AI catches a visit the rules missed', o.intent === 'visit_plan' && o.reply.includes('*aaj shaam 5 baje*'));
 
