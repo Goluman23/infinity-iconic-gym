@@ -1,9 +1,8 @@
+import { offerAt } from '../calendar.js';
 // Compose the reply from approved templates, decide whether to hand over
 // to the team, and whether the front desk needs an alert.
 // ─── Edit these when details change ───────────────────────────────────────
-const OFFER_TEXT = { en: '14 months for the price of 12', hinglish: '12 mahine ki keemat mein 14 mahine' };
-const OFFER_ENDS = '2026-10-31T23:59:59+05:30';   // offer lines disappear automatically after this
-const OFFER_END_LABEL = '31 Oct';
+// Offer text and dates live in lib/calendar.js (one calendar for every channel).
 const ADDRESS = '2nd Floor, Plot 4P, Main Bypass Road, above Mittal Foam House, near Amolik Chowk, Sector 86';
 const MAP = 'https://www.google.com/maps/search/?api=1&query=INFINITY+GYM+BY+EQ+ICONIC&query_place_id=ChIJYTG1AgDdDDkRoW254Z2Ly4A';
 const HOURS = 'Mon–Sat 5 AM–11 PM · Sun 12–9 PM';
@@ -21,7 +20,8 @@ export function compose(j, now = new Date()) {
     .replace(/\bafter (\d{1,2}(?::\d{2})?)\s*(am|pm)?/, (_, t) => t + ' baje ke baad').replace(/\b(?:around|by|before) (\d{1,2}(?::\d{2})?)\s*(am|pm)?/, (_, t) => t + ' baje tak')
     .replace(/\b(monday|tuesday|wednesday|thursday|friday|saturday|sunday|weekend)\b/, d => d[0].toUpperCase() + d.slice(1) + ' ko');
   const WHEN = j.when ? (H ? hiWhen(j.when).replace(/^(subah|shaam|dopahar|raat)$/, '$1 ko') : j.when) : '';
-  const offerLive = now <= new Date(OFFER_ENDS);
+  const OFFER = offerAt(now, H ? 'hinglish' : 'en');
+  const offerLive = !!OFFER;
   const first = (j.name || '').split(' ')[0];
   const hasPhone = /\d{10}/.test(j.phone || '');
   const hoursNote = j.hoursConflict
@@ -29,8 +29,8 @@ export function compose(j, now = new Date()) {
          : `\n\nℹ️ Quick note: we're open ${HOURS} — the team will help you pick a time that works.`)
     : '';
   const offerLine = offerLive
-    ? (H ? `\n\n🪔 *Diwali special:* ${OFFER_TEXT.hinglish} — sirf *${OFFER_END_LABEL}* tak.`
-         : `\n\n🪔 *Diwali special:* ${OFFER_TEXT.en} — only till *${OFFER_END_LABEL}*.`)
+    ? (H ? `\n\n${OFFER.emoji} *${OFFER.text}* — sirf *${OFFER.endLabel}* tak.`
+         : `\n\n${OFFER.emoji} *${OFFER.text}* — only till *${OFFER.endLabel}*.`)
     : '';
   const place = `📍 ${ADDRESS}\n🗺️ ${MAP}\n🕔 ${HOURS}`;
   const MENU_HINT = H
@@ -59,8 +59,8 @@ export function compose(j, now = new Date()) {
       + (H ? `\n\nSahi plan sahi price par mile, isliye exact pricing hamari team personally batati hai — call par, chat par, ya jab aap *free session* ke liye aayein 💪 *CALL ME* likhiye ya bataiye kab aayenge.`
            : `\n\nTo make sure you get the right plan at the best price, our team shares exact pricing personally — on a quick call or when you drop in for your *free session* 💪 Type *CALL ME*, or tell us when you'd like to visit.`),
     offer: () => offerLive
-      ? (H ? `🪔 *Diwali special — ${OFFER_TEXT.hinglish}*, sirf *${OFFER_END_LABEL}* tak.\n\nHar plan mein physio support, body-composition scan, steam, valet parking aur mahine ki 50+ group classes. Couple aur family pass par aur bachat.\n\nExact price ke liye *CALL ME* likhiye, ya bataiye kab *free session* ke liye aayenge 💪`
-           : `🪔 *Diwali special — ${OFFER_TEXT.en}*, only till *${OFFER_END_LABEL}*.\n\nEvery plan includes physio support, body-composition scans, steam, valet parking and 50+ group classes a month. Couple and family passes save even more.\n\nFor exact pricing, type *CALL ME* — or tell us when you'd like to drop in for a *free session* 💪`)
+      ? (H ? `${OFFER.emoji} *${OFFER.text}*, sirf *${OFFER.endLabel}* tak.\n\nHar plan mein physio support, body-composition scan, steam, valet parking aur mahine ki 50+ group classes. Couple aur family pass par aur bachat.\n\nExact price ke liye *CALL ME* likhiye, ya bataiye kab *free session* ke liye aayenge 💪`
+           : `${OFFER.emoji} *${OFFER.text}*, only till *${OFFER.endLabel}*.\n\nEvery plan includes physio support, body-composition scans, steam, valet parking and 50+ group classes a month. Couple and family passes save even more.\n\nFor exact pricing, type *CALL ME* — or tell us when you'd like to drop in for a *free session* 💪`)
       : (H ? `Diwali offer ab khatam ho gaya hai, par nayi membership par team ke paas hamesha kuch na kuch hota hai 🙂 *CALL ME* likhiye, ya bataiye kab *free session* ke liye aayenge.`
            : `Our Diwali offer has ended, but the team always has something for new members 🙂 Type *CALL ME*, or tell us when you'd like to drop in for a *free session*.`),
     location: () => (H ? `Hum yahan hain 👇\n\n${place}\n🚗 Valet parking\n\nKabhi bhi aaiye — pehla session free hai 🙂`

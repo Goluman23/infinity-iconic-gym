@@ -42,7 +42,7 @@ For the live keyword chatflows (Instagram 6027, WhatsApp 6029): every message th
 
 1. **Fast rules** (no AI): visit plans ("kal subah aaunga", "I'll come in the evening"), CALL ME, a typed mobile number, price, "talk to a person".
 2. **Claude** (`claude-haiku-5-5`) labels everything else: complaint, member request, timings, classes, general question, unclear…
-3. **Approved templates** write the reply, in English or Hinglish. Never an exact price — if Claude writes a rupee amount, the approved ₹1,000–1,300 range message is sent instead. Offer lines vanish after `OFFER_ENDS` (top of `lib/concierge/compose.js`).
+3. **Approved templates** write the reply, in English or Hinglish. Never an exact price — if Claude writes a rupee amount, the approved ₹1,000–1,300 range message is sent instead. Offer lines and season dates come from `lib/calendar.js` and vanish when the window ends.
 4. Reply goes back at once; then, in the background, `apps-script/Code.gs` (free, inside the lead Google Sheet) adds the conversation to **Conversations**, and for visits / call-backs / numbers / complaints / member requests adds a **Leads** row and emails the desk (same person + reason within 3 h → once).
 
 Without `ANTHROPIC_API_KEY` it still works: rules + the helpful menu reply. Without `SHEET_LOG_URL` nothing is logged.

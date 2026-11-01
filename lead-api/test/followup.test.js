@@ -1,4 +1,5 @@
 // Follow-up engine: cadence, reminders, windows, quiet hours, stop rules, learning. Run: node test/followup.test.js
+import { offerAt, festivalOn } from '../lib/calendar.js';
 import { parseSession, plan, newLead, applyEvent, markSent, pickVariant, istParts, fitWindow, deliveryFor, suppressionTags, lostReasonOf } from '../lib/followup/engine.js';
 import { simulate } from '../lib/followup/simulate.js';
 import { COPY, render } from '../lib/followup/copy.js';
@@ -158,8 +159,9 @@ const all = Object.keys(COPY).flatMap(id => Object.keys(COPY[id].variants).flatM
 ok('no exact prices in any follow-up', !all.some(t => /₹\s?\d|17,500|30,000|14,500/.test(t)));
 ok('no unfilled placeholders', !all.some(t => /\{\w+\}/.test(t)), all.find(t => /\{\w+\}/.test(t)));
 ok('every step has English + Hinglish', Object.values(COPY).every(c => Object.values(c.variants).every(v => v.en && v.hinglish)));
-const before = render('new_d7', 'A', lead, new Date('2026-10-30T12:00:00+05:30')), after = render('new_d7', 'A', lead, new Date('2026-11-03T12:00:00+05:30'));
-ok('offer line only while the offer runs', /Diwali/.test(before) && !/Diwali/.test(after) && /new month/.test(after), after);
+const before = render('new_d7', 'A', lead, new Date('2026-11-08T21:00:00+05:30')), after = render('new_d7', 'A', lead, new Date('2026-11-09T09:00:00+05:30'));
+ok('offer line runs till Diwali (8 Nov) and then disappears', /Diwali.*8 Nov/.test(before) && !/Diwali/.test(after) && /new month/.test(after), before + ' | ' + after);
+ok('one calendar: festivals + no unverified offer after Diwali', festivalOn(new Date('2026-11-08T10:00:00+05:30'))?.key === 'diwali' && offerAt(new Date('2026-11-15T10:00:00+05:30')) === null && offerAt(new Date('2026-11-01T10:00:00+05:30'))?.endLabel === '8 Nov');
 ok('WhatsApp delivery rules', deliveryFor({ channel: 'wa', lastInbound: '2026-11-02T10:00:00Z' }, 'nurture', new Date('2026-11-04T10:00:00Z')).category === 'marketing');
 
 console.log(`${pass}/${pass + fail} follow-up checks passed`);

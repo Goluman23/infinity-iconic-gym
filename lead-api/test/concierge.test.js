@@ -13,7 +13,7 @@ const { default: handler, keyOk } = await import('../api/es/concierge.js');
 let pass = 0, fail = 0;
 const ok = (name, c, extra = '') => { if (c) pass++; else { fail++; console.log('  ✗', name, extra); } };
 const NOW = new Date('2026-10-29T14:00:00Z'); // during the Diwali offer
-const AFTER = new Date('2026-11-02T10:00:00Z'); // after it ended
+const AFTER = new Date('2026-11-09T10:00:00Z'); // after it ended (Diwali offer runs till 8 Nov)
 
 const fakeAI = (answer) => async () => {
   if (answer === 'FAIL') return { intent: 'unclear', source: 'ai-failed', lang: '', when: '', hoursConflict: false, aiReply: '' };
@@ -69,9 +69,9 @@ ok('unknown AI label → unclear', o.intent === 'unclear');
 o = await run('hey', { ai: { intent: 'greeting', lang: 'en' } });
 ok('greeting uses first name, no alert', o.reply.startsWith('Hey Rohit 👋') && !o.alert && o.reply.includes('Diwali'));
 o = await run('hey', { ai: { intent: 'greeting', lang: 'en' }, now: AFTER });
-ok('offer line gone after 31 Oct', !o.reply.includes('Diwali'));
+ok('offer line gone after 8 Nov', !o.reply.includes('Diwali'));
 o = await run('offer?', { ai: { intent: 'offer', lang: 'en' }, now: AFTER });
-ok('offer question after 31 Oct says it ended', o.reply.includes('has ended'));
+ok('offer question after 8 Nov says it ended', o.reply.includes('has ended'));
 o = await run('Shaam ko 5 baje aa jaunga', { ai: { intent: 'visit_plan', lang: 'hinglish', when: 'this evening at 5 PM', hours_conflict: false } });
 ok('AI catches a visit the rules missed', o.intent === 'visit_plan' && o.reply.includes('*aaj shaam 5 baje*'));
 
