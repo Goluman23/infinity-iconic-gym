@@ -302,7 +302,9 @@ const FESTIVALS = [
 // Campaign windows. Latest-starting window wins when two overlap. `offer` null = no dated offer line.
 const CAMPAIGNS = [
   { key: 'diwali', start: '2026-10-01', end: '2026-11-08', endLabel: '8 Nov', emoji: '🪔',
-    offer: { en: 'Diwali special: 14 months for the price of 12', hinglish: 'Diwali special: 12 mahine ki keemat mein 14 mahine' } },
+    // One festive offer (merged 1 Nov with the gym's own infinity_festive_offer_2026 template).
+    offer: { en: 'Diwali special: up to 60% off on membership, 2 months extra on select plans, GST included, plus a free Infinity Fashion Show pass on eligible memberships',
+             hinglish: 'Diwali special: membership par 60% tak off, select plans par 2 mahine extra, GST included, aur eligible memberships par Infinity Fashion Show ka free pass' } },
   // Detox: value add-ons, NOT more months — keeps the Diwali deadline honest (people who waited don't get a better price).
   { key: 'detox', start: '2026-11-11', end: '2026-11-15', endLabel: '15 Nov', emoji: '🥗',
     offer: { en: 'Post-Diwali Detox: FREE Detox Starter Kit with any annual membership — body-composition scan, 14-day diet plan and 1 personal-training session',
