@@ -1,4 +1,4 @@
-import { offerAt } from '../calendar.js';
+import { offerAt, holidayNotice } from '../calendar.js';
 // Compose the reply from approved templates, decide whether to hand over
 // to the team, and whether the front desk needs an alert.
 // ─── Edit these when details change ───────────────────────────────────────
@@ -32,7 +32,9 @@ export function compose(j, now = new Date()) {
     ? (H ? `\n\n${OFFER.emoji} *${OFFER.text}* — sirf *${OFFER.endLabel}* tak.`
          : `\n\n${OFFER.emoji} *${OFFER.text}* — only till *${OFFER.endLabel}*.`)
     : '';
-  const place = `📍 ${ADDRESS}\n🗺️ ${MAP}\n🕔 ${HOURS}`;
+  const HOLI = holidayNotice(now, H ? 'hinglish' : 'en');
+  const holiLine = HOLI ? `\n\n${HOLI}` : '';
+  const place = `📍 ${ADDRESS}\n🗺️ ${MAP}\n🕔 ${HOURS}${HOLI ? '\n' + HOLI : ''}`;
   const MENU_HINT = H
     ? 'Bas likhiye: *price*, *offer*, *location*, *timings* — ya bataiye aap kab aana chahenge 🙂'
     : 'Just type *price*, *offer*, *location* or *timings* — or tell us when you\'d like to drop in 🙂';
@@ -61,12 +63,12 @@ export function compose(j, now = new Date()) {
     offer: () => offerLive
       ? (H ? `${OFFER.emoji} *${OFFER.text}*, sirf *${OFFER.endLabel}* tak.\n\nHar plan mein physio support, body-composition scan, steam, valet parking aur mahine ki 50+ group classes. Couple aur family pass par aur bachat.\n\nExact price ke liye *CALL ME* likhiye, ya bataiye kab *free session* ke liye aayenge 💪`
            : `${OFFER.emoji} *${OFFER.text}*, only till *${OFFER.endLabel}*.\n\nEvery plan includes physio support, body-composition scans, steam, valet parking and 50+ group classes a month. Couple and family passes save even more.\n\nFor exact pricing, type *CALL ME* — or tell us when you'd like to drop in for a *free session* 💪`)
-      : (H ? `Diwali offer ab khatam ho gaya hai, par nayi membership par team ke paas hamesha kuch na kuch hota hai 🙂 *CALL ME* likhiye, ya bataiye kab *free session* ke liye aayenge.`
-           : `Our Diwali offer has ended, but the team always has something for new members 🙂 Type *CALL ME*, or tell us when you'd like to drop in for a *free session*.`),
+      : (H ? `Festive offer ab khatam ho gaya hai, par nayi membership par team ke paas hamesha kuch na kuch hota hai 🙂 *CALL ME* likhiye, ya bataiye kab *free session* ke liye aayenge.`
+           : `Our festive offer has ended, but the team always has something for new members 🙂 Type *CALL ME*, or tell us when you'd like to drop in for a *free session*.`),
     location: () => (H ? `Hum yahan hain 👇\n\n${place}\n🚗 Valet parking\n\nKabhi bhi aaiye — pehla session free hai 🙂`
                        : `Here's where to find us 👇\n\n${place}\n🚗 Valet parking at the door\n\nCome by anytime — your first session is free 🙂`),
     timings: () => (H ? `🕔 Hum *Mon–Sat subah 5 – raat 11* aur *Sunday 12 – 9* khule rehte hain — morning, evening aur weekend batches.\n\n📍 ${ADDRESS}\n\nBataiye kab aayenge — pehla session free hai 🙂`
-                      : `🕔 We're open *Mon–Sat 5 AM – 11 PM* and *Sunday 12 – 9 PM* — morning, evening and weekend batches.\n\n📍 ${ADDRESS}\n\nTell us when you'd like to drop in — your first session is free 🙂`),
+                      : `🕔 We're open *Mon–Sat 5 AM – 11 PM* and *Sunday 12 – 9 PM* — morning, evening and weekend batches.\n\n📍 ${ADDRESS}\n\nTell us when you'd like to drop in — your first session is free 🙂`) + holiLine,
     classes: () => (H ? `🔥 *HYROX aur rooftop CrossFit*\n💃 *Mahine ki 50+ group classes* — Zumba, yoga, functional, ladies-only batches female trainers ke saath\n🧑‍⚕️ *Personal training, diet aur in-house physio*\n\nEk class free try karni hai? Bataiye kab aayenge 💪`
                       : `🔥 *HYROX & rooftop CrossFit*\n💃 *50+ group classes a month* — Zumba, yoga, functional, ladies-only batches with female trainers\n🧑‍⚕️ *Personal training, diet & in-house physio*\n\nWant to try a class free? Tell us when you'd like to come 💪`),
     facilities: () => (H ? `✨ 10,000 sq ft premium gym — strength, cardio, functional aur rooftop zone.\n🧖 Steam, showers, lockers, changing rooms · ❄️ fully AC · 🚗 valet parking.\n\nKhud dekhiye — pehla session free hai. Bataiye kab aayenge 🙂`

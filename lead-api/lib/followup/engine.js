@@ -7,6 +7,7 @@
 //          quiet hours, ≥3 h between messages (reminders excepted), ≤1 nurture per 20 h,
 //          WhatsApp: free-form inside 24 h of their last message, approved template after;
 //          Instagram/Messenger: only inside the 24 h window (no messages after it closes).
+import { isClosedDay, isSpecialDay, isOpenAt } from '../calendar.js';
 import { COPY, render } from './copy.js';
 
 const MIN = 60e3, HOUR = 60 * MIN, DAY = 24 * HOUR;
@@ -37,6 +38,12 @@ export function fitWindow(due, kind, prefHour) {
   const target = prefHour != null && prefHour >= a && prefHour <= b ? prefHour : a;
   return h > b ? at(due, Math.floor(target), Math.round((target % 1) * 60), 1) : at(due, Math.floor(target), Math.round((target % 1) * 60), 0);
 }
+// Gym closed that day (e.g. Diwali): no messages — move to the next day's window start.
+function skipClosed(due, kind) {
+  let d = due, n = 0;
+  while (isClosedDay(d) && n++ < 7) d = at(d, WINDOWS[kind][0], 0, 1);
+  return d;
+}
 // Nurture goes out at the hour they usually talk to us (if sensible), else 11:00 or 18:30.
 function prefHourOf(lead) { const h = lead.firstInbound ? hm(new Date(lead.firstInbound)) : null; return h != null && h >= 10 && h <= 20.5 ? h : (h != null && h > 15 ? 18.5 : 11); }
 
@@ -62,6 +69,8 @@ export function parseSession(phrase, from) {
   const p = istParts(s), sun = p.dow === 0;
   if (sun && hm(s) < 12) { s = at(s, 12); approx = true; } else if (!sun && hm(s) < 5) { s = at(s, 6); approx = true; }
   if (s.getTime() <= from.getTime()) return null;
+  // Closed day or outside special hours (e.g. 8 Nov Diwali, 7 Nov after 1 PM): don't book reminders for it.
+  if (isSpecialDay(s) && !isOpenAt(s)) return null;
   return { at: s.toISOString(), approx, phrase: phrase || '' };
 }
 
@@ -232,7 +241,7 @@ export function plan(lead, now, stats = {}) {
       if (hm(due) < WINDOWS.reminder[0] || hm(due) > WINDOWS.reminder[1]) continue; // never in the middle of the night
       if (now >= s) continue; // session started — reminder no longer useful
     } else {
-      due = fitWindow(due, step.window, step.window === 'nurture' ? prefHourOf(lead) : null);
+      due = skipClosed(fitWindow(due, step.window, step.window === 'nurture' ? prefHourOf(lead) : null), step.window);
       if (step.id === 'new_ig_last') { const close = new Date(new Date(lead.lastInbound).getTime() + DAY - 30 * MIN); if (due > close) continue; }
     }
     // Instagram/Messenger: nothing can be sent after the 24 h window closes, so drop those steps.
@@ -250,7 +259,7 @@ export function plan(lead, now, stats = {}) {
   if (!pick.step.reminder && !pick.step.ackOnly) {
     if (lead.lastOutbound) due = new Date(Math.max(due, new Date(lead.lastOutbound).getTime() + 3 * HOUR));
     if (pick.step.window === 'nurture' && lead.lastNurture) due = new Date(Math.max(due, new Date(lead.lastNurture).getTime() + 20 * HOUR));
-    if (due > pick.due) due = fitWindow(due, pick.step.window, pick.step.window === 'nurture' ? prefHourOf(lead) : null);
+    if (due > pick.due) due = skipClosed(fitWindow(due, pick.step.window, pick.step.window === 'nurture' ? prefHourOf(lead) : null), pick.step.window);
   }
   const kind = COPY[pick.copyId].kind;
   const variant = pickVariant(pick.copyId, lead.id, stats);

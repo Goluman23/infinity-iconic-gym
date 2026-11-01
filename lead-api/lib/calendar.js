@@ -21,11 +21,21 @@ export const FESTIVALS = [
 export const CAMPAIGNS = [
   { key: 'diwali', start: '2026-10-01', end: '2026-11-08', endLabel: '8 Nov', emoji: '🪔',
     offer: { en: 'Diwali special: 14 months for the price of 12', hinglish: 'Diwali special: 12 mahine ki keemat mein 14 mahine' } },
-  { key: 'detox', start: '2026-11-11', end: '2026-11-20', endLabel: '20 Nov', emoji: '🥗', offer: null },
+  // Detox: value add-ons, NOT more months — keeps the Diwali deadline honest (people who waited don't get a better price).
+  { key: 'detox', start: '2026-11-11', end: '2026-11-15', endLabel: '15 Nov', emoji: '🥗',
+    offer: { en: 'Post-Diwali Detox: FREE Detox Starter Kit with any annual membership — body-composition scan, 14-day diet plan and 1 personal-training session',
+             hinglish: 'Post-Diwali Detox: kisi bhi annual membership ke saath FREE Detox Starter Kit — body-composition scan, 14 din ka diet plan aur 1 personal-training session' } },
   { key: 'wedding', start: '2026-11-16', end: '2026-12-15', endLabel: '15 Dec', emoji: '💍', offer: null },
   { key: 'xmas', start: '2026-12-16', end: '2026-12-25', endLabel: '25 Dec', emoji: '🎄', offer: null },
   { key: 'newyear', start: '2026-12-26', end: '2027-01-31', endLabel: '31 Jan', emoji: '🎆', offer: null },
   { key: 'valentine', start: '2027-02-01', end: '2027-02-14', endLabel: '14 Feb', emoji: '💞', offer: null },
+];
+
+// Opening hours. Normal: Mon–Sat 05:00–23:00, Sun 12:00–21:00. Special days override them.
+export const NORMAL_HOURS = { en: 'Mon–Sat 5 AM–11 PM · Sun 12–9 PM', hinglish: 'Mon–Sat subah 5 – raat 11 · Sunday 12 – 9' };
+export const SPECIAL_HOURS = [
+  { date: '2026-11-07', open: 5, close: 13, en: 'Sat 7 Nov: 5 AM – 1 PM', hinglish: 'Shanivaar 7 Nov: subah 5 – dopahar 1' },
+  { date: '2026-11-08', closed: true, en: 'Sun 8 Nov (Diwali): closed', hinglish: 'Ravivaar 8 Nov (Diwali): band' },
 ];
 
 export function istYmd(date = new Date()) {
@@ -53,4 +63,25 @@ export function offerAt(now = new Date(), lang = 'en') {
 export function festivalOn(now = new Date()) {
   const ymd = istYmd(now);
   return FESTIVALS.find(f => f.date === ymd) || null;
+}
+
+// Is the gym open at this moment (IST)? Special days first, then normal hours.
+export function isOpenAt(date) {
+  const ymd = istYmd(date);
+  const t = new Date(new Date(date).getTime() + 330 * 60000);
+  const h = t.getUTCHours() + t.getUTCMinutes() / 60, dow = t.getUTCDay();
+  const sp = SPECIAL_HOURS.find(x => x.date === ymd);
+  if (sp) return !sp.closed && h >= sp.open && h < sp.close;
+  return dow === 0 ? h >= 12 && h < 21 : h >= 5 && h < 23;
+}
+export function isClosedDay(date) { const sp = SPECIAL_HOURS.find(x => x.date === istYmd(date)); return !!(sp && sp.closed); }
+export function isSpecialDay(date) { return SPECIAL_HOURS.some(x => x.date === istYmd(date)); }
+
+// "🪔 Diwali hours: Sat 7 Nov: 5 AM – 1 PM · Sun 8 Nov (Diwali): closed" while a special day is within the next 7 days.
+export function holidayNotice(now = new Date(), lang = 'en') {
+  const today = istYmd(now), soon = istYmd(new Date(new Date(now).getTime() + 7 * 864e5));
+  const up = SPECIAL_HOURS.filter(x => x.date >= today && x.date <= soon);
+  if (!up.length) return '';
+  const H = lang === 'hinglish';
+  return (H ? '🪔 Tyohaar timings: ' : '🪔 Festival hours: ') + up.map(x => x[H ? 'hinglish' : 'en']).join(' · ');
 }

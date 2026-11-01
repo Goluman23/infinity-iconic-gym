@@ -19,7 +19,10 @@ s = parseSession('today at 7 PM', from); ok('today 7 PM', ist(s.at) === '2/11 19
 s = parseSession('evening', from); ok('evening → today 6 PM approx', ist(s.at) === '2/11 18:00' && s.approx);
 s = parseSession('tomorrow at 6', from); ok('"tomorrow at 6" → 6 PM approx', ist(s.at) === '3/11 18:00' && s.approx);
 s = parseSession('Saturday at 7 AM', from); ok('Saturday 7 AM', ist(s.at) === '7/11 07:00');
-s = parseSession('Sunday morning', from); ok('Sunday morning → 12 PM (opening)', ist(s.at) === '8/11 12:00');
+s = parseSession('Sunday morning', from); ok('Sunday 8 Nov is Diwali (closed) → no booking', s === null);
+s = parseSession('Sunday morning', new Date('2026-11-09T13:00:00+05:30')); ok('Sunday morning → 12 PM (opening)', ist(s.at) === '15/11 12:00');
+s = parseSession('Saturday at 5 PM', from); ok('Sat 7 Nov after 1 PM (festival hours) → no booking', s === null);
+s = parseSession('Saturday at 7 AM', from); ok('Sat 7 Nov 7 AM is inside festival hours', ist(s.at) === '7/11 07:00');
 s = parseSession('weekend', from); ok('weekend → Saturday 10 AM', ist(s.at) === '7/11 10:00');
 s = parseSession('this morning', new Date('2026-11-02T15:00:00+05:30')); ok('past time → null', s === null);
 
@@ -161,7 +164,10 @@ ok('no unfilled placeholders', !all.some(t => /\{\w+\}/.test(t)), all.find(t => 
 ok('every step has English + Hinglish', Object.values(COPY).every(c => Object.values(c.variants).every(v => v.en && v.hinglish)));
 const before = render('new_d7', 'A', lead, new Date('2026-11-08T21:00:00+05:30')), after = render('new_d7', 'A', lead, new Date('2026-11-09T09:00:00+05:30'));
 ok('offer line runs till Diwali (8 Nov) and then disappears', /Diwali.*8 Nov/.test(before) && !/Diwali/.test(after) && /new month/.test(after), before + ' | ' + after);
-ok('one calendar: festivals + no unverified offer after Diwali', festivalOn(new Date('2026-11-08T10:00:00+05:30'))?.key === 'diwali' && offerAt(new Date('2026-11-15T10:00:00+05:30')) === null && offerAt(new Date('2026-11-01T10:00:00+05:30'))?.endLabel === '8 Nov');
+ok('Detox offer 11–15 Nov, nothing 9–10 Nov', /Detox Starter Kit.*15 Nov/.test(offerAt(new Date('2026-11-12T10:00:00+05:30')).line) && offerAt(new Date('2026-11-09T10:00:00+05:30')) === null && offerAt(new Date('2026-11-16T10:00:00+05:30')) === null);
+r = simulate({ lead: { ...base, at: '2026-11-06T13:00:00+05:30' }, until: '2026-11-12T00:00:00+05:30' });
+ok('no follow-ups on Diwali (gym closed)', !bots(r).some(x => ist(x.at).startsWith('8/11')), bots(r).map(x => x.step + '@' + ist(x.at)).join(' '));
+ok('one calendar: festivals + no unverified offer after Diwali', festivalOn(new Date('2026-11-08T10:00:00+05:30'))?.key === 'diwali' && offerAt(new Date('2026-11-17T10:00:00+05:30')) === null && offerAt(new Date('2026-11-01T10:00:00+05:30'))?.endLabel === '8 Nov');
 ok('WhatsApp delivery rules', deliveryFor({ channel: 'wa', lastInbound: '2026-11-02T10:00:00Z' }, 'nurture', new Date('2026-11-04T10:00:00Z')).category === 'marketing');
 
 console.log(`${pass}/${pass + fail} follow-up checks passed`);
