@@ -44,12 +44,6 @@ export const COPY = {
          hinglish: "{hi} {offer_line_or_fresh} Is hafte aapke liye *free session* ka slot rakh doon?" },
     B: { en: "{hi}, honest question — is anything stopping you from starting? Timing, budget, or just not sure yet? Tell me and I'll help sort it out 🙂",
          hinglish: "{hi}, seedha sawaal — shuru karne mein kya rok raha hai? Timing, budget, ya abhi pakka nahi? Bataiye, hum milkar solve kar lenge 🙂" } } },
-  new_d14: { kind: 'nurture', label: 'Day 14 · polite break-up', variants: {
-    A: { en: "{hi}, I don't want to keep messaging if now isn't the right time 🙂 Shall I close your enquiry, or keep a free session open for you? Reply *KEEP* or *CLOSE*.",
-         hinglish: "{hi}, agar abhi sahi time nahi hai to main baar-baar message nahi karna chahta 🙂 Aapki enquiry band kar doon, ya free session open rakhoon? *KEEP* ya *CLOSE* likhiye." } } },
-  new_d30: { kind: 'nurture', label: 'Day 30 · re-engage', variants: {
-    A: { en: "{hi} 👋 it's been a while! Whenever you're ready, your free session at Infinity Iconic is still open. Reply with a day and we'll set it up.",
-         hinglish: "{hi} 👋 kaafi din ho gaye! Jab bhi aap ready hon, Infinity Iconic mein aapka free session abhi bhi open hai. Din bataiye, hum set kar denge." } } },
 
   // ── Session booked ───────────────────────────────────────────────────────
   book_eve: { kind: 'utility', label: 'Evening before the session (7:30 PM)', variants: {
@@ -69,20 +63,14 @@ export const COPY = {
   vis_2h: { kind: 'utility', label: 'After the visit (same evening or next morning)', variants: {
     A: { en: "Thanks for visiting Infinity Iconic{comma_name} 🙌 Hope you enjoyed it! Any questions about plans or timings, just ask here. {offer_line}",
          hinglish: "Infinity Iconic aane ke liye shukriya{comma_name} 🙌 Umeed hai accha laga! Plans ya timings ke baare mein kuch bhi poochna ho, yahin likhiye. {offer_line}" } } },
+  vis_ask: { kind: 'nurture', label: 'Day 2 after visit · what matters most (lost reason)', variants: {
+    A: { en: "{hi}, thanks again for visiting Infinity 🙂 Before we follow up, what matters most in your decision — membership price, timings, facilities, or something else? Just reply in a word.",
+         hinglish: "{hi}, Infinity aane ke liye phir se shukriya 🙂 Aage baat karne se pehle — aapke decision mein sabse zaroori kya hai: membership price, timings, facilities, ya kuch aur? Bas ek word mein bata dijiye." } } },
   vis_d1: { kind: 'nurture', label: 'Day 1 after visit', variants: {
     A: { en: "{hi}, had a chance to think it over? I can ask the team to hold your plan and price for you — just reply *HOLD*.",
          hinglish: "{hi}, sochne ka mauka mila? Main team se aapka plan aur price hold karwa sakta hoon — bas *HOLD* likhiye." },
     B: { en: "{hi}, what did you like most at Infinity — the trainers, the classes or the space? And is there anything holding you back? 🙂",
          hinglish: "{hi}, Infinity mein sabse accha kya laga — trainers, classes ya space? Aur kya kuch hai jo rok raha hai? 🙂" } } },
-  vis_d3: { kind: 'nurture', label: 'Day 3 after visit · social proof', variants: {
-    A: { en: "{hi} — most members say the first two weeks are the hardest, and our coaches check in with you every session to make them easy 💪 Ready to start? Reply *JOIN* and the desk will set it up.",
-         hinglish: "{hi} — members kehte hain pehle do hafte sabse mushkil hote hain, isliye hamare coaches har session mein aapke saath rehte hain 💪 Shuru karein? *JOIN* likhiye, desk set kar dega." } } },
-  vis_d6: { kind: 'nurture', label: 'Day 6 after visit · urgency', variants: {
-    A: { en: "{hi} {offer_line_or_fresh} Want the team to lock in your plan? Reply *JOIN*.",
-         hinglish: "{hi} {offer_line_or_fresh} Team aapka plan lock kar de? *JOIN* likhiye." } } },
-  vis_d14: { kind: 'nurture', label: 'Day 14 after visit · break-up', variants: {
-    A: { en: "{hi}, I'll stop following up after this 🙂 If you'd still like to join, reply *JOIN* anytime and we'll take it from there. Wishing you the best either way!",
-         hinglish: "{hi}, iske baad main follow-up nahi karunga 🙂 Join karna ho to kabhi bhi *JOIN* likhiye, hum sambhal lenge. Dono hi surat mein all the best!" } } },
 
   // ── Joined (front desk marks "Joined") ───────────────────────────────────
   join_1h: { kind: 'utility', label: 'Welcome, 1 hour after joining', variants: {

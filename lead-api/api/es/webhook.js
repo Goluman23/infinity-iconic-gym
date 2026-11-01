@@ -22,7 +22,8 @@ export function summarise(evt) {
   // Meta-format WhatsApp message payload
   for (const e of evt.entry || []) for (const ch of e.changes || []) {
     const v = ch.value || {};
-    for (const m of v.messages || []) out.push({ type: 'wa_message', from: m.from, kind: m.type, text: m.text?.body || m.button?.text || m.interactive?.button_reply?.title || m.interactive?.list_reply?.title || '', at: m.timestamp });
+    for (const m of v.messages || []) out.push({ type: 'wa_message', from: m.from, kind: m.type, text: m.text?.body || m.button?.text || m.interactive?.button_reply?.title || m.interactive?.list_reply?.title || '', at: m.timestamp,
+      ...(m.referral ? { referral: { source_type: m.referral.source_type || '', source_id: m.referral.source_id || '', headline: String(m.referral.headline || '').slice(0, 120) } } : {}) });
     for (const s of v.statuses || []) out.push({ type: 'wa_status', to: s.recipient_id, status: s.status, at: s.timestamp, error: s.errors?.[0]?.title });
   }
   if (!out.length) {

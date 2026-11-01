@@ -4,7 +4,7 @@ import { COPY, render } from './copy.js';
 import { newLead } from './engine.js';
 
 // Submit priority 1 first: they cover the messages that most often fall outside the 24 h window.
-const PRIORITY1 = new Set(['new_d1', 'new_d3', 'new_d7', 'new_d14', 'book_3h', 'book_1h', 'book_after', 'vis_d1', 'join_1h']);
+const PRIORITY1 = new Set(['new_d1', 'new_d3', 'new_d7', 'book_3h', 'book_1h', 'book_after', 'vis_d1', 'vis_ask', 'join_1h']);
 const SKIP = new Set(['new_30m', 'new_ig_last', 'optout_ack']); // always inside the window (free-form)
 const FIELD = { NAME: 'first_name', WHEN: 'when', TIME: 'time' };
 const AFTER_OFFER = new Date('2026-12-01T12:00:00+05:30'); // templates stay evergreen: no dated offer lines

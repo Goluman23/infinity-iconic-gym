@@ -78,6 +78,16 @@ export const easysocial = {
     if (r.status >= 400) throw new Error(`EasySocial update failed (${r.status}): ${r.json?.message || ''}`);
     return { missingTagIds: missing };
   },
+  // Add/remove tags (by name, via ES_TAG_IDS) and set lead fields on one contact.
+  async setTags(phone, add = [], remove = [], fields = {}) {
+    const ids = ES.tagIds, toIds = list => list.map(t => Number(ids[t])).filter(v => Number.isFinite(v) && v > 0);
+    const missing = [...add, ...remove].filter(t => !(Number(ids[t]) > 0));
+    const lead_data = Object.fromEntries(Object.entries(fields).filter(([, v]) => v !== undefined && v !== '').map(([k, v]) => [k, String(v)]));
+    const body = { lead_data, ...(toIds(add).length ? { add_tags: toIds(add) } : {}), ...(toIds(remove).length ? { remove_tags: toIds(remove) } : {}) };
+    const r = await call('PUT', ES.base + ES.updatePath.replace('{contact}', digits(phone)), body);
+    if (r.status >= 400) throw new Error(`EasySocial update failed (${r.status}): ${r.json?.message || ''}`);
+    return { missingTagIds: missing };
+  },
   async sendFirstTouch(contact, key, lead, extra = {}) {
     const spec = ES.campaigns[key];
     if (!spec || !spec.url) {
