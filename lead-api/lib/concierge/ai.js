@@ -17,7 +17,7 @@ Facts (use ONLY these for replies):
 - Exact prices are NEVER given in chat.
 
 Return ONLY a JSON object, no other text:
-{"intent": one of "visit_plan","callback","price","offer","location","timings","classes","facilities","member_service","complaint","human","greeting","thanks","other_question","unclear",
+{"intent": one of "visit_plan","callback","price","offer","location","timings","classes","facilities","member_service","complaint","human","greeting","thanks","other_question","unclear","optout",
  "lang": "en" or "hinglish",
  "when": short English phrase for WHEN they plan to visit (e.g. "tomorrow evening", "Saturday at 7 AM") or "",
  "hours_conflict": true if that time is outside opening hours, else false,
@@ -29,12 +29,13 @@ Intent guide:
 - member_service: existing member — renew, freeze, pause, refund, cancel, attendance, trainer change.
 - complaint: unhappy about service, staff, cleanliness, billing, equipment.
 - human: wants a real person.
+- optout: wants no more messages/offers (stop, unsubscribe, not interested).
 - unclear: emoji only, gibberish, or not about the gym.`;
 // Today's date lets Claude judge "tomorrow" / "Sunday" against the special days.
 const systemFor = now => `${BASE}\n\nToday is ${new Date(now).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} (India time).`;
 
 export const INTENTS = ['visit_plan', 'callback', 'price', 'offer', 'location', 'timings', 'classes', 'facilities',
-  'member_service', 'complaint', 'human', 'greeting', 'thanks', 'other_question', 'unclear'];
+  'member_service', 'complaint', 'human', 'greeting', 'thanks', 'other_question', 'unclear', 'optout'];
 
 export function parseAnswer(body) {
   let ai = {};

@@ -98,7 +98,7 @@ function holidayNotice(now = new Date(), lang = 'en') {
 function fastRules(message) {
   const m = (message || '').toLowerCase().replace(/\s+/g, ' ').trim();
 
-  const HINGLISH = /\b(hai|hain|hu|hoon|kya|kal|aaj|subah|shaam|sham|raat|karo|karna|karu|mein|nahi|kitna|kitne|ji|bhai|aap|aapka|batao|chahiye|kaise|kab|wala|aaunga|aaungi|aayenge|aa raha|aa rahi)\b/;
+  const HINGLISH = /\b(hai|hain|hu|hoon|kya|kal|aaj|subah|shaam|sham|raat|karo|karna|karu|mein|nahi|kitna|kitne|ji|bhai|aap|aapka|batao|chahiye|kaise|kab|wala|aaunga|aaungi|aayenge|aa raha|aa rahi|bhejo|bhejna|bhejiye)\b/;
   const lang = /[ऀ-ॿ]/.test(m) ? 'hinglish' : HINGLISH.test(m) ? 'hinglish' : 'en';
 
   // When are they coming? Builds a short English phrase like "tomorrow evening at 6 PM".
@@ -145,6 +145,7 @@ function fastRules(message) {
     visit: /\b(aa(u|o)nga|aa(u|o)ngi|aayenge|aaenge|aa (raha|rahi|rahe)|aata (hu|hoon)|aati (hu|hoon)|pahunch\w*|i'?ll come|we'?ll come|will come|i'?ll visit|we'?ll visit|will visit|will drop|i'?ll drop|drop (in|by)|come (by|over|today|tomorrow|in the)|coming (today|tomorrow|tonight|in the|at|on|this|next|around|by))\b/,
     human: /\b(human|real person|agent|manager|koi hai|baat kar(ni|na)|talk to (someone|the team|a person|team))\b/,
     timing: /\b(baje|timing|timings|time kya|kab (khul|band)|open|close)\b/,
+    optout: /\b(stop|stop promotions|unsubscribe|not interested|no thanks|don'?t message|band karo|mat bhejo|nahi chahiye|interest nahi)\b/,
     price: /\b(price|prices|pricing|how much|fee|fees|kitn[aei]|cost|charges?|rate|package|membership (fee|cost|price))\b/,
   };
 
@@ -161,7 +162,9 @@ function fastRules(message) {
   // A typed Indian mobile number (usually the answer to "type your number") → log it and alert the desk.
   const num = m.replace(/[\s-]/g, '').match(/(?:\+?91)?([6-9]\d{9})(?!\d)/);
   const sharedPhone = num ? num[1] : '';
-  if (sharedPhone) { intent = 'phone_shared'; w = when(m.replace(/(?:\+?91[\s-]*)?[6-9](?:[\s-]*\d){9}/, ' ')); }
+  // Opt-out first (incl. WhatsApp's "Stop promotions" button): short messages only, so "don't stop the offer" questions still reach Claude.
+  if (RX.optout.test(m) && m.split(' ').length <= 6 && !/\?/.test(m)) intent = 'optout';
+  else if (sharedPhone) { intent = 'phone_shared'; w = when(m.replace(/(?:\+?91[\s-]*)?[6-9](?:[\s-]*\d){9}/, ' ')); }
   else if (RX.callback.test(m)) intent = 'callback';
   else if (RX.visit.test(m)) { intent = 'visit_plan'; w = when(m); }
   else if (slotOnly(m)) { intent = 'visit_plan'; w = when(m); }

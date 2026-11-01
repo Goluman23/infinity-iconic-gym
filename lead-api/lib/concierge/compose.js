@@ -81,6 +81,8 @@ export function compose(j, now = new Date()) {
                     : `Sure 🙌 I've let the team know — someone will reply right here shortly (${HOURS}).\n\nIn a hurry? Call *${DESK}*.`),
     greeting: () => (H ? `Namaste${first ? ' ' + first : ''} 👋 *Infinity Iconic* mein swagat hai — Sector 86 ka 10,000 sq ft premium gym.${offerLine}\n\n${MENU_HINT}`
                        : `Hey${first ? ' ' + first : ''} 👋 Welcome to *Infinity Iconic* — Sector 86's 10,000 sq ft premium gym.${offerLine}\n\n${MENU_HINT}`),
+    optout: () => (H ? `Theek hai${first ? ' ' + first : ''} 🙏 Ab aapko offers ke messages nahi bhejenge. Kabhi free session chahiye ho to bas *hi* likhiye.`
+                     : `Done${first ? ', ' + first : ''} 🙏 You won't get any more offers from us. If you ever want a free session, just say *hi*.`),
     thanks: () => (H ? `Aapka swagat hai 🙌 Kabhi bhi zarurat ho, hum yahin hain. Bas bataiye kab aana chahenge 🙂`
                      : `Anytime 🙌 We're here whenever you need us — just tell us when you'd like to drop in 🙂`),
     other_question: () => {
@@ -105,6 +107,7 @@ export function compose(j, now = new Date()) {
     ...(j.when ? { inf_visit_when: j.when } : {}),
     ...(j.sharedPhone ? { inf_callback_number: j.sharedPhone } : {}),
     ...(HANDOFF.includes(intent) ? { inf_handoff: 'yes' } : {}),
+    ...(intent === 'optout' ? { inf_optout: 'yes' } : {}),
   };
 
   return {
