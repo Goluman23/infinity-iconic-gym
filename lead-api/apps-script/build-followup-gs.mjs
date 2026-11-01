@@ -12,7 +12,7 @@ const structuredClone = o => JSON.parse(JSON.stringify(o));
 ${strip(rd('../lib/concierge/rules.js'))}
 ${strip(rd('../lib/followup/copy.js'))}
 ${strip(rd('../lib/followup/engine.js'))}
-return { fastRules, newLead, applyEvent, plan, markSent, parseSession, istParts, fmtTime, fmtWhen, COPY, SEQUENCES };
+return { fastRules, newLead, applyEvent, plan, markSent, parseSession, istParts, fmtTime, fmtWhen, COPY, SEQUENCES, suppressionTags, SUPPRESS_ALL, lostReasonOf };
 })();
 `;
 fs.writeFileSync(new URL('./FollowupEngine.gs', import.meta.url), out);

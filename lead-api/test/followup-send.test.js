@@ -21,5 +21,16 @@ process.env.ES_ACCESS_TOKEN = 'tok'; process.env.ES_CAMPAIGNS = JSON.stringify({
 const { setFetch } = await import('../lib/providers/easysocial.js'); const camp = []; setFetch(async (url, opt) => { camp.push({ url, opt }); return { status: 200, json: async () => ({ success: true }) }; });
 r = await call({ ...good, mode: 'template', copyId: 'new_d1', variant: 'B', lang: 'hinglish', vars: { first_name: 'Rohit' } });
 ok('picks the variant + language template', r.body.campaign === 'fu_new_d1_B_hi' && JSON.parse(camp[0].opt.body).variables.body1 === 'Rohit');
+// sync endpoint: dry run unless live; only suppression tags pass through
+const { default: sync } = await import('../api/es/followup-sync.js');
+const callSync = body => new Promise(resolve => { const res = { statusCode: 200, setHeader() {}, end(b) { resolve({ status: this.statusCode, body: JSON.parse(b) }); } }; sync({ method: 'POST', url: '/api/es/followup-sync', headers: {}, body }, res); });
+process.env.FOLLOWUP_LIVE = '0';
+r = await callSync({ secret: 's3cret', phone: '919811112222', add: ['SUPPRESS_OPT_OUT', 'VIP'], stage: 'optout' });
+ok('sync: dry run, unknown tags dropped', r.body.dryRun === true && r.body.would.add.join() === 'SUPPRESS_OPT_OUT' && r.body.would.fields.inf_journey_stage === 'optout');
+ok('sync: wrong secret → 401', (await callSync({ secret: 'x', phone: '919811112222' })).status === 401);
+process.env.FOLLOWUP_LIVE = '1'; process.env.ES_TAG_IDS = JSON.stringify({ SUPPRESS_OPT_OUT: 11, SUPPRESS_MARKETING: 12 }); camp.length = 0;
+r = await callSync({ secret: 's3cret', phone: '919811112222', add: ['SUPPRESS_OPT_OUT', 'SUPPRESS_MARKETING'], remove: ['SUPPRESS_ACTIVE_MEMBER'] });
+const put = JSON.parse(camp[0].opt.body);
+ok('sync: live PUT with tag ids', r.body.synced === true && put.add_tags.join() === '11,12' && r.body.missingTagIds.join() === 'SUPPRESS_ACTIVE_MEMBER');
 console.log(`${pass}/${pass + fail} follow-up send checks passed`);
 if (fail) process.exit(1);

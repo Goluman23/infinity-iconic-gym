@@ -52,7 +52,7 @@ export function buildLogPayload(s, out, now = new Date()) {
   const followup = {
     type: 'inbound', at: now.toISOString(), text: s.message || '', intent: out.intent, when: s.when || '',
     lang: s.lang || 'en', name: s.name || '', phone: channel === 'wa' ? (callNo || '') : (s.sharedPhone || ''),
-    leadId: s.leadId || '', channel, id: channel === 'wa' && callNo ? callNo : (s.leadId || s.sharedPhone || s.name || ''),
+    leadId: s.leadId || '', source: channel === 'ig' ? 'SRC_INSTAGRAM_ORGANIC' : channel === 'fb' ? 'SRC_MESSENGER' : 'SRC_WHATSAPP', channel, id: channel === 'wa' && callNo ? callNo : (s.leadId || s.sharedPhone || s.name || ''),
   };
   return { kind: 'concierge', conversation, alert, followup };
 }

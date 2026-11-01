@@ -7,10 +7,11 @@ Open `followup-simulator.html` (in this folder) to see every message and its tim
 
 | Stage | Messages |
 |---|---|
-| **New lead** (not booked) | 30 min after their last message · Instagram/Messenger: last chance at 21 h, asking for their WhatsApp number · day 1 · day 3 · day 7 · day 14 · day 30, then closed |
-| **Visit booked** | 7:30 PM the evening before (morning sessions) · 3 h before (if booked ≥ 4 h ahead) · 1 h before (if booked ≥ 90 min ahead) · 3 h after the session time · no-show recovery on days 2, 5, 12 and 30 |
-| **Visited** (not joined) | Thank-you after the visit · day 1 · day 3 · day 6 · day 14, then closed |
+| **New lead** (not booked) | 30 min after their last message · Instagram/Messenger: last chance at 21 h asking for their WhatsApp number · day 1 · day 3 · day 7, then closed |
+| **Visit booked** | 7:30 PM the evening before (morning sessions) · 3 h before (if booked ≥ 4 h ahead) · 1 h before (if booked ≥ 90 min ahead) · check-in 3 h after the session · no-show: one reschedule offer on day 2, then closed. A chat booking shows "(unconfirmed)" until the desk confirms it |
+| **Visited** (not joined) | Thank-you after the visit · day 2 "what matters most?" (answer saved as Lost reason) · day 5 hold-your-plan, then closed |
 | **Joined** | Welcome after 1 h · day 7 check-in · day 30 referral + Google review |
+| **Member** (existing member writing in) | No automated messages; the desk handles service |
 | **Opted out** | One acknowledgement, then nothing |
 
 - **Any reply** stops the sequence and restarts the clock from the reply.
@@ -28,6 +29,8 @@ Open `followup-simulator.html` (in this folder) to see every message and its tim
   - 15% of sends stay a random test.
   - Results are in the *Follow-up stats* tab.
 
+**One journey rules (Phase 1, 1 Nov 2026):** existing members never get sales messages; asking for a human, a callback or making a complaint pauses automation for 48 h (visit reminders still go); opt-outs and members get `SUPPRESS_*` tags in EasySocial via `/api/es/followup-sync` so broadcasts exclude them (dry run until go-live); the first and latest source (WhatsApp, Instagram, Meta click-to-WhatsApp ad) is kept on the record.
+
 ## Channels and cost (Meta rules, India, from 1 Oct 2026)
 
 | Channel | Inside 24 h of their last message | After 24 h |
@@ -35,7 +38,7 @@ Open `followup-simulator.html` (in this folder) to see every message and its tim
 | WhatsApp | Free reply, ₹0 | Approved template only. Utility (reminders, visit follow-ups): ₹0.145. Marketing (nurture): ₹1.09 |
 | Instagram / Messenger | Free reply | Not allowed. The engine drops these steps, and EasySocial has no send API for them |
 
-A lead who never replies costs about ₹5.50 over 30 days. A booked lead costs about ₹2–5.
+A lead who never replies costs about ₹3.30 (3 marketing templates). A booked lead costs about ₹2–5.
 
 ## Install (Google Sheet "Infinity Leads" → Extensions → Apps Script)
 
@@ -51,7 +54,10 @@ Until you go live, every message is written to *Follow-up log* as **DRY RUN** an
 
 ## Desk: how to use the *Follow-ups* tab
 
-- **Stage**: set it to *Visited*, *Joined* or *Lost* after a visit or a call. The engine switches sequence within 10 minutes.
+- **Stage**: set it to *Booked*, *Visited*, *Joined*, *Member* or *Lost* after a visit or a call.
+- **Lost reason**: pick Price, Timing, Competitor, Facilities, Not ready, Uncontactable or Other.
+- **Amount (₹)**: the membership amount collected when you set *Joined*; it is credited as revenue to the message that converted the lead (*Follow-up stats*).
+- **Session (IST)**: a booking made in chat shows "(unconfirmed)"; delete that word once the desk has confirmed the visit. The engine switches sequence within 10 minutes.
 - **Session (IST)**: type the time a lead booked by phone or button, e.g. `03/11/2026 19:00`. The engine schedules the reminders.
 - **Next step / Next due**: shows what goes out next and when.
 

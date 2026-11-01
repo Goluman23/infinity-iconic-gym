@@ -61,7 +61,7 @@ function doPost(e) {
         if (ev.type === 'wa_status' && ev.status !== 'failed') return; // keep the log about conversations
         const at = ev.at ? new Date(Number(ev.at) * (String(ev.at).length > 11 ? 1 : 1000)) : new Date();
         if (ev.type === 'wa_message' && ev.from && typeof fuIngest_ === 'function') {
-          try { fuIngest_({ type: 'inbound', at: at.toISOString(), text: ev.text || '', phone: String(ev.from), channel: 'wa', id: String(ev.from) }); } catch (err) { console.log('follow-up ingest failed: ' + err); }
+          try { fuIngest_({ type: 'inbound', at: at.toISOString(), text: ev.text || '', phone: String(ev.from), channel: 'wa', id: String(ev.from), source: ev.referral ? 'SRC_META_ADS' : 'SRC_WHATSAPP', campaign: ev.referral ? (ev.referral.headline || ev.referral.source_id || '') : '' }); } catch (err) { console.log('follow-up ingest failed: ' + err); }
         }
         append_('whatsapp', {
           'Received (IST)': Utilities.formatDate(at, 'Asia/Kolkata', 'dd MMM yyyy, h:mm a'),

@@ -2,7 +2,7 @@
 // for every lead, from a small state object. Pure functions: no I/O, so the same code runs in
 // Vercel, in Google Apps Script (the scheduler) and in the browser simulator.
 //
-// Stages:  new → booked → visited → joined      (any stage → optout / closed)
+// Stages:  new → booked → visited → joined      (any stage → optout / closed; members → member)
 // Rules:   stop on reply (nurture clock restarts from their last message), stop on opt-out,
 //          quiet hours, ≥3 h between messages (reminders excepted), ≤1 nurture per 20 h,
 //          WhatsApp: free-form inside 24 h of their last message, approved template after;
@@ -68,37 +68,34 @@ export function parseSession(phrase, from) {
 // ── sequences ─────────────────────────────────────────────────────────────
 // anchor: 'quiet' = max(stage start, their last message) · 'session' · 'stage'
 export const SEQUENCES = {
+  // New lead: playbook cadence — 30 min, day 1, 3, 7, then stop (no long drip).
   new: [
     { id: 'new_30m', anchor: 'quiet', after: 30 * MIN, window: 'active', repeatOnReply: 2 },
     { id: 'new_ig_last', anchor: 'quiet', after: 21 * HOUR, window: 'active', channels: ['ig', 'fb'] },
     { id: 'new_d1', anchor: 'quiet', after: DAY, window: 'nurture' },
     { id: 'new_d3', anchor: 'quiet', after: 3 * DAY, window: 'nurture' },
-    { id: 'new_d7', anchor: 'quiet', after: 7 * DAY, window: 'nurture' },
-    { id: 'new_d14', anchor: 'quiet', after: 14 * DAY, window: 'nurture' },
-    { id: 'new_d30', anchor: 'quiet', after: 30 * DAY, window: 'nurture', last: true },
+    { id: 'new_d7', anchor: 'quiet', after: 7 * DAY, window: 'nurture', last: true },
   ],
+  // Booked: reminders; after the session a check-in, then ONE reschedule offer (no-show), then stop.
   booked: [
     { id: 'book_eve', anchor: 'session', rule: 'eveBefore', window: 'reminder', reminder: true },
     { id: 'book_3h', anchor: 'session', after: -3 * HOUR, window: 'reminder', reminder: true, minLead: 4 * HOUR, strictWindow: [8, 21.5] },
     { id: 'book_1h', anchor: 'session', after: -HOUR, window: 'reminder', reminder: true, minLead: 90 * MIN },
     { id: 'book_after', anchor: 'session', after: 3 * HOUR, window: 'active' },
-    { id: 'nb_d2', copy: 'new_d3', anchor: 'sessionOrReply', after: 2 * DAY, window: 'nurture' },
-    { id: 'nb_d5', copy: 'new_d7', anchor: 'sessionOrReply', after: 5 * DAY, window: 'nurture' },
-    { id: 'nb_d12', copy: 'new_d14', anchor: 'sessionOrReply', after: 12 * DAY, window: 'nurture' },
-    { id: 'nb_d30', copy: 'new_d30', anchor: 'sessionOrReply', after: 30 * DAY, window: 'nurture', last: true },
+    { id: 'nb_d2', copy: 'new_d3', anchor: 'sessionOrReply', after: 2 * DAY, window: 'nurture', last: true },
   ],
+  // Visited, not joined: thank-you, day-2 "what matters most?" (lost reason), day-5 hold offer, stop.
   visited: [
     { id: 'vis_2h', anchor: 'stage', after: 2 * HOUR, window: 'nurture' },
-    { id: 'vis_d1', anchor: 'quiet', after: DAY, window: 'nurture' },
-    { id: 'vis_d3', anchor: 'quiet', after: 3 * DAY, window: 'nurture' },
-    { id: 'vis_d6', anchor: 'quiet', after: 6 * DAY, window: 'nurture' },
-    { id: 'vis_d14', anchor: 'quiet', after: 14 * DAY, window: 'nurture', last: true },
+    { id: 'vis_ask', anchor: 'quiet', after: 2 * DAY, window: 'nurture' },
+    { id: 'vis_d5', copy: 'vis_d1', anchor: 'quiet', after: 5 * DAY, window: 'nurture', last: true },
   ],
   joined: [
     { id: 'join_1h', anchor: 'stage', after: HOUR, window: 'active' },
     { id: 'join_d7', anchor: 'stage', after: 7 * DAY, window: 'nurture' },
     { id: 'join_d30', anchor: 'stage', after: 30 * DAY, window: 'nurture', last: true },
   ],
+  member: [], // existing members: service only — never acquisition messages
   optout: [{ id: 'optout_ack', anchor: 'stage', after: 0, window: 'reminder', ackOnly: true }],
 };
 export const ALL_STEPS = Object.entries(SEQUENCES).flatMap(([stage, s]) => s.map(x => ({ stage, ...x })));
@@ -109,26 +106,61 @@ export function newLead({ id, name = '', phone = '', channel = 'wa', lang = 'en'
   return { id: String(id || phone || name), name, phone, channel, lang, stage: 'new', stageAt: t, firstInbound: t, lastInbound: t, lastOutbound: null, lastNurture: null, session: null, sent: {}, skipped: {}, history: [], lastStep: null };
 }
 
-const OPTOUT = /\b(stop|unsubscribe|not interested|no thanks|don'?t message|band karo|mat bhejo|nahi chahiye|interest nahi)\b/i;
+const OPTOUT = /\b(stop|stop promotions|unsubscribe|not interested|no thanks|don'?t message|band karo|mat bhejo|nahi chahiye|interest nahi)\b/i;
+// Existing members writing about their membership (never put them into acquisition).
+export const MEMBER = /\b(my membership|membership (is )?(expir|end|renew)|renew(al)?|freeze|pause (my )?membership|refund|cancel (my )?membership|attendance|change (my )?trainer|already (a )?member|i am a member|i'?m a member|member hu|member hoon)\b/i;
+const HUMAN = /\b(human|real person|agent|manager|talk to (someone|the team|a person|team)|koi hai|baat kar(ni|na))\b/i;
+const HANDOFF_INTENTS = ['human', 'complaint', 'callback', 'member_service'];
+export const LOST_REASONS = ['Price', 'Timing', 'Competitor', 'Facilities', 'Not ready', 'Uncontactable', 'Other'];
+export function lostReasonOf(text) {
+  const t = String(text || '').toLowerCase();
+  if (/price|cost|fee|expensive|mehenga|mahanga|budget|afford|discount|paise/.test(t)) return 'Price';
+  if (/time|timing|schedule|shift|busy|office|travel|far|door/.test(t)) return 'Timing';
+  if (/other gym|another gym|compar|cult|anytime fitness|gold'?s/.test(t)) return 'Competitor';
+  if (/facilit|equipment|crowd|clean|space|machine/.test(t)) return 'Facilities';
+  if (/later|not ready|next month|baad mein|soch/.test(t)) return 'Not ready';
+  return t.length > 2 ? 'Other' : '';
+}
+// Tags EasySocial must carry so broadcasts and its own automations respect the journey.
+export function suppressionTags(lead) {
+  const t = [];
+  if (lead.stage === 'optout') t.push('SUPPRESS_OPT_OUT', 'SUPPRESS_MARKETING');
+  if (lead.stage === 'joined' || lead.stage === 'member') t.push('SUPPRESS_ACTIVE_MEMBER');
+  return t;
+}
+export const SUPPRESS_ALL = ['SUPPRESS_OPT_OUT', 'SUPPRESS_MARKETING', 'SUPPRESS_ACTIVE_MEMBER'];
+const PAUSE = 48 * HOUR;
+
 export function applyEvent(lead, ev) {
   const L = structuredClone(lead), credits = [], alerts = [];
   const t = new Date(ev.at); const iso = t.toISOString();
   if (ev.type === 'inbound') {
     const text = String(ev.text || '').trim();
     if (L.lastStep && t - new Date(L.lastStep.at) < 2 * DAY && !L.lastStep.credited) { credits.push({ step: L.lastStep.copy, variant: L.lastStep.variant, kind: 'replied' }); L.lastStep.credited = true; }
+    // answer to the post-visit "what matters most?" question → lost reason
+    if (L.lastStep && L.lastStep.copy === 'vis_ask' && t - new Date(L.lastStep.at) < 3 * DAY && !L.lostReason) { const r = lostReasonOf(text); if (r) { L.lostReason = r; alerts.push(`lost reason: ${r}`); } }
     L.lastInbound = iso; if (!L.firstInbound) L.firstInbound = iso;
     if (ev.lang) L.lang = ev.lang;
-    if (OPTOUT.test(text) || /^\s*close\s*$/i.test(text)) { L.stage = /^\s*close/i.test(text) ? 'closed' : 'optout'; L.stageAt = iso; alerts.push(L.stage === 'optout' ? 'opted out' : 'asked to close'); }
-    else if (/^\s*2\s*$/.test(text) && L.stage === 'booked') { alerts.push('wants to reschedule'); }
+    if (ev.source && !L.firstSource) L.firstSource = ev.source;
+    if (ev.source) L.lastSource = ev.source;
+    if (OPTOUT.test(text) || /^\s*close\s*$/i.test(text)) { L.stage = /^\s*close/i.test(text) ? 'closed' : 'optout'; L.stageAt = iso; L.pausedUntil = null; alerts.push(L.stage === 'optout' ? 'opted out' : 'asked to close'); return { lead: L, credits, alerts }; }
+    // existing member → service only, desk handles it
+    if ((ev.intent === 'member_service' || MEMBER.test(text)) && ['new', 'closed'].includes(L.stage)) { L.stage = 'member'; L.stageAt = iso; alerts.push('existing member — no sales messages'); }
+    // human handoff / complaint / call request → pause automation so bot and desk don't both message
+    if (HANDOFF_INTENTS.includes(ev.intent) || HUMAN.test(text)) { L.pausedUntil = new Date(t.getTime() + PAUSE).toISOString(); alerts.push('handed to desk — follow-ups paused 48 h'); }
+    if (/^\s*2\s*$/.test(text) && L.stage === 'booked') { alerts.push('wants to reschedule'); }
     else if (/^\s*(join|hold)\s*$/i.test(text)) { alerts.push(`replied ${text.toUpperCase()} — call to close`); }
-    if (ev.intent === 'visit_plan' && ev.when && !['optout', 'closed', 'joined'].includes(L.stage)) {
+    if (ev.intent === 'visit_plan' && ev.when && !['optout', 'closed', 'joined', 'member'].includes(L.stage)) {
       const s = parseSession(ev.when, t);
-      if (s) { L.stage = 'booked'; L.stageAt = iso; L.session = s; L.sent = Object.fromEntries(Object.entries(L.sent).filter(([k]) => !k.startsWith('book_') && !k.startsWith('nb_'))); alerts.push('visit booked'); if (L.lastStep) credits.push({ step: L.lastStep.copy, variant: L.lastStep.variant, kind: 'booked' }); }
+      if (s) { s.unconfirmed = true; L.stage = 'booked'; L.stageAt = iso; L.session = s; L.sent = Object.fromEntries(Object.entries(L.sent).filter(([k]) => !k.startsWith('book_') && !k.startsWith('nb_'))); alerts.push('visit requested — desk to confirm'); if (L.lastStep) credits.push({ step: L.lastStep.copy, variant: L.lastStep.variant, kind: 'booked' }); }
     }
-  } else if (['booked', 'visited', 'joined', 'lost', 'optout', 'closed'].includes(ev.type)) {
-    if (ev.type === 'booked') { const s = ev.session || parseSession(ev.when, t); if (!s) return { lead: L, credits, alerts: ['could not read the session time'] }; L.session = s; }
+  } else if (['booked', 'visited', 'joined', 'lost', 'optout', 'closed', 'member'].includes(ev.type)) {
+    if (ev.type === 'booked') { const s = ev.session || parseSession(ev.when, t); if (!s) return { lead: L, credits, alerts: ['could not read the session time'] }; L.session = { ...s, unconfirmed: false }; }
     if ((ev.type === 'visited' || ev.type === 'joined') && L.lastStep) credits.push({ step: L.lastStep.copy, variant: L.lastStep.variant, kind: ev.type });
+    if (ev.type === 'joined') { if (ev.amount != null && ev.amount !== '') L.amount = Number(ev.amount) || 0; L.paidOn = ev.paidOn || iso; if (L.amount) credits.forEach(c => { if (c.kind === 'joined') c.amount = L.amount; }); }
+    if (ev.type === 'lost' && ev.reason) L.lostReason = ev.reason;
     L.stage = ev.type === 'lost' ? 'closed' : ev.type; L.stageAt = iso;
+    L.pausedUntil = null; // desk has acted — automation resumes on the new stage
   }
   return { lead: L, credits, alerts };
 }
@@ -177,10 +209,12 @@ function dueTime(lead, step) {
 
 // Returns the next thing to do for this lead (or null). `send` tells the scheduler whether it's due now.
 export function plan(lead, now, stats = {}) {
-  const seq = SEQUENCES[lead.stage]; if (!seq) return null;
+  const seq = SEQUENCES[lead.stage]; if (!seq || !seq.length) return null;
   if (lead.stage === 'optout') { if (lead.sent.optout_ack) return null; }
   const candidates = [];
+  const paused = lead.pausedUntil && now < new Date(lead.pausedUntil);
   for (const step of seq) {
+    if (paused && !step.reminder) continue; // handed to the desk — only visit reminders still go
     if (step.channels && !step.channels.includes(lead.channel)) continue;
     const copyId = step.copy || step.id;
     const prev = lead.sent[step.id];

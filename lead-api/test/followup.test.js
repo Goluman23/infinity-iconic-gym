@@ -1,5 +1,5 @@
 // Follow-up engine: cadence, reminders, windows, quiet hours, stop rules, learning. Run: node test/followup.test.js
-import { parseSession, plan, newLead, applyEvent, markSent, pickVariant, istParts, fitWindow, deliveryFor } from '../lib/followup/engine.js';
+import { parseSession, plan, newLead, applyEvent, markSent, pickVariant, istParts, fitWindow, deliveryFor, suppressionTags, lostReasonOf } from '../lib/followup/engine.js';
 import { simulate } from '../lib/followup/simulate.js';
 import { COPY, render } from '../lib/followup/copy.js';
 import { fastRules } from '../lib/concierge/rules.js';
@@ -25,12 +25,12 @@ s = parseSession('this morning', new Date('2026-11-02T15:00:00+05:30')); ok('pas
 // ── new lead, never replies ───────────────────────────────────────────────
 let r = simulate({ lead: base, until: '2026-12-10T00:00:00+05:30' });
 let b = bots(r);
-ok('new lead cadence', b.map(x => x.step).join(',') === 'new_30m,new_d1,new_d3,new_d7,new_d14,new_d30', b.map(x => x.step).join(','));
+ok('new lead cadence (playbook: 30m, d1, d3, d7, stop)', b.map(x => x.step).join(',') === 'new_30m,new_d1,new_d3,new_d7', b.map(x => x.step).join(','));
 ok('30 min nudge exact', ist(b[0].at) === '2/11 13:30');
 ok('30 min is free-form (inside 24 h)', b[0].mode === 'free_form');
 ok('day 1+ are marketing templates', b.slice(1).every(x => x.mode === 'template' && x.category === 'marketing'));
 ok('nurture only 10:00–20:30', b.slice(1).every(x => hourOf(x.at) >= 10 && hourOf(x.at) <= 20.5));
-ok('stage closed after day 30', r.lead.stage === 'closed');
+ok('stage closed after day 7', r.lead.stage === 'closed');
 
 // lead that wrote at 11:40 PM: nudge waits for morning
 r = simulate({ lead: { ...base, at: '2026-11-02T23:40:00+05:30' }, until: '2026-11-04T00:00:00+05:30' });
@@ -70,7 +70,7 @@ r = simulate({ lead: base, events: [{ type: 'inbound', at: '2026-11-02T13:05:00+
 b = bots(r);
 const v2h = b.find(x => x.step === 'vis_2h').at; ok('visit thank-you next day in daytime (not 10 PM)', ist(v2h).startsWith('3/11') && hourOf(v2h) >= 10 && hourOf(v2h) <= 20.5, ist(v2h));
 ok('joined: welcome, day 7, day 30', ['join_1h', 'join_d7', 'join_d30'].every(id => b.some(x => x.step === id)));
-ok('no nurture after joining', !b.some(x => /^(vis_d3|vis_d6|vis_d14|new_)/.test(x.step)));
+ok('no nurture after joining', !b.some(x => /^(vis_|new_)/.test(x.step) && new Date(x.at) > new Date('2026-11-05T18:00:00+05:30')));
 ok('review link in day 30', /writereview/.test(b.find(x => x.step === 'join_d30').text));
 
 // ── stop rules ────────────────────────────────────────────────────────────
@@ -107,6 +107,50 @@ ok('Hinglish slot reply', fastRules('kal subah 7 baje').intent === 'visit_plan')
 ok('timing question is not a booking', fastRules('kal kitne baje khulta hai?').intent === '');
 r = simulate({ lead: base, events: [{ type: 'inbound', at: '2026-11-02T13:10:00+05:30', ...(x => ({ text: 'tomorrow evening at 7', intent: x.intent, when: x.when }))(fastRules('tomorrow evening at 7')) }], until: '2026-11-04T00:00:00+05:30' });
 ok('slot reply gets 3 h + 1 h reminders', ['book_3h', 'book_1h', 'book_after'].every(id => bots(r).some(x => x.step === id)), bots(r).map(x => x.step).join(','));
+
+
+// ── Phase 1: one journey, one stage, one messaging policy ─────────────────
+// existing member asking about their membership → never acquisition
+r = simulate({ lead: base, events: [{ type: 'inbound', at: '2026-11-02T13:01:00+05:30', text: 'my membership is expiring, can i freeze for a month?', intent: 'member_service' }], until: '2026-12-10T00:00:00+05:30' });
+ok('member: stage member', r.lead.stage === 'member', r.lead.stage);
+ok('member: no acquisition after the question', !bots(r).some(x => new Date(x.at) > new Date('2026-11-02T13:01:00+05:30')), bots(r).map(x => x.step).join(','));
+ok('member: suppression tag', suppressionTags(r.lead).includes('SUPPRESS_ACTIVE_MEMBER'));
+// member keywords work without the AI (webhook path)
+r = simulate({ lead: base, events: [{ type: 'inbound', at: '2026-11-02T13:01:00+05:30', text: 'I am already a member, trainer change karna hai' }], until: '2026-11-20T00:00:00+05:30' });
+ok('member detected by keywords', r.lead.stage === 'member');
+// human handoff pauses nurture for 48 h
+r = simulate({ lead: base, events: [{ type: 'inbound', at: '2026-11-02T13:05:00+05:30', text: 'I want to talk to a real person', intent: 'human' }], until: '2026-11-05T00:00:00+05:30' });
+b = bots(r).filter(x => new Date(x.at) > new Date('2026-11-02T13:05:00+05:30'));
+ok('handoff: nothing for 48 h', b.every(x => new Date(x.at) >= new Date('2026-11-04T13:05:00+05:30')), b.map(x => x.step + '@' + ist(x.at)).join(' '));
+// desk action ends the pause
+let L = applyEvent(newLead(base), { type: 'inbound', at: '2026-11-02T13:05:00+05:30', text: 'human please', intent: 'human' }).lead;
+ok('handoff sets pause', !!L.pausedUntil);
+L = applyEvent(L, { type: 'visited', at: '2026-11-02T18:00:00+05:30' }).lead;
+ok('desk stage clears pause', !L.pausedUntil);
+// booked visits still get reminders during a pause
+L = applyEvent(newLead(base), { type: 'inbound', at: '2026-11-02T10:00:00+05:30', text: 'today 7 pm', intent: 'visit_plan', when: 'today at 7 PM' }).lead;
+L = applyEvent(L, { type: 'inbound', at: '2026-11-02T10:05:00+05:30', text: 'call me', intent: 'callback' }).lead;
+ok('paused lead still gets visit reminder', plan(L, new Date('2026-11-02T15:00:00+05:30'))?.stepId === 'book_3h');
+ok('chat booking is unconfirmed', L.session.unconfirmed === true);
+ok('desk booking is confirmed', applyEvent(L, { type: 'booked', at: '2026-11-02T11:00:00+05:30', when: 'today at 7 PM' }).lead.session.unconfirmed === false);
+// opt-out → suppression tags, one ack only
+L = applyEvent(newLead(base), { type: 'inbound', at: '2026-11-02T13:05:00+05:30', text: 'Stop promotions' }).lead;
+ok('stop promotions button = opt-out', L.stage === 'optout' && suppressionTags(L).join() === 'SUPPRESS_OPT_OUT,SUPPRESS_MARKETING');
+// no-show: check-in after the session, one reschedule offer, then stop
+r = simulate({ lead: base, events: [{ type: 'inbound', at: '2026-11-02T13:05:00+05:30', text: 'today at 7 pm', intent: 'visit_plan', when: 'today at 7 PM' }], until: '2026-12-10T00:00:00+05:30' });
+b = bots(r).filter(x => x.step.startsWith('book_after') || x.step.startsWith('nb_'));
+ok('no-show: check-in + one reschedule', b.map(x => x.step).join(',') === 'book_after,nb_d2', b.map(x => x.step).join(','));
+ok('no-show: closed after', r.lead.stage === 'closed');
+// visited, not joined: thank-you, day-2 lost-reason question, day-5, stop; reply saved as lost reason
+r = simulate({ lead: base, events: [{ type: 'visited', at: '2026-11-02T19:00:00+05:30' }], until: '2026-12-10T00:00:00+05:30' });
+ok('post-visit cadence', bots(r).filter(x => x.step.startsWith('vis_')).map(x => x.step).join(',') === 'vis_2h,vis_ask,vis_d5', bots(r).map(x => x.step).join(','));
+const askAt = bots(r).find(x => x.step === 'vis_ask').at;
+r = simulate({ lead: base, events: [{ type: 'visited', at: '2026-11-02T19:00:00+05:30' }, { type: 'inbound', at: new Date(new Date(askAt).getTime() + 3600e3).toISOString(), text: 'thoda mehenga hai' }], until: '2026-11-20T00:00:00+05:30' });
+ok('lost reason captured from reply', r.lead.lostReason === 'Price', r.lead.lostReason);
+ok('lost reason mapping', lostReasonOf('office timings clash') === 'Timing' && lostReasonOf('comparing another gym') === 'Competitor');
+// joined with amount → revenue on the credit
+L = applyEvent(newLead(base), { type: 'joined', at: '2026-11-03T12:00:00+05:30', amount: '15000' }).lead;
+ok('joined stores amount', L.amount === 15000 && !!L.paidOn);
 
 // ── copy safety ───────────────────────────────────────────────────────────
 const lead = newLead({ ...base });

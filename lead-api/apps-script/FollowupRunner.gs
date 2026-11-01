@@ -2,8 +2,9 @@
  * Infinity follow-ups — scheduler + sheet control panel (runs inside the "Infinity Leads" sheet).
  *
  * Tabs it manages:
- *  • Follow-ups       one row per lead. The desk can change "Stage" (Visited / Joined / Lost) and
- *                     "Session (IST)" (e.g. 03/11/2026 19:00); everything else is filled in for you.
+ *  • Follow-ups       one row per lead. The desk can change "Stage" (Booked / Visited / Joined / Member / Lost),
+ *                     "Session (IST)" (e.g. 03/11/2026 19:00 — typing it confirms a booking), "Lost reason"
+ *                     and "Amount (₹)" on joining; everything else is filled in for you.
  *  • Follow-up log    every message the engine sent, would send (DRY RUN) or could not send.
  *  • Follow-up stats  sends, replies, bookings per message and variant — the engine learns from it.
  *
@@ -11,29 +12,40 @@
  * Messages go out only when Vercel has FOLLOWUP_LIVE=1; until then everything is logged as DRY RUN.
  */
 const FU_SEND_URL = 'https://api.eqiconic.com/api/es/followup-send';
+const FU_SYNC_URL = 'https://api.eqiconic.com/api/es/followup-sync';
 const FU_TABS = {
-  leads: ['Lead ID', 'Name', 'Phone', 'Channel', 'Stage', 'Session (IST)', 'Next step', 'Next due (IST)', 'Last sent', 'Messages sent', 'State'],
+  // State (col 11, hidden) stays where it was; Phase 1 columns are added after it.
+  leads: ['Lead ID', 'Name', 'Phone', 'Channel', 'Stage', 'Session (IST)', 'Next step', 'Next due (IST)', 'Last sent', 'Messages sent', 'State', 'Lost reason', 'Amount (₹)', 'Paid on', 'Source', 'Paused until'],
   log: ['Time (IST)', 'Lead ID', 'Name', 'Channel', 'Step', 'Variant', 'Delivery', 'Est. cost ₹', 'Status', 'Message'],
-  stats: ['Message', 'Variant', 'Sent', 'Replied', 'Booked', 'Visited', 'Joined', 'Reply %', 'Booked %'],
+  stats: ['Message', 'Variant', 'Sent', 'Replied', 'Booked', 'Visited', 'Joined', 'Reply %', 'Booked %', 'Revenue ₹'],
 };
 const FU_NAMES = { leads: 'Follow-ups', log: 'Follow-up log', stats: 'Follow-up stats' };
-const STAGE_LABEL = { new: 'New', booked: 'Booked', visited: 'Visited', joined: 'Joined', closed: 'Closed', optout: 'Opted out' };
-const LABEL_EVENT = { visited: 'visited', joined: 'joined', lost: 'lost', closed: 'lost', booked: 'booked' };
+const STAGE_LABEL = { new: 'New', booked: 'Booked', visited: 'Visited', joined: 'Joined', member: 'Member', closed: 'Closed', optout: 'Opted out' };
+const LABEL_EVENT = { visited: 'visited', joined: 'joined', lost: 'lost', closed: 'lost', booked: 'booked', member: 'member' };
+const STATE_COL = 11, LOST_COL = 12, AMOUNT_COL = 13;
 
+const FU_READY = {}; // sheets already checked in this run
 function fuSheet_(key) {
+  if (FU_READY[key]) return FU_READY[key];
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   let sh = ss.getSheetByName(FU_NAMES[key]);
   if (!sh) {
     sh = ss.insertSheet(FU_NAMES[key]);
     sh.appendRow(FU_TABS[key]); sh.setFrozenRows(1);
-    sh.getRange(1, 1, 1, FU_TABS[key].length).setFontWeight('bold');
-    if (key === 'leads') {
-      sh.hideColumns(FU_TABS.leads.length); // State (JSON) — the engine's memory
-      const rule = SpreadsheetApp.newDataValidation().requireValueInList(['New', 'Booked', 'Visited', 'Joined', 'Lost', 'Closed', 'Opted out'], true).build();
-      sh.getRange(2, 5, 2000, 1).setDataValidation(rule);
-    }
+    if (key === 'leads') sh.hideColumns(STATE_COL); // State (JSON) — the engine's memory
   }
-  return sh;
+  // add any columns introduced since the tab was created (headers only; existing data untouched)
+  const have = sh.getLastColumn(), want = FU_TABS[key].length;
+  if (have < want) sh.getRange(1, have + 1, 1, want - have).setValues([FU_TABS[key].slice(have)]);
+  sh.getRange(1, 1, 1, want).setFontWeight('bold');
+  if (key === 'leads' && sh.getRange(2, LOST_COL).getDataValidation() == null) fuValidation_(sh);
+  return (FU_READY[key] = sh);
+}
+function fuValidation_(sh) {
+  const stage = SpreadsheetApp.newDataValidation().requireValueInList(['New', 'Booked', 'Visited', 'Joined', 'Member', 'Lost', 'Closed', 'Opted out'], true).build();
+  sh.getRange(2, 5, 2000, 1).setDataValidation(stage);
+  const lost = SpreadsheetApp.newDataValidation().requireValueInList(['Price', 'Timing', 'Competitor', 'Facilities', 'Not ready', 'Uncontactable', 'Other'], true).setAllowInvalid(false).build();
+  sh.getRange(2, LOST_COL, 2000, 1).setDataValidation(lost);
 }
 function fuIst_(d) { return Utilities.formatDate(new Date(d), 'Asia/Kolkata', 'dd/MM/yyyy HH:mm'); }
 function fuParseIst_(v) {
@@ -45,17 +57,30 @@ function fuParseIst_(v) {
 // ── stats (learning) ──────────────────────────────────────────────────────
 function fuReadStats_() {
   const rows = fuSheet_('stats').getDataRange().getValues().slice(1), st = {};
-  rows.forEach(r => { if (!r[0]) return; (st[r[0]] = st[r[0]] || {})[r[1]] = { sent: +r[2] || 0, replied: +r[3] || 0, booked: +r[4] || 0, visited: +r[5] || 0, joined: +r[6] || 0 }; });
+  rows.forEach(r => { if (!r[0]) return; (st[r[0]] = st[r[0]] || {})[r[1]] = { sent: +r[2] || 0, replied: +r[3] || 0, booked: +r[4] || 0, visited: +r[5] || 0, joined: +r[6] || 0, revenue: +r[9] || 0 }; });
   return st;
 }
-function fuBump_(copyId, variant, field) {
+function fuBump_(copyId, variant, field, by) {
   const sh = fuSheet_('stats'), rows = sh.getDataRange().getValues();
-  const col = { sent: 3, replied: 4, booked: 5, visited: 6, joined: 7 }[field];
+  const col = { sent: 3, replied: 4, booked: 5, visited: 6, joined: 7, revenue: 10 }[field];
   let i = rows.findIndex((r, k) => k > 0 && r[0] === copyId && r[1] === variant);
-  if (i < 0) { sh.appendRow([copyId, variant, 0, 0, 0, 0, 0, '', '']); i = sh.getLastRow() - 1; }
-  const row = i + 1, cell = sh.getRange(row, col); cell.setValue((+cell.getValue() || 0) + 1);
+  if (i < 0) { sh.appendRow([copyId, variant, 0, 0, 0, 0, 0, '', '', 0]); i = sh.getLastRow() - 1; }
+  const row = i + 1, cell = sh.getRange(row, col); cell.setValue((+cell.getValue() || 0) + (by == null ? 1 : by));
   sh.getRange(row, 8).setFormula(`=IFERROR(D${row}/C${row},0)`).setNumberFormat('0%');
   sh.getRange(row, 9).setFormula(`=IFERROR(E${row}/C${row},0)`).setNumberFormat('0%');
+}
+
+function fuCredit_(lead, credits) {
+  credits.forEach(c => {
+    fuBump_(c.step, c.variant, c.kind);
+    if (c.kind === 'joined') { lead.joinCredit = { step: c.step, variant: c.variant, amount: 0 }; }
+  });
+}
+// Revenue: whenever the desk enters/changes Amount on a joined lead, credit the message that converted it.
+function fuRevenue_(lead) {
+  if (!lead.joinCredit || !lead.amount) return;
+  const delta = (lead.amount || 0) - (lead.joinCredit.amount || 0);
+  if (delta) { fuBump_(lead.joinCredit.step, lead.joinCredit.variant, 'revenue', delta); lead.joinCredit.amount = lead.amount; }
 }
 
 // ── lead rows ─────────────────────────────────────────────────────────────
@@ -69,7 +94,9 @@ function fuWrite_(row, lead, next) {
   const vals = [lead.id, lead.name, lead.phone ? "'" + lead.phone : '', { wa: 'WhatsApp', ig: 'Instagram', fb: 'Messenger' }[lead.channel] || lead.channel,
     STAGE_LABEL[lead.stage] || lead.stage, lead.session ? fuIst_(lead.session.at) + (lead.session.approx ? ' (approx)' : '') : '',
     next ? next.stepId + ' · ' + next.label : '—', next ? fuIst_(next.due) : '', lead.lastOutbound ? fuIst_(lead.lastOutbound) : '',
-    lead.history.filter(h => !h.blocked).length, JSON.stringify(lead)];
+    lead.history.filter(h => !h.blocked).length, JSON.stringify(lead), lead.lostReason || '', lead.amount || '',
+    lead.paidOn ? fuIst_(lead.paidOn) : '', [lead.firstSource, lead.lastSource && lead.lastSource !== lead.firstSource ? '→ ' + lead.lastSource : ''].filter(Boolean).join(' '),
+    lead.pausedUntil && new Date(lead.pausedUntil) > new Date() ? fuIst_(lead.pausedUntil) : ''];
   if (row) sh.getRange(row, 1, 1, vals.length).setValues([vals]); else sh.appendRow(vals);
 }
 
@@ -77,12 +104,13 @@ function fuWrite_(row, lead, next) {
 function fuIngest_(ev) {
   if (!ev || !ev.id) return;
   const row = fuFind_(ev.id);
-  let lead = row ? JSON.parse(fuSheet_('leads').getRange(row, FU_TABS.leads.length).getValue()) : FU.newLead({ id: ev.id, name: ev.name, phone: ev.phone, channel: ev.channel || 'wa', lang: ev.lang || 'en', at: ev.at });
+  let lead = row ? JSON.parse(fuSheet_('leads').getRange(row, STATE_COL).getValue()) : FU.newLead({ id: ev.id, name: ev.name, phone: ev.phone, channel: ev.channel || 'wa', lang: ev.lang || 'en', at: ev.at });
   if (ev.name && !lead.name) lead.name = ev.name;
   if (ev.phone && !lead.phone) lead.phone = ev.phone;
   if (!ev.intent && ev.text) { const r = FU.fastRules(ev.text); ev.intent = r.intent; ev.when = ev.when || r.when; ev.lang = ev.lang || r.lang; }
+  if (ev.campaign && !lead.campaign) lead.campaign = ev.campaign;
   const res = FU.applyEvent(lead, ev); lead = res.lead;
-  res.credits.forEach(c => fuBump_(c.step, c.variant, c.kind));
+  fuCredit_(lead, res.credits);
   fuWrite_(row, lead, FU.plan(lead, new Date(), fuReadStats_()));
 }
 
@@ -95,14 +123,20 @@ function runFollowups() {
     const stats = fuReadStats_(), now = new Date(), started = Date.now();
     rows.forEach((r, i) => {
       if (Date.now() - started > 4.5 * 60000) return; // stay inside Apps Script's 6-minute limit
-      let lead; try { lead = JSON.parse(r[FU_TABS.leads.length - 1]); } catch (e) { return; }
+      let lead; try { lead = JSON.parse(r[STATE_COL - 1]); } catch (e) { return; }
       // desk changes in the sheet → events
       const stageCell = String(r[4] || '').toLowerCase().trim();
       const wanted = LABEL_EVENT[stageCell] || LABEL_EVENT[stageCell.replace('opted out', 'optout')];
+      const lostCell = String(r[LOST_COL - 1] || ''), amountCell = Number(String(r[AMOUNT_COL - 1] || '').replace(/[^0-9.]/g, '')) || 0;
       if (wanted && wanted !== lead.stage && !(wanted === 'lost' && lead.stage === 'closed')) {
-        const res = FU.applyEvent(lead, { type: wanted, at: now.toISOString() }); lead = res.lead; res.credits.forEach(c => fuBump_(c.step, c.variant, c.kind));
+        const res = FU.applyEvent(lead, { type: wanted, at: now.toISOString(), amount: amountCell || '', reason: lostCell });
+        lead = res.lead; fuCredit_(lead, res.credits);
       }
-      const sessCell = fuParseIst_(String(r[5] || '').replace(' (approx)', ''));
+      if (lostCell && lostCell !== lead.lostReason) lead.lostReason = lostCell;
+      if (lead.stage === 'joined' && amountCell && amountCell !== lead.amount) { lead.amount = amountCell; if (!lead.paidOn) lead.paidOn = now.toISOString(); }
+      fuRevenue_(lead);
+      const sessCell = fuParseIst_(String(r[5] || '').replace(' (approx)', '').replace(' (unconfirmed)', ''));
+      if (sessCell && lead.session && lead.session.unconfirmed && Math.abs(sessCell - new Date(lead.session.at)) <= 60000 && !/unconfirmed/.test(String(r[5]))) lead.session.unconfirmed = false; // desk removed "(unconfirmed)" → confirmed
       if (sessCell && (!lead.session || Math.abs(sessCell - new Date(lead.session.at)) > 60000) && sessCell > now) {
         lead = FU.applyEvent(lead, { type: 'booked', at: now.toISOString(), session: { at: sessCell.toISOString(), approx: false, phrase: '' } }).lead;
       }
@@ -115,9 +149,25 @@ function runFollowups() {
         fuSheet_('log').appendRow([fuIst_(now), lead.id, lead.name, lead.channel, a.stepId, a.variant,
           a.delivery.mode + (a.delivery.category ? ' · ' + a.delivery.category : ''), a.delivery.cost || 0, status, a.text]);
       }
+      lead = fuSync_(lead, now);
       fuWrite_(i + 2, lead, FU.plan(lead, now, stats));
     });
   } finally { lock.releaseLock(); }
+}
+
+// Keep EasySocial's suppression tags in step with the journey (opt-out, member) so broadcasts exclude them.
+function fuSync_(lead, now) {
+  const want = FU.suppressionTags(lead), have = lead.syncedTags || [];
+  if (want.join() === have.join() || !/^91[6-9]\d{9}$/.test(String(lead.phone || ''))) return lead;
+  const remove = FU.SUPPRESS_ALL.filter(t => want.indexOf(t) < 0);
+  const res = UrlFetchApp.fetch(FU_SYNC_URL, { method: 'post', contentType: 'application/json', muteHttpExceptions: true,
+    payload: JSON.stringify({ secret: SECRET, phone: lead.phone, add: want, remove: remove, stage: lead.stage }) });
+  let j = {}; try { j = JSON.parse(res.getContentText()); } catch (e) {}
+  const ok = res.getResponseCode() === 200 && (j.dryRun || j.synced);
+  if (ok) lead.syncedTags = want;
+  fuSheet_('log').appendRow([fuIst_(now), lead.id, lead.name, lead.channel, 'sync tags', '', 'EasySocial', 0,
+    ok ? (j.dryRun ? 'DRY RUN' : 'SYNCED') : 'ERROR · ' + (j.error || res.getResponseCode()), 'add: ' + (want.join(', ') || '—') + ' · remove: ' + (remove.join(', ') || '—')]);
+  return lead;
 }
 
 function fuDeliver_(lead, a) {
