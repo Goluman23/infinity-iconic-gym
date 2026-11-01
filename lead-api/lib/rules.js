@@ -1,4 +1,5 @@
 import { CONFIG, ENTRY } from './config.js';
+import { CAMPAIGNS } from './calendar.js';
 
 export const GOALS = ['Fat loss', 'Muscle gain', 'HYROX / CrossFit', 'General fitness', 'Rehab / pain recovery', 'Training with partner', 'Family (3+)'];
 
@@ -18,12 +19,8 @@ export function detectLang(text, given) {
   return text && HINDI.test(text) ? 'hi' : 'en';
 }
 
-// Same calendar as the Flow Simulator's season engine (latest-starting season wins).
-const SEASONS = [
-  ['diwali', '2026-10-01', '2026-10-31'], ['detox', '2026-11-11', '2026-11-20'],
-  ['wedding', '2026-11-16', '2026-12-15'], ['xmas', '2026-12-16', '2026-12-25'],
-  ['newyear', '2026-12-26', '2027-01-31'], ['valentine', '2027-02-01', '2027-02-14'],
-];
+// Season windows come from lib/calendar.js (latest-starting season wins).
+const SEASONS = CAMPAIGNS.map(c => [c.key, c.start, c.end]);
 export function localParts(date = new Date()) {
   const f = new Intl.DateTimeFormat('en-CA', { timeZone: CONFIG.timezone, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', hour12: false });
   const p = Object.fromEntries(f.formatToParts(date).map(x => [x.type, x.value]));

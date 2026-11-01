@@ -22,7 +22,7 @@ Open `followup-simulator.html` (in this folder) to see every message and its tim
   - Quick follow-ups: 8 AM–10:30 PM.
   - Visit reminders: 5 AM–9:30 PM.
 - **Spacing:** at least 3 h between messages (reminders excepted), and at most one nurture message per 20 h.
-- **Prices:** no exact price is ever quoted. The Diwali line disappears after 31 Oct.
+- **Prices:** no exact price is ever quoted. Offer lines come from `lib/calendar.js` (one calendar for every channel): the Diwali line runs till 8 Nov 2026 and then disappears; no other dated offer is used until it is confirmed there.
 - **Learning:** key steps have versions A and B.
   - Each version gets 20 sends first.
   - After that the better one (score: replies + 3 × bookings, per send) goes to most leads.

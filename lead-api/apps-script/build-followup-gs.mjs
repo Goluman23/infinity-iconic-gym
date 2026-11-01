@@ -4,11 +4,12 @@ import fs from 'node:fs';
 const rd = p => fs.readFileSync(new URL(p, import.meta.url), 'utf8');
 const strip = s => s.replace(/^import .*$/gm, '').replace(/^export\s+/gm, '');
 const out = `/**
- * Infinity follow-up engine — GENERATED from lead-api/lib (concierge/rules.js, followup/copy.js,
+ * Infinity follow-up engine — GENERATED from lead-api/lib (calendar.js, concierge/rules.js, followup/copy.js,
  * followup/engine.js). Do not edit here; edit those files and run: node apps-script/build-followup-gs.mjs
  */
 const FU = (() => {
 const structuredClone = o => JSON.parse(JSON.stringify(o));
+${strip(rd('../lib/calendar.js'))}
 ${strip(rd('../lib/concierge/rules.js'))}
 ${strip(rd('../lib/followup/copy.js'))}
 ${strip(rd('../lib/followup/engine.js'))}

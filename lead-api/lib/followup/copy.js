@@ -11,12 +11,8 @@ export const PLACE = {
   desk: '+91 99530 04008',
 };
 
-// Offer shown in follow-ups; lines disappear automatically after `ends`.
-export const OFFER = {
-  ends: '2026-10-31T23:59:59+05:30',
-  en: '🪔 Diwali special: 14 months for the price of 12, only till 31 Oct.',
-  hinglish: '🪔 Diwali special: 12 mahine ki keemat mein 14 mahine, sirf 31 Oct tak.',
-};
+import { offerAt } from '../calendar.js';
+// The offer line comes from lib/calendar.js and disappears automatically when its window ends.
 
 // kind: 'nurture' (marketing template outside 24h) · 'utility' (booking/visit/member service template)
 export const COPY = {
@@ -90,8 +86,8 @@ export const COPY = {
 };
 
 export function offerLines(now, lang) {
-  const live = now <= new Date(OFFER.ends);
-  const line = live ? OFFER[lang === 'hinglish' ? 'hinglish' : 'en'] : '';
+  const o = offerAt(now, lang === 'hinglish' ? 'hinglish' : 'en');
+  const line = o ? o.line : '';
   const fresh = lang === 'hinglish' ? ', naya mahina, nayi shuruaat 💪 Free session ke slots khule hain — subah aur shaam.' : ', new month, fresh start 💪 Free session slots are open — mornings and evenings.';
   return { line, orFresh: line || fresh };
 }
