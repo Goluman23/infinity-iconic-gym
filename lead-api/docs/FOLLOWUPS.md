@@ -114,3 +114,19 @@ node tools/send-list.mjs contacts.csv --campaign offer --active active.csv --ina
 | members (hours reminder, greeting) | Active Members only | duplicates, bad numbers, gym's own numbers |
 
 Member status comes from EasySocial's synced segments (export each segment and pass it with --active / --inactive).
+
+## Live lists → named API campaigns (`/api/es/campaign-push`)
+
+Say "add this list to <campaign name>" and send the list. Each named campaign is an EasySocial
+"Broadcast → Create API" campaign registered in `lib/campaign-registry.js` (name, aliases, template,
+who may receive it, end date, earlier broadcasts to skip); its cURL goes into `ES_CAMPAIGNS` under the same id.
+
+| Campaign | Say | Template | Who | Ends |
+|---|---|---|---|---|
+| festive_video | "festive video" / "festive offer" | infinity_festive_video_offer (video, FESTIVE26) | offer rule (non-members; YC only if inactive) | 8 Nov 2026 |
+
+Every push: filter (contact codes, members, opt-outs, duplicates, gym numbers) → skip anyone in the
+**Campaign log** tab for this campaign or its earlier broadcasts → **preview** (counts + reasons + sample).
+It only sends when `CAMPAIGN_LIVE=1` in Vercel **and** the call has `live: true` and `confirm: "<id>"`,
+100 per call (call again for the rest). Every send is written to the Campaign log tab.
+Auth: `CAMPAIGN_PUSH_KEY` (Vercel, sensitive).

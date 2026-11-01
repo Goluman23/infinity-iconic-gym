@@ -24,8 +24,9 @@ const TABS = {
   conversations: ['Received (IST)', 'Platform', 'Name', 'Number', 'They wrote', 'Understood as', 'Caught by', 'When', 'Bot replied', 'Lead ID'],
   leads: ['Received (IST)', 'Platform', 'Reason', 'Name', 'Number', 'When', 'Outside hours', 'Message', 'Lead ID', 'Status'],
   whatsapp: ['Received (IST)', 'From', 'Type', 'Text', 'Status', 'Error'],
+  campaign: ['Time (IST)', 'Campaign', 'Phone', 'First name', 'Source', 'List', 'Result', 'Error'],
 };
-const TAB_NAMES = { conversations: 'Conversations', leads: 'Leads', whatsapp: 'WhatsApp messages' };
+const TAB_NAMES = { conversations: 'Conversations', leads: 'Leads', whatsapp: 'WhatsApp messages', campaign: 'Campaign log' };
 
 function doGet() {
   return ContentService.createTextOutput('Infinity sheet logger is running.');
@@ -54,6 +55,25 @@ function doPost(e) {
         return out_({ ok: true, alert: 'sent' });
       }
       return out_({ ok: true });
+    }
+    // Campaign ledger (lead-api /api/es/campaign-push): who got which API campaign.
+    if (body.kind === 'campaign') {
+      (body.rows || []).forEach(function (r) { append_('campaign', r); });
+      return out_({ ok: true, rows: (body.rows || []).length });
+    }
+    if (body.kind === 'campaign_sent') {
+      const want = {}; (body.campaigns || []).forEach(function (c) { want[c] = true; });
+      const sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(TAB_NAMES.campaign);
+      const phones = [];
+      if (sh && sh.getLastRow() > 1) {
+        const head = sh.getRange(1, 1, 1, sh.getLastColumn()).getValues()[0];
+        const ci = head.indexOf('Campaign'), pi = head.indexOf('Phone'), ri = head.indexOf('Result');
+        sh.getRange(2, 1, sh.getLastRow() - 1, head.length).getValues().forEach(function (row) {
+          const res = String(row[ri]).replace(/^'/, '');
+          if (want[String(row[ci]).replace(/^'/, '')] && (res === 'sent' || res === 'previous')) phones.push(String(row[pi]).replace(/^'/, ''));
+        });
+      }
+      return out_({ ok: true, phones: phones });
     }
     if (body.source === 'easysocial') {
       (body.events || []).forEach(function (ev) {
