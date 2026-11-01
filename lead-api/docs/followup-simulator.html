@@ -303,11 +303,21 @@ const FESTIVALS = [
 const CAMPAIGNS = [
   { key: 'diwali', start: '2026-10-01', end: '2026-11-08', endLabel: '8 Nov', emoji: '🪔',
     offer: { en: 'Diwali special: 14 months for the price of 12', hinglish: 'Diwali special: 12 mahine ki keemat mein 14 mahine' } },
-  { key: 'detox', start: '2026-11-11', end: '2026-11-20', endLabel: '20 Nov', emoji: '🥗', offer: null },
+  // Detox: value add-ons, NOT more months — keeps the Diwali deadline honest (people who waited don't get a better price).
+  { key: 'detox', start: '2026-11-11', end: '2026-11-15', endLabel: '15 Nov', emoji: '🥗',
+    offer: { en: 'Post-Diwali Detox: FREE Detox Starter Kit with any annual membership — body-composition scan, 14-day diet plan and 1 personal-training session',
+             hinglish: 'Post-Diwali Detox: kisi bhi annual membership ke saath FREE Detox Starter Kit — body-composition scan, 14 din ka diet plan aur 1 personal-training session' } },
   { key: 'wedding', start: '2026-11-16', end: '2026-12-15', endLabel: '15 Dec', emoji: '💍', offer: null },
   { key: 'xmas', start: '2026-12-16', end: '2026-12-25', endLabel: '25 Dec', emoji: '🎄', offer: null },
   { key: 'newyear', start: '2026-12-26', end: '2027-01-31', endLabel: '31 Jan', emoji: '🎆', offer: null },
   { key: 'valentine', start: '2027-02-01', end: '2027-02-14', endLabel: '14 Feb', emoji: '💞', offer: null },
+];
+
+// Opening hours. Normal: Mon–Sat 05:00–23:00, Sun 12:00–21:00. Special days override them.
+const NORMAL_HOURS = { en: 'Mon–Sat 5 AM–11 PM · Sun 12–9 PM', hinglish: 'Mon–Sat subah 5 – raat 11 · Sunday 12 – 9' };
+const SPECIAL_HOURS = [
+  { date: '2026-11-07', open: 5, close: 13, en: 'Sat 7 Nov: 5 AM – 1 PM', hinglish: 'Shanivaar 7 Nov: subah 5 – dopahar 1' },
+  { date: '2026-11-08', closed: true, en: 'Sun 8 Nov (Diwali): closed', hinglish: 'Ravivaar 8 Nov (Diwali): band' },
 ];
 
 function istYmd(date = new Date()) {
@@ -335,6 +345,27 @@ function offerAt(now = new Date(), lang = 'en') {
 function festivalOn(now = new Date()) {
   const ymd = istYmd(now);
   return FESTIVALS.find(f => f.date === ymd) || null;
+}
+
+// Is the gym open at this moment (IST)? Special days first, then normal hours.
+function isOpenAt(date) {
+  const ymd = istYmd(date);
+  const t = new Date(new Date(date).getTime() + 330 * 60000);
+  const h = t.getUTCHours() + t.getUTCMinutes() / 60, dow = t.getUTCDay();
+  const sp = SPECIAL_HOURS.find(x => x.date === ymd);
+  if (sp) return !sp.closed && h >= sp.open && h < sp.close;
+  return dow === 0 ? h >= 12 && h < 21 : h >= 5 && h < 23;
+}
+function isClosedDay(date) { const sp = SPECIAL_HOURS.find(x => x.date === istYmd(date)); return !!(sp && sp.closed); }
+function isSpecialDay(date) { return SPECIAL_HOURS.some(x => x.date === istYmd(date)); }
+
+// "🪔 Diwali hours: Sat 7 Nov: 5 AM – 1 PM · Sun 8 Nov (Diwali): closed" while a special day is within the next 7 days.
+function holidayNotice(now = new Date(), lang = 'en') {
+  const today = istYmd(now), soon = istYmd(new Date(new Date(now).getTime() + 7 * 864e5));
+  const up = SPECIAL_HOURS.filter(x => x.date >= today && x.date <= soon);
+  if (!up.length) return '';
+  const H = lang === 'hinglish';
+  return (H ? '🪔 Tyohaar timings: ' : '🪔 Festival hours: ') + up.map(x => x[H ? 'hinglish' : 'en']).join(' · ');
 }
 
 // Fast rules: catch the messages that matter most without calling the AI
@@ -543,6 +574,7 @@ function render(stepId, variant, lead, now, extra = {}) {
 //          Instagram/Messenger: only inside the 24 h window (no messages after it closes).
 
 
+
 const MIN = 60e3, HOUR = 60 * MIN, DAY = 24 * HOUR;
 const IST = 330 * MIN; // UTC+05:30, no daylight saving
 
@@ -571,6 +603,12 @@ function fitWindow(due, kind, prefHour) {
   const target = prefHour != null && prefHour >= a && prefHour <= b ? prefHour : a;
   return h > b ? at(due, Math.floor(target), Math.round((target % 1) * 60), 1) : at(due, Math.floor(target), Math.round((target % 1) * 60), 0);
 }
+// Gym closed that day (e.g. Diwali): no messages — move to the next day's window start.
+function skipClosed(due, kind) {
+  let d = due, n = 0;
+  while (isClosedDay(d) && n++ < 7) d = at(d, WINDOWS[kind][0], 0, 1);
+  return d;
+}
 // Nurture goes out at the hour they usually talk to us (if sensible), else 11:00 or 18:30.
 function prefHourOf(lead) { const h = lead.firstInbound ? hm(new Date(lead.firstInbound)) : null; return h != null && h >= 10 && h <= 20.5 ? h : (h != null && h > 15 ? 18.5 : 11); }
 
@@ -596,6 +634,8 @@ function parseSession(phrase, from) {
   const p = istParts(s), sun = p.dow === 0;
   if (sun && hm(s) < 12) { s = at(s, 12); approx = true; } else if (!sun && hm(s) < 5) { s = at(s, 6); approx = true; }
   if (s.getTime() <= from.getTime()) return null;
+  // Closed day or outside special hours (e.g. 8 Nov Diwali, 7 Nov after 1 PM): don't book reminders for it.
+  if (isSpecialDay(s) && !isOpenAt(s)) return null;
   return { at: s.toISOString(), approx, phrase: phrase || '' };
 }
 
@@ -766,7 +806,7 @@ function plan(lead, now, stats = {}) {
       if (hm(due) < WINDOWS.reminder[0] || hm(due) > WINDOWS.reminder[1]) continue; // never in the middle of the night
       if (now >= s) continue; // session started — reminder no longer useful
     } else {
-      due = fitWindow(due, step.window, step.window === 'nurture' ? prefHourOf(lead) : null);
+      due = skipClosed(fitWindow(due, step.window, step.window === 'nurture' ? prefHourOf(lead) : null), step.window);
       if (step.id === 'new_ig_last') { const close = new Date(new Date(lead.lastInbound).getTime() + DAY - 30 * MIN); if (due > close) continue; }
     }
     // Instagram/Messenger: nothing can be sent after the 24 h window closes, so drop those steps.
@@ -784,7 +824,7 @@ function plan(lead, now, stats = {}) {
   if (!pick.step.reminder && !pick.step.ackOnly) {
     if (lead.lastOutbound) due = new Date(Math.max(due, new Date(lead.lastOutbound).getTime() + 3 * HOUR));
     if (pick.step.window === 'nurture' && lead.lastNurture) due = new Date(Math.max(due, new Date(lead.lastNurture).getTime() + 20 * HOUR));
-    if (due > pick.due) due = fitWindow(due, pick.step.window, pick.step.window === 'nurture' ? prefHourOf(lead) : null);
+    if (due > pick.due) due = skipClosed(fitWindow(due, pick.step.window, pick.step.window === 'nurture' ? prefHourOf(lead) : null), pick.step.window);
   }
   const kind = COPY[pick.copyId].kind;
   const variant = pickVariant(pick.copyId, lead.id, stats);

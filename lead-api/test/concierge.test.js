@@ -72,6 +72,14 @@ o = await run('hey', { ai: { intent: 'greeting', lang: 'en' }, now: AFTER });
 ok('offer line gone after 8 Nov', !o.reply.includes('Diwali'));
 o = await run('offer?', { ai: { intent: 'offer', lang: 'en' }, now: AFTER });
 ok('offer question after 8 Nov says it ended', o.reply.includes('has ended'));
+o = await run('timings?', { ai: { intent: 'timings', lang: 'en' }, now: new Date('2026-11-04T10:00:00Z') });
+ok('timings before Diwali show festival hours', o.reply.includes('Sat 7 Nov: 5 AM – 1 PM') && o.reply.includes('Sun 8 Nov (Diwali): closed'));
+o = await run('kab aau', { ai: { intent: 'visit_plan', lang: 'hinglish', when: 'Sunday' }, now: new Date('2026-11-04T10:00:00Z') });
+ok('visit reply before Diwali carries festival hours (Hinglish)', o.reply.includes('Ravivaar 8 Nov (Diwali): band'));
+o = await run('timings?', { ai: { intent: 'timings', lang: 'en' }, now: new Date('2026-11-20T10:00:00Z') });
+ok('no festival-hours line after the festival', !o.reply.includes('Festival hours'));
+o = await run('any offer?', { ai: { intent: 'offer', lang: 'en' }, now: new Date('2026-11-12T06:00:00Z') });
+ok('Detox offer 11–15 Nov', o.reply.includes('Detox Starter Kit') && o.reply.includes('15 Nov') && !/₹\s?\d/.test(o.reply.split('Detox')[1] || ''));
 o = await run('Shaam ko 5 baje aa jaunga', { ai: { intent: 'visit_plan', lang: 'hinglish', when: 'this evening at 5 PM', hours_conflict: false } });
 ok('AI catches a visit the rules missed', o.intent === 'visit_plan' && o.reply.includes('*aaj shaam 5 baje*'));
 

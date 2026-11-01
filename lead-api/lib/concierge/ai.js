@@ -1,12 +1,14 @@
+import { SPECIAL_HOURS } from '../calendar.js';
 // Claude classifies the messages the fast rules didn't catch.
 // It only LABELS the message and pulls out details; customers see approved
 // templates. Claude writes words only for a general question, and compose()
 // still blocks any price in them. Any failure → intent "unclear" (helpful menu).
-const SYSTEM = `You classify messages sent to the Instagram/WhatsApp inbox of Infinity Gym by EQ Iconic (Sector 86, Faridabad, India). People write in English, Hindi or Hinglish, often with typos.
+const BASE = `You classify messages sent to the Instagram/WhatsApp inbox of Infinity Gym by EQ Iconic (Sector 86, Faridabad, India). People write in English, Hindi or Hinglish, often with typos.
 
 Facts (use ONLY these for replies):
 - Address: 2nd Floor, Plot 4P, Main Bypass Road, above Mittal Foam House, near Amolik Chowk, Sector 86, Faridabad.
 - Hours: Mon–Sat 5 AM–11 PM, Sunday 12–9 PM.
+- Special days: ${SPECIAL_HOURS.map(x => x.en).join('; ')}.
 - 10,000 sq ft; strength, cardio, functional zone, rooftop CrossFit box, HYROX training.
 - 50+ group classes a month: Zumba, yoga, functional; ladies-only batches with female trainers.
 - Personal training, diet guidance, in-house physiotherapy, body-composition scans.
@@ -28,6 +30,8 @@ Intent guide:
 - complaint: unhappy about service, staff, cleanliness, billing, equipment.
 - human: wants a real person.
 - unclear: emoji only, gibberish, or not about the gym.`;
+// Today's date lets Claude judge "tomorrow" / "Sunday" against the special days.
+const systemFor = now => `${BASE}\n\nToday is ${new Date(now).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} (India time).`;
 
 export const INTENTS = ['visit_plan', 'callback', 'price', 'offer', 'location', 'timings', 'classes', 'facilities',
   'member_service', 'complaint', 'human', 'greeting', 'thanks', 'other_question', 'unclear'];
@@ -56,6 +60,7 @@ export async function classify(message, {
   apiKey = (process.env.ANTHROPIC_API_KEY || '').trim(),
   model = (process.env.CONCIERGE_MODEL || 'claude-haiku-5-5').trim(),
   timeoutMs = Number(process.env.CONCIERGE_AI_TIMEOUT_MS || 6000),
+  now = new Date(),
 } = {}) {
   // Skip Claude when the key is missing or clearly not a real key (placeholder, stray "…", spaces).
   if (!/^sk-ant-[\x21-\x7e]{30,}$/.test(apiKey)) return { ...parseAnswer(null), source: 'ai-off' };
@@ -65,7 +70,7 @@ export async function classify(message, {
     const r = await fetchImpl('https://api.anthropic.com/v1/messages', {
       method: 'POST', signal: ctrl.signal,
       headers: { 'content-type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
-      body: JSON.stringify({ model, max_tokens: 600, system: SYSTEM,
+      body: JSON.stringify({ model, max_tokens: 600, system: systemFor(now),
         messages: [{ role: 'user', content: `Message: """${String(message).slice(0, 1000)}"""` }] }),
     });
     if (!r.ok) {
