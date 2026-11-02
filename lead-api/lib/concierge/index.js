@@ -29,9 +29,21 @@ export function readParams(p) {
   };
 }
 
+// Bot blocks that must follow the calendar (offer, price, hours) ask for their reply by intent:
+//   …/api/es/concierge?key=…&intent=offer&message=[last_message]&platform=instagram
+// so the text always comes from lib/calendar.js instead of being typed into EasySocial.
+export const FIXED_INTENTS = ['offer', 'price', 'timings', 'location', 'greeting', 'classes', 'facilities'];
+
 export async function handleMessage(p, { now = new Date(), classifyImpl = classify } = {}) {
   const base = readParams(p);
   const rules = fastRules(base.message);
+  const forced = String(p.intent || '').toLowerCase().trim();
+  if (FIXED_INTENTS.includes(forced)) {
+    const lang = p.lang === 'hinglish' || p.lang === 'en' ? p.lang : rules.lang;
+    const s = { ...base, lang, intent: forced, source: 'flow', when: '', sharedPhone: '', hoursConflict: false };
+    const out = compose(s, now);
+    return { state: s, out, log: buildLogPayload(s, out, now) };
+  }
   let s = { ...base, ...rules };
   if (!rules.intent) {
     const ai = await classifyImpl(base.message);

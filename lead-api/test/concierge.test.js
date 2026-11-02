@@ -86,6 +86,24 @@ o = await run('mat bhejo');
 ok('Hinglish opt-out', o.intent === 'optout' && o.reply.includes('nahi bhejenge'));
 o = await run('will the offer stop on 8 nov?', { ai: { intent: 'offer', lang: 'en' } });
 ok('a question mentioning "stop" is not an opt-out', o.intent === 'offer');
+{
+  const { handleMessage } = await import('../lib/concierge/index.js');
+  const noAI = async () => { throw new Error('AI must not be called for a fixed intent'); };
+  let x = await handleMessage({ intent: 'offer', message: 'Diwali offer', platform: 'instagram' }, { now: new Date('2026-11-02T10:00:00+05:30'), classifyImpl: noAI });
+  ok('flow block intent=offer → today\'s calendar offer, no AI', x.out.intent === 'offer' && /60% off/.test(x.out.reply) && /8 Nov/.test(x.out.reply) && !/31 Oct|14 months/.test(x.out.reply));
+  x = await handleMessage({ intent: 'offer', message: '' }, { now: new Date('2026-11-12T10:00:00+05:30'), classifyImpl: noAI });
+  ok('intent=offer during Detox → Detox kit', /Detox Starter Kit/.test(x.out.reply) && /15 Nov/.test(x.out.reply));
+  x = await handleMessage({ intent: 'offer', message: '' }, { now: new Date('2026-11-09T10:00:00+05:30'), classifyImpl: noAI });
+  ok('intent=offer between offers → honest "ended" reply', /has ended/.test(x.out.reply) && !/Diwali special/.test(x.out.reply));
+  x = await handleMessage({ intent: 'price', message: 'What the price' }, { now: new Date('2026-11-02T10:00:00+05:30'), classifyImpl: noAI });
+  ok('intent=price → range + live offer line', /1,000–1,300/.test(x.out.reply) && /8 Nov/.test(x.out.reply) && !/31 Oct/.test(x.out.reply));
+  x = await handleMessage({ intent: 'timings', message: '' }, { now: new Date('2026-11-05T10:00:00+05:30'), classifyImpl: noAI });
+  ok('intent=timings in Diwali week → festival hours', /Sun 8 Nov \(Diwali\): closed/.test(x.out.reply));
+  x = await handleMessage({ intent: 'offer', message: 'kya offer hai', lang: 'hinglish' }, { now: new Date('2026-11-02T10:00:00+05:30'), classifyImpl: noAI });
+  ok('intent=offer in Hinglish', /60% tak off/.test(x.out.reply));
+  x = await handleMessage({ intent: 'bogus', message: 'price' }, { now: new Date('2026-11-02T10:00:00+05:30'), classifyImpl: async () => ({ intent: 'price', lang: 'en', source: 'ai' }) });
+  ok('unknown intent param is ignored (normal path)', x.out.intent === 'price');
+}
 o = await run('Shaam ko 5 baje aa jaunga', { ai: { intent: 'visit_plan', lang: 'hinglish', when: 'this evening at 5 PM', hours_conflict: false } });
 ok('AI catches a visit the rules missed', o.intent === 'visit_plan' && o.reply.includes('*aaj shaam 5 baje*'));
 
