@@ -3,7 +3,7 @@
 //         exclude?: [phones], live?: true, confirm?: "<campaign id>", allowNoLedger?: true }
 // Every call filters the list (lib/contacts.js rules for the campaign), skips anyone already sent this
 // campaign or its excludeCampaigns (Campaign log tab), and returns a preview. It only sends when
-// CAMPAIGN_LIVE=1 in Vercel AND the call says live:true with confirm = the campaign id. Up to 100 sends
+// CAMPAIGN_LIVE=1 in Vercel AND the call says live:true with confirm = the campaign id. Up to 25 sends
 // per call; "remaining" tells you to call again.
 import { send, readBody, cors } from '../../lib/http.js';
 import { easysocial } from '../../lib/providers/easysocial.js';
@@ -13,7 +13,7 @@ import { normalizePhone } from '../../lib/rules.js';
 import { sentTo, record } from '../../lib/campaign-ledger.js';
 
 const env = (k, d = '') => (process.env[k] ?? d).toString().trim();
-const BATCH = 100;
+const BATCH = 25; // EasySocial's send API takes about 1–3 s per message; 25 fits well inside the 90 s limit
 let pause = ms => new Promise(r => setTimeout(r, ms));
 export function setPause(fn) { pause = fn; }
 
@@ -61,11 +61,13 @@ export default async function handler(req, res) {
       why: !wantLive ? 'preview (live:true not set)' : env('CAMPAIGN_LIVE') !== '1' ? 'CAMPAIGN_LIVE is not 1 in Vercel' : `confirm must equal "${c.id}"` });
   }
 
-  const batch = list.slice(0, BATCH), results = [];
+  const size = Math.max(1, Math.min(BATCH, Number(body.batch) || BATCH));
+  const batch = list.slice(0, size), results = [];
   for (const p of batch) {
     try { await easysocial.sendFirstTouch(p.phone, c.id, { phone: p.phone, name: p.first_name, first: p.first_name, source: p.source }); results.push({ ...p, result: 'sent' }); }
     catch (e) { results.push({ ...p, result: 'failed', error: e.message.slice(0, 200) }); }
-    await pause(250);
+    console.log(`[campaign] ${c.id} ${p.phone} ${results.at(-1).result}${results.at(-1).error ? ' ' + results.at(-1).error : ''}`);
+    await pause(150);
   }
   const at = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
   let logged = true;
@@ -73,5 +75,6 @@ export default async function handler(req, res) {
   catch (e) { logged = false; console.log('[campaign] ledger write failed', e.message); }
   const sent = results.filter(r => r.result === 'sent').length;
   return send(res, 200, { ok: true, live: true, ...summary, sent, failed: results.length - sent, remaining: list.length - batch.length, logged,
+    sentPhones: results.filter(r => r.result === 'sent').map(r => r.phone),
     failures: results.filter(r => r.result === 'failed').slice(0, 20) });
 }
