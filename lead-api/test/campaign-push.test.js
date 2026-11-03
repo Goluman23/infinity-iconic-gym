@@ -55,7 +55,7 @@ ok('ledger unreachable + allowNoLedger → sends, honours exclude, logged=false'
 ledgerDown = false;
 const many = Array.from({ length: 250 }, (_, i) => ({ name: 'P' + i, phone: '98' + String(20000000 + i) }));
 esPosts = []; r = await call({ key: KEY, campaign: 'festive video', contacts: many, live: true, confirm: 'festive_video' });
-ok('batches of 100 with remaining count', r.sent === 100 && r.remaining === 150 && esPosts.length === 100, `${r.sent} ${r.remaining}`);
+ok('batches of 25 with remaining count + sentPhones', r.sent === 25 && r.remaining === 225 && esPosts.length === 25 && r.sentPhones.length === 25, `${r.sent} ${r.remaining}`);
 logged = []; r = await call({ key: KEY, recordPrevious: 'festive_100_test', phones: ['+91 98111 00009', '9811100009', 'bad'] });
 ok('record earlier broadcast recipients (deduped, valid only)', r.recorded === 1 && logged[0].Result === 'previous' && logged[0].Phone === '919811100009');
 console.log(`${pass}/${pass + fail} campaign push checks passed`);
