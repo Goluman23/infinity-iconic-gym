@@ -1,6 +1,6 @@
 // POST /api/es/campaign-push — add a list of contacts to a named EasySocial API campaign.
 // Body: { key, campaign: "festive video", contacts: [{ name, phone, tags?, segment? }], list?: "Society A",
-//         exclude?: [phones], live?: true, confirm?: "<campaign id>" }
+//         exclude?: [phones], live?: true, confirm?: "<campaign id>", allowNoLedger?: true }
 // Every call filters the list (lib/contacts.js rules for the campaign), skips anyone already sent this
 // campaign or its excludeCampaigns (Campaign log tab), and returns a preview. It only sends when
 // CAMPAIGN_LIVE=1 in Vercel AND the call says live:true with confirm = the campaign id. Up to 100 sends
@@ -48,7 +48,8 @@ export default async function handler(req, res) {
   const wantLive = body.live === true;
   let already = [], ledgerError = '';
   try { already = await sentTo([c.id, ...(c.excludeCampaigns || [])]); } catch (e) { ledgerError = e.message; }
-  if (wantLive && ledgerError) return send(res, 503, { error: `Cannot check who already got it (${ledgerError}) — nothing sent` });
+  // allowNoLedger: true lets a first batch go out before the Campaign log tab exists; pass earlier batches in `exclude`.
+  if (wantLive && ledgerError && body.allowNoLedger !== true) return send(res, 503, { error: `Cannot check who already got it (${ledgerError}) — nothing sent` });
 
   const { send: list, skipped } = buildSendList(contacts, c.rule, { exclude: [...already, ...(body.exclude || [])] });
   const reasons = skipped.reduce((m, s) => (m[s.reason] = (m[s.reason] || 0) + 1, m), {});
