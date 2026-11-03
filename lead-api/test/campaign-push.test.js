@@ -27,6 +27,7 @@ const contacts = [
 ];
 const KEY = 'k'.repeat(24);
 
+ok('Festive offer API resolves', resolveCampaign('Festive offer API')?.id === 'festive_api' && resolveCampaign('festive offer')?.id === 'festive_video');
 ok('aliases resolve', resolveCampaign('festive video')?.id === 'festive_video' && resolveCampaign('Infinity Festive Offer – Video')?.id === 'festive_video' && resolveCampaign('infinity_festive_video_offer')?.id === 'festive_video');
 let r = await call({ key: 'wrong', campaign: 'festive video', contacts });
 ok('wrong key → 401', r.code === 401);
@@ -49,6 +50,8 @@ r = await call({ key: KEY, campaign: 'festive video', contacts, live: true, conf
 ok('ledger unreachable → refuses to send', r.code === 503 && esPosts.length === 2);
 r = await call({ key: KEY, campaign: 'festive video', contacts });
 ok('ledger unreachable → preview still works with a warning', r.dryRun && r.ledgerWarning);
+esPosts = []; r = await call({ key: KEY, campaign: 'festive video', contacts, live: true, confirm: 'festive_video', allowNoLedger: true, exclude: ['9811100003'] });
+ok('ledger unreachable + allowNoLedger → sends, honours exclude, logged=false', r.live && r.sent === esPosts.length && esPosts.length >= 1 && r.logged === false);
 ledgerDown = false;
 const many = Array.from({ length: 250 }, (_, i) => ({ name: 'P' + i, phone: '98' + String(20000000 + i) }));
 esPosts = []; r = await call({ key: KEY, campaign: 'festive video', contacts: many, live: true, confirm: 'festive_video' });

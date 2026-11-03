@@ -11,7 +11,17 @@ export const CAMPAIGN_REGISTRY = [
     template: 'infinity_festive_video_offer',
     rule: 'offer',
     ends: '2026-11-08T23:59:59+05:30',
-    excludeCampaigns: ['festive_100_test'],
+    excludeCampaigns: ['festive_100_test', 'festive_api'],
+  },
+  {
+    // EasySocial campaign "Festive offer API" (Create API, made by the client 3 Nov 2026). Lists are added in batches.
+    id: 'festive_api',
+    name: 'Festive offer API',
+    aliases: ['festive offer api', 'festive api', 'festive offer api campaign', 'api campaign'],
+    template: 'set in EasySocial (Festive offer API campaign)',
+    rule: 'offer',
+    ends: '2026-11-08T23:59:59+05:30',
+    excludeCampaigns: ['festive_100_test', 'festive_video'],
   },
 ];
 
