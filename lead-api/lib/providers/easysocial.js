@@ -99,7 +99,7 @@ export const easysocial = {
       goal: lead.goal || 'fitness', time: lead.time || '', area: lead.area || '', source: lead.source || '', ...extra,
     };
     const fill = (v) => typeof v === 'string' ? v.replace(/\{\{(\w+)\}\}/g, (_, k) => vars[k] ?? '') : Array.isArray(v) ? v.map(fill) : (v && typeof v === 'object') ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, fill(x)])) : v;
-    const r = await call((spec.method || 'POST').toUpperCase(), fill(spec.url), spec.body == null ? null : fill(spec.body), { ...(spec.headers ? fill(spec.headers) : {}), ...(spec.useToken === false ? { __noauth: '1' } : {}) });
+    const r = await call((spec.method || 'POST').toUpperCase(), fill(spec.url), spec.body == null ? null : (extra.bodyOverride && typeof spec.body === 'object' ? { ...fill(spec.body), ...extra.bodyOverride } : fill(spec.body)), { ...(spec.headers ? fill(spec.headers) : {}), ...(spec.useToken === false ? { __noauth: '1' } : {}) });
     if (r.status >= 400 || r.json?.success === false) throw new Error(`EasySocial campaign "${key}" failed (${r.status}): ${r.json?.message || ''}`);
   },
 };
