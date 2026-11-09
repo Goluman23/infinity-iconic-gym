@@ -10,7 +10,7 @@ export const CAMPAIGN_REGISTRY = [
     aliases: ['festive video', 'festive offer video', 'infinity festive offer', 'festive offer', 'video offer', 'diwali video'],
     template: 'infinity_festive_video_offer',
     rule: 'offer',
-    ends: '2026-11-08T23:59:59+05:30',
+    ends: '2026-11-10T23:59:59+05:30',
     excludeCampaigns: ['festive_100_test', 'festive_api'],
   },
   {
@@ -20,8 +20,10 @@ export const CAMPAIGN_REGISTRY = [
     aliases: ['festive offer api', 'festive api', 'festive offer api campaign', 'api campaign'],
     template: 'set in EasySocial (Festive offer API campaign)',
     rule: 'offer',
-    ends: '2026-11-08T23:59:59+05:30',
+    ends: '2026-11-10T23:59:59+05:30',
     excludeCampaigns: ['festive_100_test', 'festive_video'],
+    // Overrides the matching fields in the ES_CAMPAIGNS body, so the offer timer follows `ends` without editing the secret.
+    bodyOverride: { expiration_time_ms: String(Date.parse('2026-11-10T23:59:59+05:30')) },
   },
 ];
 

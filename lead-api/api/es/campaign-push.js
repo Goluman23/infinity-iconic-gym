@@ -64,7 +64,7 @@ export default async function handler(req, res) {
   const size = Math.max(1, Math.min(BATCH, Number(body.batch) || BATCH));
   const batch = list.slice(0, size), results = [];
   for (const p of batch) {
-    try { await easysocial.sendFirstTouch(p.phone, c.id, { phone: p.phone, name: p.first_name, first: p.first_name, source: p.source }); results.push({ ...p, result: 'sent' }); }
+    try { await easysocial.sendFirstTouch(p.phone, c.id, { phone: p.phone, name: p.first_name, first: p.first_name, source: p.source }, c.bodyOverride ? { bodyOverride: c.bodyOverride } : {}); results.push({ ...p, result: 'sent' }); }
     catch (e) { results.push({ ...p, result: 'failed', error: e.message.slice(0, 200) }); }
     console.log(`[campaign] ${c.id} ${p.phone} ${results.at(-1).result}${results.at(-1).error ? ' ' + results.at(-1).error : ''}`);
     await pause(150);
