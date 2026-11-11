@@ -23,11 +23,12 @@ export const CAMPAIGNS = [
     // One festive offer (merged 1 Nov with the gym's own infinity_festive_offer_2026 template). Extended to 10 Nov on 9 Nov 2026 (client).
     offer: { en: 'Diwali special: up to 60% off on membership, 2 months extra on select plans, GST included, plus a free Infinity Fashion Show pass on eligible memberships',
              hinglish: 'Diwali special: membership par 60% tak off, select plans par 2 mahine extra, GST included, aur eligible memberships par Infinity Fashion Show ka free pass' } },
-  // Detox: value add-ons, NOT more months — keeps the Diwali deadline honest (people who waited don't get a better price).
-  { key: 'detox', start: '2026-11-11', end: '2026-11-15', endLabel: '15 Nov', emoji: '🥗',
-    offer: { en: 'Post-Diwali Detox: FREE Detox Starter Kit with any annual membership — body-composition scan, 14-day diet plan and 1 personal-training session',
-             hinglish: 'Post-Diwali Detox: kisi bhi annual membership ke saath FREE Detox Starter Kit — body-composition scan, 14 din ka diet plan aur 1 personal-training session' } },
-  { key: 'wedding', start: '2026-11-16', end: '2026-12-15', endLabel: '15 Dec', emoji: '💍', offer: null },
+  // Infinity Detox Offer (client's own offer and poster, 11 Nov 2026; replaces the earlier Detox kit idea). Limited to the first 30 memberships.
+  { key: 'detox', start: '2026-11-11', end: '2026-11-30', endLabel: '30 Nov', emoji: '🏆',
+    offer: { en: 'Infinity Detox Offer: Yearly membership gets 2 months extra + 1 month FREE for a friend or family member; 6-month membership gets 2 months extra + 15 days FREE for a friend or family member. Limited to the first 30 memberships',
+             hinglish: 'Infinity Detox Offer: Yearly membership par 2 mahine extra + ek dost ya family member ke liye 1 mahina FREE; 6 mahine ki membership par 2 mahine extra + ek dost ya family member ke liye 15 din FREE. Sirf pehli 30 memberships ke liye',
+             short: { en: '2 months extra + a FREE month for a friend or family member on yearly plans', hinglish: 'yearly plan par 2 mahine extra + dost ya family ke liye 1 mahina FREE' } } },
+  { key: 'wedding', start: '2026-12-01', end: '2026-12-15', endLabel: '15 Dec', emoji: '💍', offer: null },
   { key: 'xmas', start: '2026-12-16', end: '2026-12-25', endLabel: '25 Dec', emoji: '🎄', offer: null },
   { key: 'newyear', start: '2026-12-26', end: '2027-01-31', endLabel: '31 Jan', emoji: '🎆', offer: null },
   { key: 'valentine', start: '2027-02-01', end: '2027-02-14', endLabel: '14 Feb', emoji: '💞', offer: null },

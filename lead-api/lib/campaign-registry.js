@@ -25,7 +25,32 @@ export const CAMPAIGN_REGISTRY = [
     // Overrides the matching fields in the ES_CAMPAIGNS body, so the offer timer follows `ends` without editing the secret.
     bodyOverride: { expiration_time_ms: String(Date.parse('2026-11-10T23:59:59+05:30')) },
   },
+  {
+    // EasySocial campaign "After festive detox" (Create API, 11 Nov 2026): the client's Infinity Detox Offer with the poster.
+    // Sent to everyone who got the festive offer. Uses the same account key as festive_api, so no new secret:
+    // es.from = the ES_CAMPAIGNS entry whose URL key is reused; campaignId/templateId = the new campaign's ids.
+    id: 'after_festive_detox',
+    name: 'After festive detox',
+    aliases: ['after festive detox', 'detox', 'detox offer', 'infinity detox offer', 'detox campaign', 'after festive detox campaign'],
+    template: 'infinity_detox_offer',
+    rule: 'offer',
+    ends: '2026-11-30T23:59:59+05:30',
+    excludeCampaigns: [],
+    es: {
+      from: 'festive_api', campaignId: '', templateId: '',
+      body: { mobileNumber: '{{phone}}', body1: '{{first_name}}', header1: 'https://api.eqiconic.com/media/infinity-detox-offer.jpg', name: '{{first_name}}' },
+    },
+  },
 ];
+
+// Build the EasySocial send spec for a campaign that reuses another campaign's account key (see es above).
+export function derivedSpec(c, campaigns) {
+  if (!c.es) return null;
+  const base = campaigns[c.es.from];
+  if (!base || !base.url || !c.es.campaignId || !c.es.templateId) return null;
+  const url = base.url.replace(/\/\d+\/\d+\/?$/, `/${c.es.campaignId}/${c.es.templateId}`);
+  return { ...base, url, body: c.es.body || base.body };
+}
 
 // Recipients of earlier one-off broadcasts, kept in the ledger under these ids so they are never re-sent.
 export const PAST_BROADCASTS = {

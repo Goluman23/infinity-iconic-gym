@@ -13,7 +13,7 @@ const { default: handler, keyOk } = await import('../api/es/concierge.js');
 let pass = 0, fail = 0;
 const ok = (name, c, extra = '') => { if (c) pass++; else { fail++; console.log('  ✗', name, extra); } };
 const NOW = new Date('2026-10-29T14:00:00Z'); // during the Diwali offer
-const AFTER = new Date('2026-11-16T05:00:00Z'); // after the festive (10 Nov) and Detox (15 Nov) offers ended
+const AFTER = new Date('2026-12-02T05:00:00Z'); // after the festive (10 Nov) and Detox (30 Nov) offers ended
 
 const fakeAI = (answer) => async () => {
   if (answer === 'FAIL') return { intent: 'unclear', source: 'ai-failed', lang: '', when: '', hoursConflict: false, aiReply: '' };
@@ -71,7 +71,7 @@ ok('greeting uses first name, no alert', o.reply.startsWith('Hey Rohit 👋') &&
 o = await run('hey', { ai: { intent: 'greeting', lang: 'en' }, now: AFTER });
 ok('offer line gone after 10 Nov', !o.reply.includes('Diwali'));
 o = await run('offer?', { ai: { intent: 'offer', lang: 'en' }, now: AFTER });
-ok('offer question after 10 Nov says it ended', o.reply.includes('has ended'));
+ok('offer question after all offers says none running', /no running offer/.test(o.reply));
 o = await run('timings?', { ai: { intent: 'timings', lang: 'en' }, now: new Date('2026-11-04T10:00:00Z') });
 ok('timings before Diwali show festival hours', o.reply.includes('Sat 7 Nov: 5 AM – 1 PM') && o.reply.includes('Sun 8 Nov (Diwali): closed'));
 o = await run('kab aau', { ai: { intent: 'visit_plan', lang: 'hinglish', when: 'Sunday' }, now: new Date('2026-11-04T10:00:00Z') });
@@ -79,7 +79,7 @@ ok('visit reply before Diwali carries festival hours (Hinglish)', o.reply.includ
 o = await run('timings?', { ai: { intent: 'timings', lang: 'en' }, now: new Date('2026-11-20T10:00:00Z') });
 ok('no festival-hours line after the festival', !o.reply.includes('Festival hours'));
 o = await run('any offer?', { ai: { intent: 'offer', lang: 'en' }, now: new Date('2026-11-12T06:00:00Z') });
-ok('Detox offer 11–15 Nov', o.reply.includes('Detox Starter Kit') && o.reply.includes('15 Nov') && !/₹\s?\d/.test(o.reply.split('Detox')[1] || ''));
+ok('Detox offer 11–30 Nov', o.reply.includes('Infinity Detox Offer') && o.reply.includes('30 Nov') && o.reply.includes('first 30 memberships') && !/₹\s?\d/.test(o.reply.split('Detox')[1] || ''));
 o = await run('Stop promotions');
 ok('"Stop promotions" button → polite opt-out, no menu', o.intent === 'optout' && o.reply.includes("won't get any more offers") && !o.reply.includes('Just type') && o.response.lead_attributes.inf_optout === 'yes');
 o = await run('mat bhejo');
@@ -92,9 +92,9 @@ ok('a question mentioning "stop" is not an opt-out', o.intent === 'offer');
   let x = await handleMessage({ intent: 'offer', message: 'Diwali offer', platform: 'instagram' }, { now: new Date('2026-11-02T10:00:00+05:30'), classifyImpl: noAI });
   ok('flow block intent=offer → today\'s calendar offer, no AI', x.out.intent === 'offer' && /60% off/.test(x.out.reply) && /10 Nov/.test(x.out.reply) && !/31 Oct|14 months/.test(x.out.reply));
   x = await handleMessage({ intent: 'offer', message: '' }, { now: new Date('2026-11-12T10:00:00+05:30'), classifyImpl: noAI });
-  ok('intent=offer during Detox → Detox kit', /Detox Starter Kit/.test(x.out.reply) && /15 Nov/.test(x.out.reply));
-  x = await handleMessage({ intent: 'offer', message: '' }, { now: new Date('2026-11-17T10:00:00+05:30'), classifyImpl: noAI });
-  ok('intent=offer between offers → honest "ended" reply', /has ended/.test(x.out.reply) && !/Diwali special/.test(x.out.reply));
+  ok('intent=offer during Detox → Infinity Detox Offer', /Infinity Detox Offer/.test(x.out.reply) && /30 Nov/.test(x.out.reply) && !/Starter Kit/.test(x.out.reply));
+  x = await handleMessage({ intent: 'offer', message: '' }, { now: new Date('2026-12-05T10:00:00+05:30'), classifyImpl: noAI });
+  ok('intent=offer between offers → honest "ended" reply', /no running offer/.test(x.out.reply) && !/Diwali special/.test(x.out.reply));
   x = await handleMessage({ intent: 'price', message: 'What the price' }, { now: new Date('2026-11-02T10:00:00+05:30'), classifyImpl: noAI });
   ok('intent=price → range + live offer line', /1,000–1,300/.test(x.out.reply) && /10 Nov/.test(x.out.reply) && !/31 Oct/.test(x.out.reply));
   x = await handleMessage({ intent: 'timings', message: '' }, { now: new Date('2026-11-05T10:00:00+05:30'), classifyImpl: noAI });
@@ -159,5 +159,15 @@ ok('first filled wins', pickMessage({ message: 'hi', last_message: 'x' }).key ==
 r = await call('/api/es/concierge?key=k123&message=%5Bn8n_input_message%5D&last_message=' + encodeURIComponent('evening mein aata hu') + '&debug=1');
 ok('visit read from last_message via HTTP', r.body.debug.intent === 'visit_plan');
 
+{
+  const D = new Date('2026-11-12T12:00:00+05:30');
+  const noAI = async () => ({ intent: 'price', lang: 'en' });
+  for (const msg of ['YES', "Yes, I'm interested", 'interested', 'haan ji']) {
+    const y = await handleMessage({ message: msg, name: 'Raj Kumar', phone: '919999999999' }, { now: D, classifyImpl: noAI });
+    ok(`"${msg}" → interested, desk alert, team will call`, y.out.intent === 'interested' && y.out.alert && /call you shortly|call karke/.test(y.out.reply) && /30 Nov/.test(y.out.reply), y.out.intent + ' ' + y.out.reply.slice(0, 80));
+  }
+  const q = await handleMessage({ message: 'yes but what is the price?' }, { now: D, classifyImpl: noAI });
+  ok('longer "yes …?" question is not treated as interested', q.out.intent !== 'interested');
+}
 console.log(`${pass}/${pass + fail} concierge checks passed`);
 if (fail) process.exit(1);

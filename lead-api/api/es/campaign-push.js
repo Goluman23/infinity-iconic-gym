@@ -8,7 +8,7 @@
 import { send, readBody, cors } from '../../lib/http.js';
 import { easysocial } from '../../lib/providers/easysocial.js';
 import { buildSendList } from '../../lib/contacts.js';
-import { resolveCampaign, campaignOpen, CAMPAIGN_REGISTRY, PAST_BROADCASTS } from '../../lib/campaign-registry.js';
+import { resolveCampaign, campaignOpen, CAMPAIGN_REGISTRY, PAST_BROADCASTS, derivedSpec } from '../../lib/campaign-registry.js';
 import { normalizePhone } from '../../lib/rules.js';
 import { sentTo, record } from '../../lib/campaign-ledger.js';
 
@@ -61,10 +61,14 @@ export default async function handler(req, res) {
       why: !wantLive ? 'preview (live:true not set)' : env('CAMPAIGN_LIVE') !== '1' ? 'CAMPAIGN_LIVE is not 1 in Vercel' : `confirm must equal "${c.id}"` });
   }
 
+  let campaigns = {}; try { campaigns = JSON.parse(env('ES_CAMPAIGNS', '{}')); } catch {}
+  const spec = campaigns[c.id] || derivedSpec(c, campaigns);
+  if (!spec) return send(res, 503, { error: `${c.name} is not wired to EasySocial yet (no ES_CAMPAIGNS entry, or es.campaignId/templateId empty) — nothing sent` });
+  const extra = { spec, ...(c.bodyOverride ? { bodyOverride: c.bodyOverride } : {}) };
   const size = Math.max(1, Math.min(BATCH, Number(body.batch) || BATCH));
   const batch = list.slice(0, size), results = [];
   for (const p of batch) {
-    try { await easysocial.sendFirstTouch(p.phone, c.id, { phone: p.phone, name: p.first_name, first: p.first_name, source: p.source }, c.bodyOverride ? { bodyOverride: c.bodyOverride } : {}); results.push({ ...p, result: 'sent' }); }
+    try { await easysocial.sendFirstTouch(p.phone, c.id, { phone: p.phone, name: p.first_name, first: p.first_name, source: p.source }, extra); results.push({ ...p, result: 'sent' }); }
     catch (e) { results.push({ ...p, result: 'failed', error: e.message.slice(0, 200) }); }
     console.log(`[campaign] ${c.id} ${p.phone} ${results.at(-1).result}${results.at(-1).error ? ' ' + results.at(-1).error : ''}`);
     await pause(150);

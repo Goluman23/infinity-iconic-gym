@@ -89,7 +89,7 @@ export const easysocial = {
     return { missingTagIds: missing };
   },
   async sendFirstTouch(contact, key, lead, extra = {}) {
-    const spec = ES.campaigns[key];
+    const spec = extra.spec || ES.campaigns[key];
     if (!spec || !spec.url) {
       if (ES.dryRun) { esCalls.push({ method: 'CAMPAIGN', url: `DRY_RUN:${key}` }); return; }
       throw new Error(`No EasySocial API campaign configured for "${key}" (ES_CAMPAIGNS)`);

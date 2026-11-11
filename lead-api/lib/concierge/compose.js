@@ -46,6 +46,11 @@ export function compose(j, now = new Date()) {
     visit_plan: () => (H
       ? `Shukriya batane ke liye${WHEN ? ` ki aap *${WHEN}* aa rahe hain` : ' ki aap gym aa rahe hain'} 🙌\n\nFront desk par hamare executive aapka welcome karenge, gym ka tour denge aur membership options aur pricing aaram se samjhayenge.\n\n${place}\n\nPehle call par baat karni ho? Bas *CALL ME* likh dijiye.`
       : `Thank you for letting us know${j.when ? ` you'll drop in *${j.when}*` : ' you\'ll drop in'} 🙌\n\nOne of our executives will be at the front desk to welcome you, show you around the gym and help you with membership options and pricing.\n\n${place}\n\nWould you like to speak on a call first? Just type *CALL ME*.`) + hoursNote,
+    interested: () => offerLive
+      ? (H ? `Badhiya${first ? ' ' + first : ''}! 🎉 Aapka ${OFFER.key === 'detox' ? '*Infinity Detox Offer*' : 'offer'} hum hold kar rahe hain — hamari team jaldi aapko call karke plan aur exact price batayegi.\n\n⏳ Offer *${OFFER.endLabel}* tak${OFFER.key === 'detox' ? ' aur sirf pehli 30 memberships ke liye' : ''}.\n\nPehle gym dekhna hai? Bataiye kab aayenge — pehla session free hai. Abhi baat karni ho to *${DESK}*.`
+           : `Great choice${first ? ', ' + first : ''}! 🎉 We're holding your ${OFFER.key === 'detox' ? '*Infinity Detox Offer*' : 'offer'} — our team will call you shortly with the right plan and exact price.\n\n⏳ Valid till *${OFFER.endLabel}*${OFFER.key === 'detox' ? ' and only for the first 30 memberships' : ''}.\n\nWant to see the gym first? Tell us when you'd like to drop in — your first session is free. Or call *${DESK}* now.`)
+      : (H ? `Shukriya${first ? ' ' + first : ''} 🙌 Hamari team aapko jaldi call karegi. Abhi baat karni ho to *${DESK}*.`
+           : `Thanks${first ? ', ' + first : ''} 🙌 Our team will call you shortly. Prefer to call now? *${DESK}*.`),
     callback: () => hasPhone
       ? (H ? `Zaroor 📞 Hamari team isi number par aapko jaldi call karegi. Koi khaas time ho to likh dijiye (jaise *aaj 6 baje*).\n\nAbhi baat karni ho? *${DESK}* (${HOURS}).`
            : `Of course 📞 Our team will call you on this number shortly. If a particular time suits you, just type it (e.g. *today 6 PM*).\n\nPrefer to call now? *${DESK}* (${HOURS}).`)
@@ -63,8 +68,8 @@ export function compose(j, now = new Date()) {
     offer: () => offerLive
       ? (H ? `${OFFER.emoji} *${OFFER.text}*, sirf *${OFFER.endLabel}* tak.\n\nHar plan mein physio support, body-composition scan, steam, valet parking aur mahine ki 50+ group classes. Couple aur family pass par aur bachat.\n\nExact price ke liye *CALL ME* likhiye, ya bataiye kab *free session* ke liye aayenge 💪`
            : `${OFFER.emoji} *${OFFER.text}*, only till *${OFFER.endLabel}*.\n\nEvery plan includes physio support, body-composition scans, steam, valet parking and 50+ group classes a month. Couple and family passes save even more.\n\nFor exact pricing, type *CALL ME* — or tell us when you'd like to drop in for a *free session* 💪`)
-      : (H ? `Festive offer ab khatam ho gaya hai, par nayi membership par team ke paas hamesha kuch na kuch hota hai 🙂 *CALL ME* likhiye, ya bataiye kab *free session* ke liye aayenge.`
-           : `Our festive offer has ended, but the team always has something for new members 🙂 Type *CALL ME*, or tell us when you'd like to drop in for a *free session*.`),
+      : (H ? `Abhi koi chalu offer nahi hai, par nayi membership par team ke paas hamesha kuch na kuch hota hai 🙂 *CALL ME* likhiye, ya bataiye kab *free session* ke liye aayenge.`
+           : `There's no running offer right now, but the team always has something for new members 🙂 Type *CALL ME*, or tell us when you'd like to drop in for a *free session*.`),
     location: () => (H ? `Hum yahan hain 👇\n\n${place}\n🚗 Valet parking\n\nKabhi bhi aaiye — pehla session free hai 🙂`
                        : `Here's where to find us 👇\n\n${place}\n🚗 Valet parking at the door\n\nCome by anytime — your first session is free 🙂`),
     timings: () => (H ? `🕔 Hum *Mon–Sat subah 5 – raat 11* aur *Sunday 12 – 9* khule rehte hain — morning, evening aur weekend batches.\n\n📍 ${ADDRESS}\n\nBataiye kab aayenge — pehla session free hai 🙂`
@@ -97,8 +102,8 @@ export function compose(j, now = new Date()) {
 
   const intent = T[j.intent] ? j.intent : 'unclear';
   const message = T[intent]();
-  const HANDOFF = ['callback', 'phone_shared', 'member_service', 'complaint', 'human'];
-  const ALERT = ['visit_plan', 'callback', 'phone_shared', 'member_service', 'complaint', 'human'];
+  const HANDOFF = ['interested', 'callback', 'phone_shared', 'member_service', 'complaint', 'human'];
+  const ALERT = ['interested', 'visit_plan', 'callback', 'phone_shared', 'member_service', 'complaint', 'human'];
 
   const lead_attributes = {
     inf_intent: intent,
@@ -108,6 +113,7 @@ export function compose(j, now = new Date()) {
     ...(j.sharedPhone ? { inf_callback_number: j.sharedPhone } : {}),
     ...(HANDOFF.includes(intent) ? { inf_handoff: 'yes' } : {}),
     ...(intent === 'optout' ? { inf_optout: 'yes' } : {}),
+    ...(intent === 'interested' ? { inf_offer_interest: OFFER ? OFFER.key : 'yes' } : {}),
   };
 
   return {

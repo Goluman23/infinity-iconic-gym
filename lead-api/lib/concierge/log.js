@@ -5,6 +5,7 @@ const env = k => (process.env[k] || '').trim();
 
 const LABEL = {
   visit_plan: '🏃 Visit planned',
+  interested: '🔥 Interested in the offer — call now',
   callback: '📞 Call-back requested',
   phone_shared: '📞 Number shared — call back',
   member_service: '🪪 Member request',
