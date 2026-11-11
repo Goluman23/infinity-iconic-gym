@@ -3,10 +3,12 @@
 import handler, { setPause } from '../api/es/campaign-push.js';
 import { setLedgerFetch } from '../lib/campaign-ledger.js';
 import { setFetch } from '../lib/providers/easysocial.js';
-import { resolveCampaign } from '../lib/campaign-registry.js';
+import { resolveCampaign, CAMPAIGN_REGISTRY, derivedSpec } from '../lib/campaign-registry.js';
 let pass = 0, fail = 0;
 const ok = (n, c, x = '') => { if (c) { pass++; console.log('  ✓', n); } else { fail++; console.log('  ✗', n, x); } };
 setPause(async () => {});
+// Keep these tests independent of today's date: the real campaigns end in Nov 2026.
+for (const c of CAMPAIGN_REGISTRY) c.ends = '2099-12-31T23:59:59+05:30';
 process.env.CAMPAIGN_PUSH_KEY = 'k'.repeat(24); process.env.SHEET_LOG_URL = 'https://sheet'; process.env.SHEET_LOG_SECRET = 's';
 process.env.ES_CAMPAIGNS = JSON.stringify({ festive_video: { url: 'https://es/campaign', method: 'POST', useToken: false, body: { phone: '{{phone}}', variables: ['{{first_name}}'] } } });
 let ledger = { sent: ['919811100001'], prev: ['919811100002'] }, logged = [], esPosts = [], ledgerDown = false;
@@ -58,5 +60,13 @@ esPosts = []; r = await call({ key: KEY, campaign: 'festive video', contacts: ma
 ok('batches of 25 with remaining count + sentPhones', r.sent === 25 && r.remaining === 225 && esPosts.length === 25 && r.sentPhones.length === 25, `${r.sent} ${r.remaining}`);
 logged = []; r = await call({ key: KEY, recordPrevious: 'festive_100_test', phones: ['+91 98111 00009', '9811100009', 'bad'] });
 ok('record earlier broadcast recipients (deduped, valid only)', r.recorded === 1 && logged[0].Result === 'previous' && logged[0].Phone === '919811100009');
+{
+  const d = CAMPAIGN_REGISTRY.find(c => c.id === 'after_festive_detox');
+  const base = { festive_api: { method: 'POST', url: 'https://api.easysocial.in/api/v1/wa-templates/send/KEY/23589/4510', useToken: false, body: { mobileNumber: '{{phone}}' } } };
+  ok('after festive detox resolves by name', resolveCampaign('After festive detox')?.id === 'after_festive_detox' && resolveCampaign('detox')?.id === 'after_festive_detox');
+  ok('no ids yet → no spec (nothing can be sent)', derivedSpec({ ...d, es: { ...d.es, campaignId: '', templateId: '' } }, base) === null);
+  const sp = derivedSpec({ ...d, es: { ...d.es, campaignId: '99001', templateId: '7788' } }, base);
+  ok('reuses the account key with the new campaign/template ids + poster header', sp.url === 'https://api.easysocial.in/api/v1/wa-templates/send/KEY/99001/7788' && sp.body.header1.endsWith('/media/infinity-detox-offer.jpg') && sp.body.body1 === '{{first_name}}');
+}
 console.log(`${pass}/${pass + fail} campaign push checks passed`);
 if (fail) process.exit(1);

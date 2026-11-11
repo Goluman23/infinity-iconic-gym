@@ -52,6 +52,7 @@ export function fastRules(message) {
     human: /\b(human|real person|agent|manager|koi hai|baat kar(ni|na)|talk to (someone|the team|a person|team))\b/,
     timing: /\b(baje|timing|timings|time kya|kab (khul|band)|open|close)\b/,
     optout: /\b(stop|stop promotions|unsubscribe|not interested|no thanks|don'?t message|band karo|mat bhejo|nahi chahiye|interest nahi)\b/,
+    interested: /^(yes+|yes please|yes,? i'?m interested|yes interested|i'?m interested|i am interested|interested|haan+|han|haan ji|ji haan|ji|ok interested|claim|claim offer|i want (this|the|that) offer|offer chahiye|mujhe offer chahiye|book (my|the) offer)[!. 👍🙂]*$/,
     price: /\b(price|prices|pricing|how much|fee|fees|kitn[aei]|cost|charges?|rate|package|membership (fee|cost|price))\b/,
   };
 
@@ -70,6 +71,7 @@ export function fastRules(message) {
   const sharedPhone = num ? num[1] : '';
   // Opt-out first (incl. WhatsApp's "Stop promotions" button): short messages only, so "don't stop the offer" questions still reach Claude.
   if (RX.optout.test(m) && m.split(' ').length <= 6 && !/\?/.test(m)) intent = 'optout';
+  else if (RX.interested.test(m)) intent = 'interested';
   else if (sharedPhone) { intent = 'phone_shared'; w = when(m.replace(/(?:\+?91[\s-]*)?[6-9](?:[\s-]*\d){9}/, ' ')); }
   else if (RX.callback.test(m)) intent = 'callback';
   else if (RX.visit.test(m)) { intent = 'visit_plan'; w = when(m); }
