@@ -27,17 +27,17 @@ export const CAMPAIGN_REGISTRY = [
   },
   {
     // EasySocial campaign "After festive detox" (Create API, 11 Nov 2026): the client's Infinity Detox Offer with the poster.
-    // Sent to everyone who got the festive offer. Uses the same account key as festive_api, so no new secret:
-    // es.from = the ES_CAMPAIGNS entry whose URL key is reused; campaignId/templateId = the new campaign's ids.
+    // Sent to everyone who got the festive offer. EasySocial gives each API campaign its own key, so the send spec
+    // lives in ES_CAMPAIGNS.after_festive_detox (added by the client in Vercel); es below is only a fallback.
     id: 'after_festive_detox',
     name: 'After festive detox',
     aliases: ['after festive detox', 'detox', 'detox offer', 'infinity detox offer', 'detox campaign', 'after festive detox campaign'],
-    template: 'infinity_detox_offer',
+    template: 'infinity_after_festive_detox', // approved by Meta 13 Nov 2026; EasySocial campaign 23779
     rule: 'offer',
     ends: '2026-11-30T23:59:59+05:30',
     excludeCampaigns: [],
     es: {
-      from: 'festive_api', campaignId: '', templateId: '',
+      from: 'festive_api', campaignId: '23779', templateId: '4510',
       body: { mobileNumber: '{{phone}}', body1: '{{first_name}}', header1: 'https://api.eqiconic.com/media/infinity-detox-offer.jpg', name: '{{first_name}}' },
     },
   },
