@@ -2,21 +2,16 @@
 
 Single-page website for Infinity Gym, Sector 86, Greater Faridabad. Static HTML on Vercel — every push to `main` goes live on eqiconic.com.
 
-## Diwali / festive offer (Oct–Nov 2026)
+## Current offer: Infinity Detox Offer (11–30 Nov 2026)
 
-Everything is controlled from the `OFFER` block in `index.html` (search for `FESTIVE OFFER — edit here`):
+Edit the `OFFER` block in `index.html` (search for `OFFER — edit here`). The band, offer section, chat buttons and pop-up switch on at `start` and off after `end` (IST) by themselves. Preview with `?offer=on` / `?offer=off`.
 
-| Setting | Value |
-|---|---|
-| Switches on | 20 Oct 2026, 00:00 IST |
-| Phase 1 — Early-bird | until 5 Nov 2026, 23:59 IST |
-| Phase 2 — Last chance | until 15 Nov 2026, 23:59 IST |
-| Switches off | automatically after 15 Nov — band, section, menu items all disappear; no redeploy needed |
-| Pricing | `price: 17500`, `paidMonths: 12`, `bonusMonths: 2`, `market: 14500` — hold ₹17.5K, add 2 free months → ₹1,250/mo vs market ₹1,208 (₹42/mo gap) ≈ ₹41/day. Every figure on the page is computed from these four numbers |
+- Yearly plan: 2 months extra + 1 month FREE for a friend or family member
+- 6-month plan: 2 months extra + 15 days FREE for a friend or family member
+- Free friend/family memberships limited to the first 30. No prices are shown for this offer.
+- WhatsApp messages carry `Offer: Infinity Detox Offer (till 30 Nov)`. Use `utm_campaign=detox_2026` on ad links.
 
-Preview any state: `?offer=early`, `?offer=final`, `?offer=off`.
-
-What it adds: countdown band above the header · "From ₹40/day" offer section with a per-month comparison of plans · gift-card enquiry (section + WhatsApp concierge + "Ask us anything") · the 25-second nudge switches to the offer · every WhatsApp message carries an `Offer:` line and the ad tag.
+(The Diwali offer, 20 Oct–15 Nov, is in git history.)
 
 ## UTM links — use these as ad / bio destinations
 
