@@ -228,11 +228,8 @@ button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
 .t4{grid-column:5/13;grid-row:span 3}
 .t5{grid-column:5/9;grid-row:span 2}
 .t6{grid-column:9/13;grid-row:span 2}
-.t7{grid-column:1/6;grid-row:span 5}
-.t8{grid-column:6/13;grid-row:span 3}
-.t9{grid-column:6/13;grid-row:span 2}
-.t7 img{object-position:center 40%}
-.t8 img{object-position:30% 55%}
+.t7{grid-column:1/13;grid-row:span 4}
+.t7 img{object-position:center 55%}
 
 /* ---------- programs ---------- */
 .prog-list{border-top:1px solid var(--line-lt)}
@@ -531,8 +528,6 @@ button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
   .t1,.t4,.t7{grid-column:1/-1;aspect-ratio:4/3}
   .t2,.t3,.t5,.t6{grid-column:span 1;grid-row:auto}
   .t1,.t4,.t7{grid-row:auto}
-  .t8{grid-column:1/-1;grid-row:auto;aspect-ratio:16/9}
-  .t9{grid-column:1/-1;grid-row:auto;aspect-ratio:auto}
   .tile figcaption{padding:16px 14px 12px}
   .tile figcaption span{font-size:12.5px}
   .steps{grid-template-columns:1fr 1fr;row-gap:36px}
@@ -623,6 +618,7 @@ body.menu-open{overflow:hidden}
   .mosaic{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:12px;margin:0 calc(-1 * var(--gutter));padding:0 var(--gutter) 4px;scroll-padding-left:var(--gutter);scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
   .mosaic::-webkit-scrollbar{display:none}
   .mosaic .tile{flex:0 0 80%;aspect-ratio:4/5;scroll-snap-align:start;grid-column:auto;grid-row:auto}
+  .mosaic .t7 img{object-position:22% center}
   .mosaic .tile:last-child{margin-right:var(--gutter)}
   .mosaic .tile figcaption{padding:22px 18px 18px}
   .mosaic .tile figcaption b{font-size:26px}
@@ -999,22 +995,6 @@ body.offer-on .js-offer{display:flex!important}
 .cmp-row.plan .emi b{font-weight:600}
 .perk .gone{font-style:normal;color:var(--energy);white-space:nowrap}
 @media (max-width:860px){.cmp-row.plan{grid-template-columns:1fr;gap:10px}.cmp-row.plan .pm{font-size:40px;justify-content:flex-start}.cmp-row.plan .nm em{display:inline-block;margin:4px 0 0 10px}}
-
-/* Spaces: café + member quote tiles */
-.tquote{display:flex;align-items:flex-end;padding:clamp(22px,2.4vw,34px);background:var(--emerald);color:var(--cream)}
-.tquote::after{content:"∞";position:absolute;right:-.05em;top:-.42em;font:400 clamp(150px,13vw,220px)/1 var(--f-body);color:rgba(236,230,218,.06);pointer-events:none}
-.tquote blockquote{position:relative;margin:0}
-.tquote .q-stars{display:block;margin-bottom:12px;font-size:13px;letter-spacing:.18em;color:#FFC98F}
-.tquote p{margin:0;font:300 clamp(20px,1.7vw,26px)/1.35 var(--f-cond);color:var(--cream)}
-.tquote cite{display:block;margin-top:14px;font:500 11.5px/1 var(--f-cond);font-style:normal;letter-spacing:.22em;text-transform:uppercase;color:var(--copper-lt)}
-.t8 figcaption{padding-top:72px;background:linear-gradient(0deg,rgba(22,24,26,.94) 0%,rgba(22,24,26,.7) 50%,rgba(22,24,26,0) 100%)}
-.tquote cite span{white-space:nowrap}
-@media (max-width:860px){
-  .mosaic .t8 img{object-position:22% center}
-  .mosaic .tquote cite{letter-spacing:.16em;line-height:1.5}
-  .mosaic .tquote{align-items:flex-end;padding:26px 22px}
-  .mosaic .tquote p{font-size:24px}
-}
 </style>
 </head>
 <body>
@@ -1233,9 +1213,7 @@ body.offer-on .js-offer{display:flex!important}
       <figure class="tile t4 rv d1"><img src="img/cardio-deck.ec87d4ea-960.webp" srcset="img/cardio-deck.ec87d4ea-640.webp 640w, img/cardio-deck.ec87d4ea-960.webp 960w, img/cardio-deck.ec87d4ea-1440.webp 1440w" sizes="(max-width:860px) 80vw, 60vw" width="1440" height="960" loading="lazy" decoding="async" alt="Cardio deck with treadmills, ellipticals and stair climber by floor-to-ceiling windows"><figcaption><b>Cardio Deck</b><span>Treadmills, ellipticals and a stair climber against a wall of daylight.</span></figcaption></figure>
       <figure class="tile t5 rv"><img src="img/lounge.d79025ff-961.webp" srcset="img/lounge.d79025ff-640.webp 640w, img/lounge.d79025ff-961.webp 961w" sizes="(max-width:860px) 80vw, 60vw" width="961" height="1440" loading="lazy" decoding="async" alt="Wood-slat lounge with café seating by the window"><figcaption><b>The Lounge</b><span>Wind down between sets.</span></figcaption></figure>
       <figure class="tile t6 rv d1"><img src="img/mobility.60ba27a9-960.webp" srcset="img/mobility.60ba27a9-640.webp 640w, img/mobility.60ba27a9-960.webp 960w, img/mobility.60ba27a9-1440.webp 1440w" sizes="(max-width:860px) 80vw, 60vw" width="1440" height="962" loading="lazy" decoding="async" alt="Members stretching on mats in the Group-X hall"><figcaption><b>Mobility</b><span>Recovery is part of training.</span></figcaption></figure>
-      <figure class="tile t7 rv"><img src="img/rooftop.52b22115-961.webp" srcset="img/rooftop.52b22115-640.webp 640w, img/rooftop.52b22115-961.webp 961w" sizes="(max-width:860px) 80vw, (max-width:1080px) 100vw, 480px" width="961" height="1440" loading="lazy" decoding="async" alt="Rooftop functional zone with turf, sprint track, battle ropes and agility ladder"><figcaption><b>The Rooftop</b><span>Open-air CrossFit zone, sprint track, battle ropes, under the open sky.</span></figcaption></figure>
-      <figure class="tile t8 rv d1"><img src="img/health-freaks-cafe.6088114e-960.webp" srcset="img/health-freaks-cafe.6088114e-640.webp 640w, img/health-freaks-cafe.6088114e-960.webp 960w, img/health-freaks-cafe.6088114e-1440.webp 1440w" sizes="(max-width:860px) 180vw, (max-width:1080px) 100vw, 700px" width="1440" height="810" loading="lazy" decoding="async" alt="Health Freak's Café on the Infinity rooftop: red café wall with a red umbrella, wood-slat counter, and turf seating at dusk"><figcaption><b>Health Freak's Café</b><span>Eat healthy, stay healthy. Refuel on the rooftop, right after your session.</span></figcaption></figure>
-      <figure class="tile t9 tquote rv"><blockquote><span class="q-stars" aria-label="5 out of 5 stars">★★★★★</span><p>“…then ended with cafe. Cafe is too good. Never been to gym like this.”</p><cite>Krishang Sharma · <span>Google review</span></cite></blockquote></figure>
+      <figure class="tile t7 rv"><img src="img/health-freaks-cafe.6088114e-960.webp" srcset="img/health-freaks-cafe.6088114e-640.webp 640w, img/health-freaks-cafe.6088114e-960.webp 960w, img/health-freaks-cafe.6088114e-1440.webp 1440w" sizes="(max-width:860px) 80vw, min(100vw, 1320px)" width="1440" height="810" loading="lazy" decoding="async" alt="Health Freak's Café on the Infinity rooftop: red café wall with a red umbrella, wood-slat counter and turf seating at dusk"><figcaption><b>Health Freak's Café</b><span>Eat healthy, stay healthy. Refuel on the rooftop after your session.</span></figcaption></figure>
     </div>
     <div class="swipe" aria-hidden="true"><span class="swipe-track"><i id="mosaicBar"></i></span><small>Swipe to explore</small></div>
   </div>
