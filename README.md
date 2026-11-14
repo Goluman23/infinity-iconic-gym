@@ -6,9 +6,9 @@ Single-page website for Infinity Gym, Sector 86, Greater Faridabad. Static HTML 
 
 Edit the `OFFER` block in `index.html` (search for `OFFER — edit here`). The band, offer section, chat buttons and pop-up switch on at `start` and off after `end` (IST) by themselves. Preview with `?offer=on` / `?offer=off`.
 
-- Yearly plan: 2 months extra + 1 month FREE for a friend or family member
+- Yearly plan: **₹20,000 for 14 months** (12 + 2 extra) = ₹47 a day · ₹1,429 a month, + 1 month FREE for a friend or family member. Set in `OFFER.yearly`; every ₹ figure on the page is calculated from it
 - 6-month plan: 2 months extra + 15 days FREE for a friend or family member
-- Free friend/family memberships limited to the first 30. No prices are shown for this offer.
+- Free friend/family memberships limited to the first 30. The 6-month plan shows no price.
 - WhatsApp messages carry `Offer: Infinity Detox Offer (till 30 Nov)`. Use `utm_campaign=detox_2026` on ad links.
 
 (The Diwali offer, 20 Oct–15 Nov, is in git history.)
