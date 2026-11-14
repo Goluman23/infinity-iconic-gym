@@ -1107,7 +1107,7 @@ body.offer-on .js-offer{display:flex!important}
       <div class="off-lead rv">
         <div class="off-from">Reset your routine.<br>Recharge your fitness.</div>
         <p class="off-price" aria-label="2 months extra"><span>+2</span><small>months extra</small></p>
-        <p class="off-lede">Join on a <b>yearly or 6-month plan</b> before 30 November and get <b>2 extra months</b> on the house — plus free gym time for <b>a friend or family member</b>. The yearly plan is <b><span data-o="yPrice">₹20,000</span> for 14 months</b>: just <span data-o="yDay">₹47</span> a day.</p>
+        <p class="off-lede">Join on a <b>yearly or 6-month plan</b> before 30 November and get <b>2 extra months</b> on the house — plus free gym time for <b>a friend or family member</b>. The yearly plan is <b><span data-o="yPrice">₹20,000</span> for 14 months</b>, GST included: just <span data-o="yDay">₹47</span> a day.</p>
         <ul class="off-plus" aria-label="What you get">
           <li><b data-o="yDay">₹47</b>&nbsp;a day · yearly</li>
           <li>Free pass for a friend</li>
@@ -1138,7 +1138,7 @@ body.offer-on .js-offer{display:flex!important}
           <li class="cmp-row plan best" data-flag="Best value">
             <div><div class="nm">Yearly plan<em>+2 months</em></div><div class="tot">Pay for 12 months · train for 14</div></div>
             <div class="pm"><s>12</s>14<small>months</small></div>
-            <div class="price"><b data-o="yPrice">₹20,000</b><span><u>for 14 months</u> · <u>just <strong data-o="yDay">₹47</strong> a day</u> · <u><i data-o="yMonth">₹1,429</i> a month</u></span></div>
+            <div class="price"><b data-o="yPrice">₹20,000</b><span><u>incl. GST</u> · <u>for 14 months</u> · <u>just <strong data-o="yDay">₹47</strong> a day</u> · <u><i data-o="yMonth">₹1,429</i> a month</u></span></div>
             <div class="perk"><svg aria-hidden="true"><use href="#i-gift"/></svg><span><b>1 month FREE</b> for a friend or family member</span></div>
           </li>
           <li class="cmp-row plan">
@@ -2046,7 +2046,7 @@ body.offer-on .js-offer{display:flex!important}
     ends:  "ends 30 Nov",
     band:  "Offer ends in",
     label: "Infinity Detox Offer (till 30 Nov)",
-    yearly: { price: 20000, paidMonths: 12, bonusMonths: 2 }   // ₹, as quoted by the gym; every ₹ figure on the page is worked out from this
+    yearly: { price: 20000, paidMonths: 12, bonusMonths: 2 }   // ₹ incl. GST, as quoted by the gym; every ₹ figure on the page is worked out from this
   };
 
   var OFFER_NOW = null;
@@ -2070,7 +2070,7 @@ body.offer-on .js-offer{display:flex!important}
     var yDay = inr(Y.price / (months * 365 / 12)), yMonth = inr(Y.price / months), yPrice = inr(Y.price);
     var fill = function(k, v){ document.querySelectorAll('[data-o="' + k + '"]').forEach(function(e){ e.textContent = v; }); };
     fill("yPrice", yPrice); fill("yDay", yDay); fill("yMonth", yMonth);
-    MSG.detox = "Hi Infinity! I saw the Detox Offer — yearly plan " + yPrice + " for " + months + " months (" + yDay + " a day), plus a free membership for a friend or family member. Please share the details.";
+    MSG.detox = "Hi Infinity! I saw the Detox Offer — yearly plan " + yPrice + " incl. GST for " + months + " months (" + yDay + " a day), plus a free membership for a friend or family member. Please share the details.";
 
     /* countdown to 30 Nov */
     var end = Date.parse(OFFER.end), timer;
