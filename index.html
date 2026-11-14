@@ -885,6 +885,93 @@ body.offer-on .js-offer{display:flex!important}
   .obar .ob-go{padding:6px 8px}
 }
 @media (prefers-reduced-motion:reduce){.obar::before{animation:none}}
+
+/* ================= MEMBER REVIEWS ================= */
+.reviews{background:var(--emerald);color:var(--cream);overflow:hidden}
+.reviews::after{content:"∞";position:absolute;right:-.06em;top:-.3em;font:400 clamp(260px,34vw,520px)/1 var(--f-body);color:rgba(236,230,218,.04);pointer-events:none}
+.reviews .sec-head .num{color:#FFC98F}
+.rv-grid{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,9fr);gap:clamp(32px,4vw,64px);align-items:start;position:relative;z-index:1}
+
+.rv-sum{position:sticky;top:calc(110px + var(--ob,0px))}
+.rv-score{display:flex;align-items:flex-end;gap:14px}
+.rv-score b{font:400 clamp(110px,11vw,160px)/.8 var(--f-display);color:var(--cream)}
+.rv-score span{padding-bottom:8px;font:500 12px/1.5 var(--f-cond);letter-spacing:.24em;text-transform:uppercase;color:rgba(236,230,218,.7)}
+.rv-stars{display:flex;gap:4px;margin-top:18px;color:#FFC98F}
+.rv-stars svg{width:24px;height:24px}
+.rv-count{margin:14px 0 0;font:300 18px/1.45 var(--f-cond);color:rgba(236,230,218,.82);max-width:30ch}
+.rv-count b{font-weight:500;color:var(--cream)}
+.rv-g{display:inline-flex;align-items:center;gap:8px;margin-top:22px;padding:8px 14px 8px 10px;border-radius:999px;background:rgba(22,24,26,.28);font:500 11.5px/1 var(--f-cond);letter-spacing:.18em;text-transform:uppercase;color:rgba(236,230,218,.85)}
+.rv-g svg{width:18px;height:18px}
+.rv-cta{display:flex;flex-direction:column;gap:10px;margin-top:30px;max-width:300px}
+.rv-cta .btn{justify-content:center}
+
+/* carousel */
+.rv-car{position:relative;min-width:0}
+.rv-track{list-style:none;margin:0;padding:16px 2px 8px;display:grid;grid-auto-flow:column;grid-auto-columns:calc((100% - 2*18px)/2.15);gap:18px;
+  overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;overscroll-behavior-x:contain;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.rv-track::-webkit-scrollbar{display:none}
+.rcard{scroll-snap-align:start;position:relative;display:flex;flex-direction:column;min-height:100%;padding:26px 24px 22px;border-radius:18px;background:var(--cream-2);color:var(--ink);box-shadow:0 30px 60px -36px rgba(0,0,0,.55)}
+.rc-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.rc-stars{display:flex;gap:2px;color:var(--copper)}
+.rc-stars svg{width:16px;height:16px}
+.rc-src{display:inline-flex;align-items:center;gap:6px;font:500 10.5px/1 var(--f-cond);letter-spacing:.2em;text-transform:uppercase;color:var(--ink-soft)}
+.rc-src svg{width:14px;height:14px}
+.rcard blockquote{margin:18px 0 0;flex:1}
+.rcard blockquote p{margin:0;font:300 18px/1.5 var(--f-cond);color:var(--ink)}
+.rcard blockquote p::before{content:"“";display:block;height:.42em;margin-bottom:10px;font:400 64px/1 var(--f-display);color:var(--copper-lt)}
+.rc-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px}
+.rc-tags span{padding:5px 9px;border-radius:999px;background:rgba(21,80,58,.08);color:var(--emerald);font:500 10.5px/1 var(--f-cond);letter-spacing:.14em;text-transform:uppercase}
+.rc-who{display:flex;align-items:center;gap:12px;margin-top:18px;padding-top:16px;border-top:1px solid var(--line-lt)}
+.rc-av{flex:none;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--graphite);color:var(--cream);font:500 13px/1 var(--f-cond);letter-spacing:.06em}
+.rc-who b{display:block;font:500 14px/1.2 var(--f-body)}
+.rc-who small{display:block;margin-top:3px;font-size:12px;color:var(--ink-soft)}
+.rcard.is-sample::after{content:"Sample — replace";position:absolute;top:-10px;right:16px;padding:5px 9px;border-radius:999px;border:1px dashed var(--energy);background:#fff;color:var(--energy);font:600 10px/1 var(--f-cond);letter-spacing:.16em;text-transform:uppercase}
+
+.rv-nav{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:22px}
+.rv-dots{display:flex;gap:6px}
+.rv-dots i{width:22px;height:3px;border-radius:2px;background:rgba(236,230,218,.25);transition:background .2s,width .2s}
+.rv-dots i.on{width:38px;background:var(--copper-lt)}
+.rv-arrows{display:flex;gap:10px}
+.rv-arrows button{width:48px;height:48px;border-radius:50%;border:1px solid rgba(236,230,218,.35);background:transparent;color:var(--cream);display:grid;place-items:center;cursor:pointer;transition:background .2s,border-color .2s,opacity .2s}
+.rv-arrows button:hover{background:rgba(236,230,218,.1);border-color:var(--cream)}
+.rv-arrows button:disabled{opacity:.3;cursor:default;background:transparent}
+.rv-arrows svg{width:16px;height:16px}
+.rv-arrows .prev svg{transform:rotate(180deg)}
+
+@media (max-width:1080px){
+  .rv-grid{grid-template-columns:1fr}
+  .rv-sum{position:static;display:grid;grid-template-columns:auto 1fr;gap:6px 28px;align-items:end}
+  .rv-sum .rv-count,.rv-sum .rv-g{grid-column:2}
+  .rv-cta{grid-column:1/-1;flex-direction:row;flex-wrap:wrap;max-width:none}
+  .rv-track{grid-auto-columns:calc((100% - 18px)/2.1)}
+}
+@media (max-width:860px){
+  .rv-sum{display:block}
+  .rv-score b{font-size:96px}
+  .rv-cta .btn{flex:1 1 100%}
+  .rv-track{grid-auto-columns:86%;gap:14px;margin:0 calc(-1 * var(--gutter));padding-top:16px;padding-left:var(--gutter);padding-right:var(--gutter);scroll-padding-left:var(--gutter)}
+  .rv-arrows{display:none}
+  .rcard{padding:24px 20px 20px}
+  .rcard blockquote p{font-size:17px}
+}
+@media (prefers-reduced-motion:reduce){.rv-track{scroll-behavior:auto}}
+/* live Google feed */
+.reviews:not(.has-list) .rv-car{display:none}
+.reviews:not(.has-list) .rv-grid{grid-template-columns:1fr}
+.reviews:not(.has-list) .rv-sum{position:static;display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-areas:"score count" "stars cta";gap:16px 72px;align-items:end;max-width:980px}
+.reviews:not(.has-list) .rv-score{grid-area:score}
+.reviews:not(.has-list) .rv-stars{grid-area:stars;margin:0;align-self:start}
+.reviews:not(.has-list) .rv-count{grid-area:count;margin:0;font-size:22px;max-width:none}
+.reviews:not(.has-list) .rv-g{display:none}
+.reviews:not(.has-list) .rv-sum .rv-cta{grid-area:cta;flex-direction:row;flex-wrap:wrap;max-width:none;margin:0;align-self:start}
+.rcard blockquote p{display:-webkit-box;-webkit-line-clamp:8;-webkit-box-orient:vertical;overflow:hidden}
+.rc-more{display:inline-flex;align-items:center;gap:6px;margin-top:12px;font:500 11px/1 var(--f-cond);letter-spacing:.18em;text-transform:uppercase;color:var(--copper-dk)}
+.rc-more svg{width:12px;height:12px}
+.rc-av{overflow:hidden}
+.rc-av img{width:100%;height:100%;object-fit:cover}
+.rc-who a{color:inherit;text-decoration:none}
+.rc-who a:hover b{text-decoration:underline}
+@media (max-width:860px){.reviews:not(.has-list) .rv-sum{display:block}.reviews:not(.has-list) .rv-stars{margin-top:18px}.reviews:not(.has-list) .rv-count{margin-top:14px;font-size:18px}.reviews:not(.has-list) .rv-sum .rv-cta{margin:30px 0 0}}
 </style>
 </head>
 <body>
@@ -1236,6 +1323,126 @@ body.offer-on .js-offer{display:flex!important}
     </blockquote>
   </div>
 </section>
+
+<!-- ================= MEMBER REVIEWS ================= -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-star" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2.6l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.4l-5.9 3.3 1.3-6.6L2.5 9.5l6.6-.8z"/></symbol>
+  <symbol id="i-g" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.5 12.3c0-.8-.1-1.5-.2-2.2H12v4.2h5.9a5 5 0 0 1-2.2 3.3v2.7h3.5c2.1-1.9 3.3-4.7 3.3-8z"/><path fill="#34A853" d="M12 23c3 0 5.5-1 7.2-2.7l-3.5-2.7c-1 .7-2.2 1.1-3.7 1.1-2.9 0-5.3-1.9-6.2-4.5H2.2v2.8A11 11 0 0 0 12 23z"/><path fill="#FBBC05" d="M5.8 14.2a6.6 6.6 0 0 1 0-4.3V7.1H2.2a11 11 0 0 0 0 9.9z"/><path fill="#EA4335" d="M12 5.4c1.6 0 3.1.6 4.2 1.7l3.1-3.1A11 11 0 0 0 2.2 7.1l3.6 2.8C6.7 7.3 9.1 5.4 12 5.4z"/></symbol>
+</svg>
+<section class="sec reviews" id="reviews" aria-labelledby="rv-h">
+  <div class="wrap">
+    <header class="sec-head rv">
+      <h2 class="display h-md" id="rv-h"><span class="num">★</span>What members say</h2>
+      <span class="tag">Straight from Google</span>
+    </header>
+
+    <div class="rv-grid">
+      <aside class="rv-sum rv">
+        <div class="rv-score"><b id="rvScore">4.9</b><span>out of 5</span></div>
+        <div class="rv-stars" role="img" aria-label="Rated 4.9 out of 5"><svg aria-hidden="true"><use href="#i-star"/></svg><svg aria-hidden="true"><use href="#i-star"/></svg><svg aria-hidden="true"><use href="#i-star"/></svg><svg aria-hidden="true"><use href="#i-star"/></svg><svg aria-hidden="true"><use href="#i-star"/></svg></div>
+        <p class="rv-count">From <b id="rvCount">170+ Google reviews</b> by people who train here.</p>
+        <span class="rv-g"><svg aria-hidden="true"><use href="#i-g"/></svg>Google reviews</span>
+        <div class="rv-cta">
+          <a class="btn btn-ghost" href="https://search.google.com/local/reviews?placeid=ChIJYTG1AgDdDDkRoW254Z2Ly4A" target="_blank" rel="noopener" data-track="reviews_read">Read all on Google <svg><use href="#i-arr"/></svg></a>
+          <a class="btn btn-cu" href="https://search.google.com/local/writereview?placeid=ChIJYTG1AgDdDDkRoW254Z2Ly4A" target="_blank" rel="noopener" data-track="reviews_write">Member? Leave a review</a>
+        </div>
+      </aside>
+
+      <div class="rv-car rv d1">
+        <ul class="rv-track" id="rvTrack" aria-label="Member reviews" tabindex="0">
+        </ul>
+        <div class="rv-nav">
+          <div class="rv-dots" id="rvDots" aria-hidden="true"></div>
+          <div class="rv-arrows">
+            <button class="prev" type="button" aria-label="Previous reviews" data-dir="-1"><svg><use href="#i-arr"/></svg></button>
+            <button class="next" type="button" aria-label="Next reviews" data-dir="1"><svg><use href="#i-arr"/></svg></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<script>
+/* Member reviews — live from Google via api.eqiconic.com/api/reviews (refreshed every ~6 h).
+   If the feed is unavailable, only the rating summary shows; no cards, never a sample.
+   Preview the card design with ?reviews=demo */
+(function(){
+  var sec = document.getElementById("reviews"), t = document.getElementById("rvTrack");
+  if(!sec || !t) return;
+  var API = "https://api.eqiconic.com/api/reviews";
+  var DEMO = [{"author": "Member name", "rating": 5, "text": "Replace with a real Google review. Ideal length is two to four lines: what they came for, what changed, and one detail only Infinity has.", "when": "Sample"}, {"author": "Member name", "rating": 5, "text": "Replace with a real review about the classes — the Group-X hall, the trainers, the energy of a full batch at 7 AM.", "when": "Sample"}, {"author": "Member name", "rating": 5, "text": "Replace with a real review that mentions the in-house physiotherapy or a recovery story — these convert people with old injuries.", "when": "Sample"}, {"author": "Member name", "rating": 5, "text": "Replace with a real personal-training result: starting point, a number that moved, and the trainer's name if they named one.", "when": "Sample"}, {"author": "Member name", "rating": 5, "text": "Replace with a real review about the space itself — the 10,000 sq ft floor, rooftop CrossFit zone, steam, valet parking.", "when": "Sample"}, {"author": "Member name", "rating": 5, "text": "Replace with a real review from a woman member — comfort, ladies timings, safety and the staff are what this audience looks for.", "when": "Sample"}];
+  var demo = /[?&]reviews=demo\b/.test(location.search);
+
+  function el(tag, cls, txt){ var e = document.createElement(tag); if(cls) e.className = cls; if(txt != null) e.textContent = txt; return e; }
+  function svg(id){ var s = document.createElementNS("http://www.w3.org/2000/svg","svg"), u = document.createElementNS("http://www.w3.org/2000/svg","use");
+    u.setAttribute("href", "#" + id); s.setAttribute("aria-hidden","true"); s.appendChild(u); return s; }
+  function initials(n){ var p = (n || "").trim().split(/\s+/).filter(Boolean); return p.length ? (p[0][0] + (p.length > 1 ? p[p.length-1][0] : "")).toUpperCase() : "★"; }
+
+  function card(r, sample){
+    var li = el("li", "rcard" + (sample ? " is-sample" : ""));
+    var top = el("div", "rc-top"), st = el("span", "rc-stars");
+    st.setAttribute("role","img"); st.setAttribute("aria-label", r.rating + " out of 5 stars");
+    for(var i = 0; i < Math.round(r.rating); i++) st.appendChild(svg("i-star"));
+    var src = el("span", "rc-src"); src.appendChild(svg("i-g")); src.appendChild(document.createTextNode("Google"));
+    top.appendChild(st); top.appendChild(src); li.appendChild(top);
+    var q = el("blockquote"); q.appendChild(el("p", "", r.text)); li.appendChild(q);
+    if(r.url){ var m = el("a", "rc-more", "Read on Google"); m.href = r.url; m.target = "_blank"; m.rel = "noopener"; m.appendChild(svg("i-arr")); li.appendChild(m); }
+    var who = el("div", "rc-who"), av = el("span", "rc-av");
+    av.setAttribute("aria-hidden","true");
+    if(r.photo){ var im = el("img"); im.src = r.photo; im.alt = ""; im.loading = "lazy"; im.referrerPolicy = "no-referrer";
+      im.onerror = function(){ av.textContent = initials(r.author); }; av.appendChild(im); }
+    else av.textContent = initials(r.author);
+    var nm = el("span"), b = el("b", "", r.author);
+    if(r.authorUrl){ var a = el("a"); a.href = r.authorUrl; a.target = "_blank"; a.rel = "noopener"; a.appendChild(b); nm.appendChild(a); } else nm.appendChild(b);
+    nm.appendChild(el("small", "", (r.when ? r.when + " · " : "") + "Google review"));
+    who.appendChild(av); who.appendChild(nm); li.appendChild(who);
+    return li;
+  }
+
+  function summary(d){
+    if(d.rating) document.getElementById("rvScore").textContent = Number(d.rating).toFixed(1);
+    if(d.count) document.getElementById("rvCount").textContent = Number(d.count).toLocaleString("en-IN") + " Google reviews";
+    if(d.readUrl) sec.querySelector('[data-track="reviews_read"]').href = d.readUrl;
+    if(d.writeUrl) sec.querySelector('[data-track="reviews_write"]').href = d.writeUrl;
+  }
+
+  function render(list, sample){
+    if(!list || !list.length) return;
+    list.forEach(function(r){ t.appendChild(card(r, sample)); });
+    sec.classList.add("has-list");
+    carousel();
+  }
+
+  function carousel(){
+    var cards = t.children, dots = document.getElementById("rvDots"), btns = sec.querySelectorAll(".rv-arrows button");
+    dots.textContent = "";
+    for(var i = 0; i < cards.length; i++) dots.appendChild(document.createElement("i"));
+    function step(){ return cards.length > 1 ? cards[1].offsetLeft - cards[0].offsetLeft : t.clientWidth; }
+    function sync(){
+      var i = Math.round(t.scrollLeft / step()), max = t.scrollWidth - t.clientWidth - 2;
+      [].forEach.call(dots.children, function(d, k){ d.className = k === i ? "on" : ""; });
+      btns[0].disabled = t.scrollLeft <= 2; btns[1].disabled = t.scrollLeft >= max;
+    }
+    [].forEach.call(btns, function(b){ b.onclick = function(){ t.scrollBy({left: step() * +b.getAttribute("data-dir"), behavior: "smooth"}); }; });
+    t.addEventListener("scroll", function(){ window.requestAnimationFrame(sync); }, {passive:true});
+    window.addEventListener("resize", sync); sync();
+  }
+
+  function load(){
+    if(demo){ render(DEMO, true); return; }
+    fetch(API).then(function(r){ return r.json(); }).then(function(d){
+      if(!d || !d.ok) return;
+      summary(d); render(d.reviews, false);
+    }).catch(function(){});
+  }
+
+  // fetch only when the section is close, so it never slows the first screen
+  if("IntersectionObserver" in window){
+    var io = new IntersectionObserver(function(es){ if(es[0].isIntersecting){ io.disconnect(); load(); } }, {rootMargin: "800px 0px"});
+    io.observe(sec);
+  } else load();
+})();
+</script>
 
 <!-- ================= INSTAGRAM ================= -->
 <section class="sec ig" aria-labelledby="ig-h">

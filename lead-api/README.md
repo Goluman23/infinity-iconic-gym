@@ -33,6 +33,7 @@ Intake page / Google Sheet / ads / Make         WhatsApp message from a lead
 | `GET /api/es/list` | EasySocial API Interactive List node | 10-row main menu (+ language switch) |
 | `GET|POST /api/es/webhook` | EasySocial Webhooks | verify token, HMAC signature check, logs WhatsApp messages to the sheet (`SHEET_LOG_URL`) |
 | `GET|POST /api/es/concierge` | EasySocial API Basic Message node (after Error Fallback) | AI fallback: fast rules → Claude → approved reply; logs the conversation and alerts the desk |
+| `GET /api/reviews` | website "What members say" section | Google rating, review count and the best (4–5★, with text) recent reviews via Places API (New); edge-cached 6 h. Needs `GOOGLE_PLACES_KEY`; optional `GOOGLE_PLACE_ID`, `REVIEWS_MIN_STARS` (4), `REVIEWS_MIN_CHARS` (40) |
 
 Brain URLs carry `?key=ES_BRAIN_KEY`. Lead fields the brain writes: `inf_lang, inf_intent, inf_route, inf_ctx, inf_miss, inf_rep, inf_last_msg, inf_handoff, inf_flow, inf_has_buttons` (+ `inf_optout`, `inf_callback` when relevant).
 
