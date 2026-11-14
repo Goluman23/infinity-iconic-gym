@@ -988,6 +988,11 @@ body.offer-on .js-offer{display:flex!important}
 .cmp-row.plan .price strong{font-weight:600;color:var(--copper-dk)}
 .cmp-row.plan .price i{font-style:normal}
 .cmp-row.plan .price u{text-decoration:none;white-space:nowrap}
+.cmp-row.plan .emi{grid-column:1/-1;display:flex;align-items:flex-start;gap:8px;margin:0;font-size:13.5px;line-height:1.4;color:var(--emerald)}
+.cmp-row.plan .emi[hidden]{display:none}
+.cmp-row.plan .emi svg{flex:none;width:16px;height:16px;margin-top:2px}
+.cmp-row.plan .emi b{font-weight:600}
+.perk .gone{font-style:normal;color:var(--energy);white-space:nowrap}
 @media (max-width:860px){.cmp-row.plan{grid-template-columns:1fr;gap:10px}.cmp-row.plan .pm{font-size:40px;justify-content:flex-start}.cmp-row.plan .nm em{display:inline-block;margin:4px 0 0 10px}}
 </style>
 </head>
@@ -1109,9 +1114,9 @@ body.offer-on .js-offer{display:flex!important}
         <p class="off-price" aria-label="2 months extra"><span>+2</span><small>months extra</small></p>
         <p class="off-lede">Join on a <b>yearly or 6-month plan</b> before 30 November and get <b>2 extra months</b> on the house — plus free gym time for <b>a friend or family member</b>. The yearly plan is <b><span data-o="yPrice">₹20,000</span> for 14 months</b>, GST included: just <span data-o="yDay">₹47</span> a day.</p>
         <ul class="off-plus" aria-label="What you get">
-          <li><b data-o="yDay">₹47</b>&nbsp;a day · yearly</li>
+          <li><span><b data-o="yDay">₹47</b> a day · yearly</span></li>
           <li>Free pass for a friend</li>
-          <li>Only 30 free memberships</li>
+          <li id="offSpotChip">Only 30 free memberships</li>
           <li>Body-composition analysis</li>
         </ul>
 
@@ -1138,7 +1143,8 @@ body.offer-on .js-offer{display:flex!important}
           <li class="cmp-row plan best" data-flag="Best value">
             <div><div class="nm">Yearly plan<em>+2 months</em></div><div class="tot">Pay for 12 months · train for 14</div></div>
             <div class="pm"><s>12</s>14<small>months</small></div>
-            <div class="price"><b data-o="yPrice">₹20,000</b><span><u>incl. GST</u> · <u>for 14 months</u> · <u>just <strong data-o="yDay">₹47</strong> a day</u> · <u><i data-o="yMonth">₹1,429</i> a month</u></span></div>
+            <div class="price"><b data-o="yPrice">₹20,000</b><span><u>incl. GST</u> · <u>for 14 months</u> · <u>just <strong data-o="yDay">₹47</strong> a day</u></span></div>
+            <p class="emi" id="offEmi" hidden><svg aria-hidden="true"><use href="#i-chk"/></svg><span>No-cost EMI on credit cards: about <b data-o="yEmi">₹1,667</b> a month for 12 months</span></p>
             <div class="perk"><svg aria-hidden="true"><use href="#i-gift"/></svg><span><b>1 month FREE</b> for a friend or family member</span></div>
           </li>
           <li class="cmp-row plan">
@@ -1149,10 +1155,10 @@ body.offer-on .js-offer{display:flex!important}
         </ul>
 
         <div class="gap">
-          <div class="gap-n"><span>30</span></div>
+          <div class="gap-n"><span id="offSpots">30</span></div>
           <div class="gap-t">
-            <b>free memberships only</b>
-            <span>The free friend &amp; family memberships go to the first 30 people who join on the Detox offer. When they're gone, they're gone.</span>
+            <b id="offSpotHead">free memberships only</b>
+            <span id="offSpotText">The free friend &amp; family memberships go to the first 30 people who join on the Detox offer. When they're gone, they're gone.</span>
           </div>
         </div>
         <p class="cmp-ft">Infinity Gym by EQ Iconic · Amolik Chowk, Sector 86, Faridabad · +91 99530 04008</p>
@@ -2046,7 +2052,9 @@ body.offer-on .js-offer{display:flex!important}
     ends:  "ends 30 Nov",
     band:  "Offer ends in",
     label: "Infinity Detox Offer (till 30 Nov)",
-    yearly: { price: 20000, paidMonths: 12, bonusMonths: 2 }   // ₹ incl. GST, as quoted by the gym; every ₹ figure on the page is worked out from this
+    yearly: { price: 20000, paidMonths: 12, bonusMonths: 2 },
+    emi: false,          // true once the gym confirms no-cost EMI on cards (shows "about ₹1,667 a month for 12 months")
+    spotsLeft: null      // free friend/family memberships still available, e.g. 18 → "18 of 30 left". null = hidden. Only a real number from the desk.   // ₹ incl. GST, as quoted by the gym; every ₹ figure on the page is worked out from this
   };
 
   var OFFER_NOW = null;
@@ -2070,6 +2078,22 @@ body.offer-on .js-offer{display:flex!important}
     var yDay = inr(Y.price / (months * 365 / 12)), yMonth = inr(Y.price / months), yPrice = inr(Y.price);
     var fill = function(k, v){ document.querySelectorAll('[data-o="' + k + '"]').forEach(function(e){ e.textContent = v; }); };
     fill("yPrice", yPrice); fill("yDay", yDay); fill("yMonth", yMonth);
+
+    /* optional extras — previewable locally with ?emi=1&spots=18 (ignored on the live domain) */
+    var local = location.protocol === "file:" || /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+    var emi = OFFER.emi || (local && q.get("emi") === "1");
+    var spots = OFFER.spotsLeft; if(local && q.get("spots") !== null) spots = Number(q.get("spots"));
+    if(emi){ fill("yEmi", inr(Y.price / 12)); $("offEmi").hidden = false; }
+    if(typeof spots === "number" && spots >= 0 && spots <= 30){
+      $("offSpots").textContent = spots;
+      $("offSpotHead").textContent = spots ? "of 30 free memberships left" : "free memberships left · all 30 claimed";
+      if(!spots) document.querySelectorAll("#offer .perk span").forEach(function(e){ e.insertAdjacentHTML("beforeend", " <em class=\"gone\">· all 30 claimed</em>"); });
+      $("offSpotText").textContent = spots
+        ? "First come, first served — the free friend & family memberships go to the first 30 people who join. Count updated by the front desk."
+        : "All 30 free friend & family memberships have gone. The 2 extra months still apply till " + OFFER.ends.replace("ends ", "") + ".";
+      $("offSpotChip").textContent = spots ? "Only " + spots + " of 30 left" : "Free passes all claimed";
+      OFFER.spotsNow = spots;
+    }
     MSG.detox = "Hi Infinity! I saw the Detox Offer — yearly plan " + yPrice + " incl. GST for " + months + " months (" + yDay + " a day), plus a free membership for a friend or family member. Please share the details.";
 
     /* countdown to 30 Nov */
@@ -2087,7 +2111,9 @@ body.offer-on .js-offer{display:flex!important}
     var nb = document.querySelector("#nudge b"), np = document.querySelector("#nudge p"), na = document.querySelector("#nudge a");
     if(nb && np && na){
       nb.textContent = "Reset your routine.";
-      np.textContent = "Detox offer: yearly plan " + yPrice + " for " + months + " months, just " + yDay + " a day, plus a free pass for a friend. Only 30 free memberships · " + OFFER.ends + ".";
+      var sp = OFFER.spotsNow;
+      np.textContent = "Detox offer: yearly plan " + yPrice + " for " + months + " months, just " + yDay + " a day" +
+        (sp === 0 ? ", with 2 extra months. Offer " : ", plus a free pass for a friend. " + (typeof sp === "number" ? "Only " + sp + " of 30 left" : "Only 30 free memberships") + " · ") + OFFER.ends + ".";
       na.setAttribute("data-wa", "detox"); na.setAttribute("data-src", "nudge"); na.textContent = "Claim on WhatsApp →";
     }
   })();
