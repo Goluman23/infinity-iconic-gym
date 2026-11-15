@@ -1,5 +1,5 @@
-import { readBody, send } from '../../lib/http.js';
-import { buildEvent, sendEvent, capiConfig } from '../../lib/meta-capi.js';
+import { readBody, send } from '../http.js';
+import { buildEvent, sendEvent, capiConfig } from '../meta-capi.js';
 
 // POST /api/meta/capi — called by eqiconic.com (fetch keepalive) for every Pixel event.
 // Only accepts the website's own origin; never returns the token.
