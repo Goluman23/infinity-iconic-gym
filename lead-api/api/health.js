@@ -3,6 +3,7 @@ import { seasonFor, inQuietHours, localParts } from '../lib/rules.js';
 import { cors, send } from '../lib/http.js';
 import { providerName } from '../lib/providers/index.js';
 import { ES } from '../lib/providers/easysocial.js';
+import { capiConfig } from '../lib/meta-capi.js';
 
 // GET /api/health — shows configuration status (never the keys themselves)
 export default async function handler(req, res) {
@@ -21,6 +22,7 @@ export default async function handler(req, res) {
   return send(res, 200, {
     ok: true, brand: CONFIG.brand, provider, dry_run: CONFIG.dryRun,
     ...(provider === 'manychat' ? { manychat_key_set: Boolean(CONFIG.manychatKey) } : es), intake_key_set: Boolean(CONFIG.intakeKey),
+    meta_capi: (c => ({ pixel_id_set: Boolean(c.pixelId), token_set: Boolean(c.token), test_mode: Boolean(c.testCode) }))(capiConfig()),
     first_touch_missing: missing, season_today: seasonFor(), quiet_hours_now: inQuietHours(), local: localParts(),
   });
 }

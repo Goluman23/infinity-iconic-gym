@@ -12,9 +12,10 @@ import esConcierge from './api/es/concierge.js';
 import esFollowupSend from './api/es/followup-send.js';
 import esFollowupSync from './api/es/followup-sync.js';
 import esCampaignPush from './api/es/campaign-push.js';
+import metaCapi from './api/meta/capi.js';
 
 const routes = { '/api/lead': lead, '/api/bulk': bulk, '/api/health': health,
-  '/api/es/brain': esBrain, '/api/es/buttons': esButtons, '/api/es/list': esList, '/api/es/webhook': esWebhook, '/api/es/concierge': esConcierge, '/api/es/followup-send': esFollowupSend, '/api/es/followup-sync': esFollowupSync, '/api/es/campaign-push': esCampaignPush };
+  '/api/es/brain': esBrain, '/api/es/buttons': esButtons, '/api/es/list': esList, '/api/es/webhook': esWebhook, '/api/es/concierge': esConcierge, '/api/es/followup-send': esFollowupSend, '/api/es/followup-sync': esFollowupSync, '/api/es/campaign-push': esCampaignPush, '/api/meta/capi': metaCapi };
 http.createServer(async (req, res) => {
   const path = req.url.split('?')[0];
   if (routes[path]) return routes[path](req, res);
