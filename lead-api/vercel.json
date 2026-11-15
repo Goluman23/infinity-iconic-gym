@@ -11,6 +11,9 @@
     },
     "api/es/campaign-push.js": {
       "maxDuration": 90
+    },
+    "api/meta/capi.js": {
+      "maxDuration": 10
     }
   }
 }

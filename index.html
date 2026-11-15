@@ -25,10 +25,43 @@
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600&family=Oswald:wght@300;400;500;600&display=swap" onload="this.onload=null;this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600&family=Oswald:wght@300;400;500;600&display=swap"></noscript>
 
-<!-- ============ TRACKING (optional) ============
-     Paste the Meta Pixel / GA4 snippet here. The site already fires
-     fbq('track','Lead') / gtag('event','generate_lead') on every WhatsApp
-     enquiry and fbq('track','Contact') on calls — no further wiring needed. -->
+<!-- ============ TRACKING — Meta Pixel + CAPI, GA4 ============
+     Paste the two IDs below. Leave one empty and that tag simply doesn't load.
+     Every event fires in the browser (Pixel + GA4) AND server-side through
+     https://api.eqiconic.com/api/meta/capi with the same event_id, so Meta de-duplicates.
+     Events: PageView · Lead (WhatsApp enquiry / trial form) · Contact (call) · ViewContent (maps, IG, reviews). -->
+<script>
+  window.INF_TRACK = {
+    META_PIXEL_ID: "",          // Events Manager → Data sources → your Pixel → ID (digits)
+    GA4_ID: "",                 // GA4 → Admin → Data streams → Web → Measurement ID (G-XXXXXXX)
+    CAPI_URL: "https://api.eqiconic.com/api/meta/capi"
+  };
+  (function(T){
+    if(T.META_PIXEL_ID){
+      !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+      fbq('init', T.META_PIXEL_ID);
+    }
+    if(T.GA4_ID){
+      var g=document.createElement('script'); g.async=true; g.src='https://www.googletagmanager.com/gtag/js?id='+T.GA4_ID; document.head.appendChild(g);
+      window.dataLayer=window.dataLayer||[]; window.gtag=function(){dataLayer.push(arguments);};
+      gtag('js', new Date()); gtag('config', T.GA4_ID);
+    }
+    /* one event → Pixel (browser) + CAPI (server), same event_id */
+    function ck(n){ var m=document.cookie.match('(?:^|; )'+n+'=([^;]*)'); return m?decodeURIComponent(m[1]):""; }
+    window.infMeta = function(name, custom, user){
+      if(!T.META_PIXEL_ID) return;
+      var id = "inf." + Date.now().toString(36) + "." + Math.random().toString(36).slice(2,10);
+      try{ fbq('track', name, custom||{}, {eventID:id}); }catch(e){}
+      var fbc = ck("_fbc"), q = new URLSearchParams(location.search).get("fbclid");
+      if(!fbc && q) fbc = "fb.1." + Date.now() + "." + q;
+      var body = JSON.stringify({event_name:name, event_id:id, event_time:Math.floor(Date.now()/1000),
+        event_source_url:location.href, custom:custom||{}, user:Object.assign({fbp:ck("_fbp"), fbc:fbc}, user||{})});
+      try{ fetch(T.CAPI_URL, {method:"POST", headers:{"Content-Type":"application/json"}, body:body, keepalive:true, mode:"cors", credentials:"omit"}).catch(function(){}); }catch(e){}
+    };
+    // PageView a moment after load so the Pixel can set _fbp first
+    if(T.META_PIXEL_ID) setTimeout(function(){ window.infMeta('PageView'); }, 800);
+  })(window.INF_TRACK);
+</script>
 
 <script type="application/ld+json">
 {
@@ -1922,10 +1955,11 @@ body.offer-on .js-offer{display:flex!important}
   var ref = attr.length ? attr.join(" / ") : "website";
 
   function waURL(text){ return "https://wa.me/" + WA_NUMBER + "?text=" + encodeURIComponent(text); }
-  function track(ev, data){
+  var GA_NAME = {Lead:"generate_lead", Contact:"contact_call", ViewContent:"select_content"};
+  function track(ev, data, user){
     data = Object.assign({utm_source:UTM.utm_source||"", utm_campaign:UTM.utm_campaign||"", utm_content:UTM.utm_content||"", offer:OFFER_NOW?OFFER_NOW.id:""}, data||{});
-    try{ if(window.fbq) fbq("track", ev, data||{}); }catch(e){}
-    try{ if(window.gtag) gtag("event", ev === "Lead" ? "generate_lead" : ev.toLowerCase(), data||{}); }catch(e){}
+    try{ if(window.infMeta) infMeta(ev, data, user); }catch(e){}
+    try{ if(window.gtag) gtag("event", GA_NAME[ev] || ev.toLowerCase(), Object.assign({event_category:"enquiry"}, data)); }catch(e){}
     try{ (window.dataLayer = window.dataLayer || []).push(Object.assign({event:"inf_"+ev.toLowerCase()}, data||{})); }catch(e){}
   }
   function openWA(key, src){
@@ -1961,7 +1995,7 @@ body.offer-on .js-offer{display:flex!important}
       (OFFER_NOW ? "\nOffer: " + OFFER_NOW.label : "") + "\n\n— via " + ref + " · trial form";
     var url = waURL(text);
     document.getElementById("reopen").href = url;
-    track("Lead", {content_name:"trial_form", goal:goal, plan:form.plan.value});
+    track("Lead", {content_name:"trial_form", goal:goal, plan:form.plan.value}, {ph:phone, fn:name});
     box.classList.add("sent");
     setTimeout(function(){ go(url); }, MOBILE ? 350 : 0);
   });
