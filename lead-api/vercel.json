@@ -12,8 +12,18 @@
     "api/es/campaign-push.js": {
       "maxDuration": 90
     },
-    "api/meta/capi.js": {
+    "api/web.js": {
       "maxDuration": 10
     }
-  }
+  },
+  "rewrites": [
+    {
+      "source": "/api/reviews",
+      "destination": "/api/web?fn=reviews"
+    },
+    {
+      "source": "/api/meta/capi",
+      "destination": "/api/web?fn=capi"
+    }
+  ]
 }

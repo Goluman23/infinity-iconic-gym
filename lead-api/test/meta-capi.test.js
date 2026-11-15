@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
 const { buildEvent, sendEvent, setTransport, normPhone, normName } = await import('../lib/meta-capi.js');
-const handler = (await import('../api/meta/capi.js')).default;
+const handler = (await import('../lib/routes/meta-capi.js')).default;
 const sha = v => crypto.createHash('sha256').update(v).digest('hex');
 
 assert.equal(normPhone('+91 98765 43210'), '919876543210');
@@ -55,3 +55,11 @@ await handler({ method: 'OPTIONS', headers: req.headers }, res);
 assert.equal(res.statusCode, 204);
 
 console.log('meta-capi tests passed');
+
+// the shared /api/web function dispatches by ?fn=
+const web = (await import('../api/web.js')).default;
+res = mockRes(); await web({ method: 'POST', query: { fn: 'capi' }, headers: req.headers, body: good }, res);
+assert.equal(res.statusCode, 200);
+res = mockRes(); await web({ method: 'GET', url: '/api/web?fn=nope', headers: {} }, res);
+assert.equal(res.statusCode, 404);
+console.log('web router tests passed');

@@ -1,4 +1,4 @@
-import { getReviews } from '../lib/reviews.js';
+import { getReviews } from '../reviews.js';
 
 // GET /api/reviews — Infinity's Google rating, review count and best recent reviews, for the website.
 // Public data, so any origin may read it. Cached at Vercel's edge for 6 hours, which keeps
