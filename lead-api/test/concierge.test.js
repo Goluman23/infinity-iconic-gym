@@ -171,3 +171,20 @@ ok('visit read from last_message via HTTP', r.body.debug.intent === 'visit_plan'
 }
 console.log(`${pass}/${pass + fail} concierge checks passed`);
 if (fail) process.exit(1);
+
+// automated codes are ignored (no reply, no log); real enquiries still answered
+{
+  const { isAutomated, handleMessage: hm } = await import('../lib/concierge/index.js');
+  const A = (await import('node:assert/strict')).default;
+  A.ok(isAutomated('53979 is your Facebook confirmation code'));
+  A.ok(isAutomated('Hi', '447710173736'));
+  A.ok(isAutomated('Your OTP is 482913. Do not share it with anyone.'));
+  A.ok(isAutomated('123456 is your WhatsApp verification code'));
+  A.ok(!isAutomated('hi'));
+  A.ok(!isAutomated('what is the code for the detox offer?'));
+  A.ok(!isAutomated('I live in sector 86, house 1234, can I come at 6?'));
+  A.ok(!isAutomated('my number is 9876543210 call me'));
+  const r = await hm({ message: '53979 is your Facebook confirmation code', phone: '447710173736' }, { classifyImpl: async () => { throw new Error('AI must not be called'); } });
+  A.equal(r.out.response.message, ''); A.equal(r.log, null);
+  console.log('automated-message checks passed');
+}
