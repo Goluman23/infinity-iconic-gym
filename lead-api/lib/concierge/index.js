@@ -34,8 +34,28 @@ export function readParams(p) {
 // so the text always comes from lib/calendar.js instead of being typed into EasySocial.
 export const FIXED_INTENTS = ['offer', 'price', 'timings', 'location', 'greeting', 'classes', 'facilities'];
 
+// Automated messages (Meta/Facebook/WhatsApp confirmation codes, OTPs, bank/delivery alerts)
+// sometimes land on the gym's WhatsApp number. Don't reply, don't log a lead, don't alert the desk.
+const AUTOMATED_SENDERS = ['447710173736']; // Facebook / Meta confirmation codes on WhatsApp
+export function isAutomated(message, phone = '') {
+  const t = String(message || '');
+  const digits = String(phone || '').replace(/\D/g, '');
+  if (digits && AUTOMATED_SENDERS.includes(digits)) return true;
+  const hasCode = /\b\d{4,8}\b/.test(t) || /\b[A-Z0-9]{3}-[A-Z0-9]{3}\b/.test(t);
+  if (!hasCode) return false;
+  return /\b(confirmation|verification|security|login|one[- ]time)\s+(code|password|pin)\b/i.test(t)
+    || /\bis your\b.{0,40}\bcode\b/i.test(t)
+    || /\b(OTP|one time password)\b/i.test(t)
+    || /\b(do not|don't|never) share\b/i.test(t);
+}
+const SILENT = { message: '', last_response: '', data: { body_text: '' }, lead_attributes: { inf_intent: 'automated' } };
+
 export async function handleMessage(p, { now = new Date(), classifyImpl = classify } = {}) {
   const base = readParams(p);
+  if (!String(p.intent || '').trim() && isAutomated(base.message, base.phone)) {
+    const s = { ...base, intent: 'automated', source: 'rules', when: '' };
+    return { state: s, out: { intent: 'automated', response: SILENT, alert: false }, log: null };
+  }
   const rules = fastRules(base.message);
   const forced = String(p.intent || '').toLowerCase().trim();
   if (FIXED_INTENTS.includes(forced)) {

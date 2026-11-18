@@ -30,8 +30,10 @@ export default async function handler(req, res) {
     // Which parameter carried the text (helps confirm EasySocial's wiring; never logs the key).
     console.log('[concierge] in', JSON.stringify({ from: src.key || 'none', platform: p.platform || '', params: Object.keys(p).filter(k => k !== 'key') }));
     const { out, log, state } = await handleMessage(p);
-    const job = sendToSheet(log);
-    try { waitUntil(job); } catch { await job; } // outside Vercel (local server) just wait
+    if (log) {
+      const job = sendToSheet(log);
+      try { waitUntil(job); } catch { await job; } // outside Vercel (local server) just wait
+    } else console.log('[concierge] automated message ignored');
     return send(res, 200, { ...out.response, ...(p.debug === '1' ? { debug: { intent: out.intent, source: state.source, when: state.when, alert: out.alert } } : {}) });
   } catch (e) {
     console.log('[concierge] error', e.message);
