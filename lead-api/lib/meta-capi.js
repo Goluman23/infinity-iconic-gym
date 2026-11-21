@@ -4,7 +4,7 @@
 // browsers often block the Pixel — the server copy still gets through).
 //
 // Env (Vercel → infinity-lead-api → Production):
-//   META_PIXEL_ID         the dataset / Pixel ID (digits)
+//   META_PIXEL_ID         the dataset / Pixel ID (digits) — since 21 Nov 2026: 1560701859153303 (portfolio Infinity Gym - Eq Iconic)
 //   META_CAPI_TOKEN       Events Manager → Settings → Conversions API → Generate access token (mark Sensitive)
 //   META_TEST_EVENT_CODE  optional, e.g. TEST12345 — events show in "Test events"; remove after testing
 //   META_GRAPH_VERSION    optional, default v23.0
