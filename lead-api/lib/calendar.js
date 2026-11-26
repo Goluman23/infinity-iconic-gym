@@ -29,8 +29,8 @@ export const CAMPAIGNS = [
     offer: { en: 'Infinity Detox Offer: Yearly membership gets 2 months extra + 1 month FREE for a friend or family member; 6-month membership gets 2 months extra + 15 days FREE for a friend or family member. Limited to the first 30 memberships',
              hinglish: 'Infinity Detox Offer: Yearly membership par 2 mahine extra + ek dost ya family member ke liye 1 mahina FREE; 6 mahine ki membership par 2 mahine extra + ek dost ya family member ke liye 15 din FREE. Sirf pehli 30 memberships ke liye',
              short: { en: '2 months extra + a FREE month for a friend or family member on yearly plans', hinglish: 'yearly plan par 2 mahine extra + dost ya family ke liye 1 mahina FREE' } } },
-  // Pre-Renovation Offer (client's posters, 26 Nov 2026; end extended to 10 Dec by the client the same day). The client approved quoting these exact prices in every channel.
-  { key: 'prereno', start: '2026-11-26', end: '2026-12-10', endLabel: '10 Dec', emoji: '🔥', pricesQuoted: true,
+  // Pre-Renovation Offer (client's posters, 26 Nov 2026; client: say 30 Nov for now and extend after the month ends; to extend, change end + endLabel here). The client approved quoting these exact prices in every channel.
+  { key: 'prereno', start: '2026-11-26', end: '2026-11-30', endLabel: '30 Nov', emoji: '🔥', pricesQuoted: true,
     name: { en: 'Pre-Renovation Offer', hinglish: 'Pre-Renovation Offer' },
     offer: { en: 'Pre-Renovation Offer: 18 months for ₹22,222 or 9 months for ₹14,444 (after the renovation: 12 months ₹24,000, 6 months ₹15,000)',
              hinglish: 'Pre-Renovation Offer: 18 mahine sirf ₹22,222 ya 9 mahine ₹14,444 (renovation ke baad: 12 mahine ₹24,000, 6 mahine ₹15,000)',

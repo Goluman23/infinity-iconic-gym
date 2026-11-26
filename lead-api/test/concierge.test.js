@@ -169,18 +169,18 @@ ok('visit read from last_message via HTTP', r.body.debug.intent === 'visit_plan'
   const q = await handleMessage({ message: 'yes but what is the price?' }, { now: D, classifyImpl: noAI });
   ok('longer "yes …?" question is not treated as interested', q.out.intent !== 'interested');
 }
-// Pre-Renovation Offer 26 Nov – 10 Dec 2026: prices are quoted (client-approved), Detox gone.
+// Pre-Renovation Offer 26–30 Nov 2026: prices are quoted (client-approved), Detox gone.
 {
   const PR = new Date('2026-11-27T10:00:00+05:30');
   const noAIp = async () => ({ intent: 'offer', lang: 'en' });
   let p = await handleMessage({ intent: 'offer', message: '' }, { now: PR, classifyImpl: noAIp });
-  ok('26 Nov–10 Dec: offer → Pre-Renovation prices till 10 Dec, no Detox', /Pre-Renovation Offer/.test(p.out.reply) && /₹22,222/.test(p.out.reply) && /₹14,444/.test(p.out.reply) && /10 Dec/.test(p.out.reply) && !/Detox/.test(p.out.reply) && /YES/.test(p.out.reply));
+  ok('26–30 Nov: offer → Pre-Renovation prices till 30 Nov, no Detox', /Pre-Renovation Offer/.test(p.out.reply) && /₹22,222/.test(p.out.reply) && /₹14,444/.test(p.out.reply) && /30 Nov/.test(p.out.reply) && !/Detox/.test(p.out.reply) && /YES/.test(p.out.reply));
   p = await handleMessage({ message: 'how much is the membership?' }, { now: PR, classifyImpl: async () => ({ intent: 'price', lang: 'en' }) });
   ok('26–30 Nov: price → offer prices, not the ₹1,000–1,300 range', /₹22,222/.test(p.out.reply) && /18 months/.test(p.out.reply) && !/1,000–1,300/.test(p.out.reply));
   p = await handleMessage({ message: 'fees kitni hai' }, { now: PR, classifyImpl: async () => ({ intent: 'price', lang: 'hinglish' }) });
   ok('26–30 Nov: Hinglish price → 18 mahine ₹22,222', /18 mahine/.test(p.out.reply) && /₹22,222/.test(p.out.reply));
   p = await handleMessage({ message: 'YES', name: 'Raj Kumar', phone: '919999999999' }, { now: PR, classifyImpl: async () => ({ intent: 'price', lang: 'en' }) });
-  ok('26–30 Nov: YES → holding the Pre-Renovation Offer, till 10 Dec, no "first 30"', p.out.intent === 'interested' && /Pre-Renovation Offer/.test(p.out.reply) && /10 Dec/.test(p.out.reply) && !/first 30/.test(p.out.reply));
+  ok('26–30 Nov: YES → holding the Pre-Renovation Offer, till 30 Nov, no "first 30"', p.out.intent === 'interested' && /Pre-Renovation Offer/.test(p.out.reply) && /30 Nov/.test(p.out.reply) && !/first 30/.test(p.out.reply));
   p = await handleMessage({ intent: 'offer', message: '' }, { now: new Date('2026-12-11T10:00:00+05:30'), classifyImpl: noAIp });
   ok('11 Dec: Pre-Renovation offer ended', !/22,222|Pre-Renovation/.test(p.out.reply));
 }
