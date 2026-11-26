@@ -41,6 +41,21 @@ export const CAMPAIGN_REGISTRY = [
       body: { mobileNumber: '{{phone}}', body1: '{{first_name}}', header1: 'https://api.eqiconic.com/media/infinity-detox-offer.jpg', name: '{{first_name}}' },
     },
   },
+  {
+    // Pre-Renovation Offer (client, 26 Nov 2026): EasySocial API campaign 24157, template approved by Meta 26 Nov.
+    // Uses the same EasySocial account key as festive_api (derivedSpec), so no new Vercel key is needed.
+    id: 'pre_renovation_offer',
+    name: 'Pre-Renovation Offer API',
+    aliases: ['pre renovation offer', 'pre-renovation offer', 'prereno', 'renovation offer', 'pre renovation', 'pre renovation offer api'],
+    template: 'infinity_prereno_offer_nov26', // approved by Meta 26 Nov 2026; EasySocial template 36408, campaign 24157
+    rule: 'offer',
+    ends: '2026-12-10T23:59:59+05:30', // says "till 30 Nov" first, then extended to 10 Dec (client, 26 Nov)
+    excludeCampaigns: [],
+    es: {
+      from: 'festive_api', campaignId: '24157', templateId: '4510',
+      body: { mobileNumber: '{{phone}}', body1: '{{first_name}}', header1: 'https://api.eqiconic.com/media/infinity-prereno-offer.jpg', name: '{{first_name}}' },
+    },
+  },
 ];
 
 // Build the EasySocial send spec for a campaign that reuses another campaign's account key (see es above).
