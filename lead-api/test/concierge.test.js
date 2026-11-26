@@ -79,7 +79,7 @@ ok('visit reply before Diwali carries festival hours (Hinglish)', o.reply.includ
 o = await run('timings?', { ai: { intent: 'timings', lang: 'en' }, now: new Date('2026-11-20T10:00:00Z') });
 ok('no festival-hours line after the festival', !o.reply.includes('Festival hours'));
 o = await run('any offer?', { ai: { intent: 'offer', lang: 'en' }, now: new Date('2026-11-12T06:00:00Z') });
-ok('Detox offer 11–30 Nov', o.reply.includes('Infinity Detox Offer') && o.reply.includes('30 Nov') && o.reply.includes('first 30 memberships') && !/₹\s?\d/.test(o.reply.split('Detox')[1] || ''));
+ok('Detox offer 11–25 Nov', o.reply.includes('Infinity Detox Offer') && o.reply.includes('25 Nov') && o.reply.includes('first 30 memberships') && !/₹\s?\d/.test(o.reply.split('Detox')[1] || ''));
 o = await run('Stop promotions');
 ok('"Stop promotions" button → polite opt-out, no menu', o.intent === 'optout' && o.reply.includes("won't get any more offers") && !o.reply.includes('Just type') && o.response.lead_attributes.inf_optout === 'yes');
 o = await run('mat bhejo');
@@ -92,7 +92,7 @@ ok('a question mentioning "stop" is not an opt-out', o.intent === 'offer');
   let x = await handleMessage({ intent: 'offer', message: 'Diwali offer', platform: 'instagram' }, { now: new Date('2026-11-02T10:00:00+05:30'), classifyImpl: noAI });
   ok('flow block intent=offer → today\'s calendar offer, no AI', x.out.intent === 'offer' && /60% off/.test(x.out.reply) && /10 Nov/.test(x.out.reply) && !/31 Oct|14 months/.test(x.out.reply));
   x = await handleMessage({ intent: 'offer', message: '' }, { now: new Date('2026-11-12T10:00:00+05:30'), classifyImpl: noAI });
-  ok('intent=offer during Detox → Infinity Detox Offer', /Infinity Detox Offer/.test(x.out.reply) && /30 Nov/.test(x.out.reply) && !/Starter Kit/.test(x.out.reply));
+  ok('intent=offer during Detox → Infinity Detox Offer', /Infinity Detox Offer/.test(x.out.reply) && /25 Nov/.test(x.out.reply) && !/Starter Kit/.test(x.out.reply));
   x = await handleMessage({ intent: 'offer', message: '' }, { now: new Date('2026-12-05T10:00:00+05:30'), classifyImpl: noAI });
   ok('intent=offer between offers → honest "ended" reply', /no running offer/.test(x.out.reply) && !/Diwali special/.test(x.out.reply));
   x = await handleMessage({ intent: 'price', message: 'What the price' }, { now: new Date('2026-11-02T10:00:00+05:30'), classifyImpl: noAI });
@@ -164,10 +164,25 @@ ok('visit read from last_message via HTTP', r.body.debug.intent === 'visit_plan'
   const noAI = async () => ({ intent: 'price', lang: 'en' });
   for (const msg of ['YES', "Yes, I'm interested", 'interested', 'haan ji']) {
     const y = await handleMessage({ message: msg, name: 'Raj Kumar', phone: '919999999999' }, { now: D, classifyImpl: noAI });
-    ok(`"${msg}" → interested, desk alert, team will call`, y.out.intent === 'interested' && y.out.alert && /call you shortly|call karke/.test(y.out.reply) && /30 Nov/.test(y.out.reply), y.out.intent + ' ' + y.out.reply.slice(0, 80));
+    ok(`"${msg}" → interested, desk alert, team will call`, y.out.intent === 'interested' && y.out.alert && /call you shortly|call karke/.test(y.out.reply) && /25 Nov/.test(y.out.reply), y.out.intent + ' ' + y.out.reply.slice(0, 80));
   }
   const q = await handleMessage({ message: 'yes but what is the price?' }, { now: D, classifyImpl: noAI });
   ok('longer "yes …?" question is not treated as interested', q.out.intent !== 'interested');
+}
+// Pre-Renovation Offer 26–30 Nov 2026: prices are quoted (client-approved), Detox gone.
+{
+  const PR = new Date('2026-11-27T10:00:00+05:30');
+  const noAIp = async () => ({ intent: 'offer', lang: 'en' });
+  let p = await handleMessage({ intent: 'offer', message: '' }, { now: PR, classifyImpl: noAIp });
+  ok('26–30 Nov: offer → Pre-Renovation prices till 30 Nov, no Detox', /Pre-Renovation Offer/.test(p.out.reply) && /₹22,222/.test(p.out.reply) && /₹14,444/.test(p.out.reply) && /30 Nov/.test(p.out.reply) && !/Detox/.test(p.out.reply) && /YES/.test(p.out.reply));
+  p = await handleMessage({ message: 'how much is the membership?' }, { now: PR, classifyImpl: async () => ({ intent: 'price', lang: 'en' }) });
+  ok('26–30 Nov: price → offer prices, not the ₹1,000–1,300 range', /₹22,222/.test(p.out.reply) && /18 months/.test(p.out.reply) && !/1,000–1,300/.test(p.out.reply));
+  p = await handleMessage({ message: 'fees kitni hai' }, { now: PR, classifyImpl: async () => ({ intent: 'price', lang: 'hinglish' }) });
+  ok('26–30 Nov: Hinglish price → 18 mahine ₹22,222', /18 mahine/.test(p.out.reply) && /₹22,222/.test(p.out.reply));
+  p = await handleMessage({ message: 'YES', name: 'Raj Kumar', phone: '919999999999' }, { now: PR, classifyImpl: async () => ({ intent: 'price', lang: 'en' }) });
+  ok('26–30 Nov: YES → holding the Pre-Renovation Offer, till 30 Nov, no "first 30"', p.out.intent === 'interested' && /Pre-Renovation Offer/.test(p.out.reply) && /30 Nov/.test(p.out.reply) && !/first 30/.test(p.out.reply));
+  p = await handleMessage({ intent: 'offer', message: '' }, { now: new Date('2026-12-01T10:00:00+05:30'), classifyImpl: noAIp });
+  ok('1 Dec: Pre-Renovation offer ended', !/22,222|Pre-Renovation/.test(p.out.reply));
 }
 console.log(`${pass}/${pass + fail} concierge checks passed`);
 if (fail) process.exit(1);
@@ -186,5 +201,6 @@ if (fail) process.exit(1);
   A.ok(!isAutomated('my number is 9876543210 call me'));
   const r = await hm({ message: '53979 is your Facebook confirmation code', phone: '447710173736' }, { classifyImpl: async () => { throw new Error('AI must not be called'); } });
   A.equal(r.out.response.message, ''); A.equal(r.log, null);
-  console.log('automated-message checks passed');
+  
+console.log('automated-message checks passed');
 }

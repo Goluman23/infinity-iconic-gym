@@ -34,7 +34,7 @@ export const CAMPAIGN_REGISTRY = [
     aliases: ['after festive detox', 'detox', 'detox offer', 'infinity detox offer', 'detox campaign', 'after festive detox campaign'],
     template: 'infinity_after_festive_detox', // approved by Meta 13 Nov 2026; EasySocial campaign 23779
     rule: 'offer',
-    ends: '2026-11-30T23:59:59+05:30',
+    ends: '2026-11-25T23:59:59+05:30', // Detox ended early (client, 26 Nov 2026): replaced by the Pre-Renovation Offer
     excludeCampaigns: [],
     es: {
       from: 'festive_api', campaignId: '23779', templateId: '4510',
