@@ -43,7 +43,7 @@ export const CAMPAIGN_REGISTRY = [
   },
   {
     // Pre-Renovation Offer (client, 26 Nov 2026): EasySocial API campaign 24157, template approved by Meta 26 Nov.
-    // Uses the same EasySocial account key as festive_api (derivedSpec), so no new Vercel key is needed.
+    // Uses the same EasySocial account key as after_festive_detox (derivedSpec), so no new Vercel key is needed.
     id: 'pre_renovation_offer',
     name: 'Pre-Renovation Offer API',
     aliases: ['pre renovation offer', 'pre-renovation offer', 'prereno', 'renovation offer', 'pre renovation', 'pre renovation offer api'],
@@ -52,7 +52,7 @@ export const CAMPAIGN_REGISTRY = [
     ends: '2026-12-10T23:59:59+05:30', // says "till 30 Nov" first, then extended to 10 Dec (client, 26 Nov)
     excludeCampaigns: [],
     es: {
-      from: 'festive_api', campaignId: '24157', templateId: '4510',
+      from: 'after_festive_detox', campaignId: '24157', templateId: '4510',
       body: { mobileNumber: '{{phone}}', body1: '{{first_name}}', header1: 'https://api.eqiconic.com/media/infinity-prereno-offer.jpg', name: '{{first_name}}' },
     },
   },
