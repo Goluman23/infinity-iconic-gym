@@ -61,9 +61,17 @@ export default async function handler(req, res) {
       why: !wantLive ? 'preview (live:true not set)' : env('CAMPAIGN_LIVE') !== '1' ? 'CAMPAIGN_LIVE is not 1 in Vercel' : `confirm must equal "${c.id}"` });
   }
 
-  let campaigns = {}; try { campaigns = JSON.parse(env('ES_CAMPAIGNS', '{}')); } catch {}
+  // On a bad ES_CAMPAIGNS value, report only where it broke and which entry names it has, never the value itself.
+  let campaigns = {}, esError = null; const raw = env('ES_CAMPAIGNS', '{}');
+  try { campaigns = JSON.parse(raw); } catch (e) {
+    const m = String(e.message).match(/position (\d+)/); const pos = m ? Number(m[1]) : null;
+    esError = { problem: 'ES_CAMPAIGNS is not valid JSON', position: pos, length: raw.length,
+      charAtPosition: pos != null ? JSON.stringify(raw[pos] || '') : null,
+      curlyQuotes: /[\u201c\u201d\u2018\u2019]/.test(raw), startsWithBrace: raw.trim().startsWith('{'), endsWithBrace: raw.trim().endsWith('}') };
+  }
   const spec = campaigns[c.id] || derivedSpec(c, campaigns);
-  if (!spec) return send(res, 503, { error: `${c.name} is not wired to EasySocial yet (no ES_CAMPAIGNS entry, or es.campaignId/templateId empty) — nothing sent` });
+  if (!spec) return send(res, 503, { error: `${c.name} is not wired to EasySocial yet (no ES_CAMPAIGNS entry, or es.campaignId/templateId empty) — nothing sent`,
+    ...(esError ? { esCampaigns: esError } : { esCampaignsEntries: Object.keys(campaigns) }) });
   const extra = { spec, ...(c.bodyOverride ? { bodyOverride: c.bodyOverride } : {}) };
   const size = Math.max(1, Math.min(BATCH, Number(body.batch) || BATCH));
   const batch = list.slice(0, size), results = [];
