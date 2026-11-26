@@ -181,6 +181,8 @@ ok('visit read from last_message via HTTP', r.body.debug.intent === 'visit_plan'
   ok('26–30 Nov: Hinglish price → 18 mahine ₹22,222', /18 mahine/.test(p.out.reply) && /₹22,222/.test(p.out.reply));
   p = await handleMessage({ message: 'YES', name: 'Raj Kumar', phone: '919999999999' }, { now: PR, classifyImpl: async () => ({ intent: 'price', lang: 'en' }) });
   ok('26–30 Nov: YES → holding the Pre-Renovation Offer, till 30 Nov, no "first 30"', p.out.intent === 'interested' && /Pre-Renovation Offer/.test(p.out.reply) && /30 Nov/.test(p.out.reply) && !/first 30/.test(p.out.reply));
+  p = await handleMessage({ intent: 'offer', message: '' }, { now: new Date('2026-12-05T10:00:00+05:30'), classifyImpl: noAIp });
+  ok('1–10 Dec: same offer, extended till 10 Dec', /Pre-Renovation Offer/.test(p.out.reply) && /₹22,222/.test(p.out.reply) && /10 Dec/.test(p.out.reply) && !/30 Nov/.test(p.out.reply));
   p = await handleMessage({ intent: 'offer', message: '' }, { now: new Date('2026-12-11T10:00:00+05:30'), classifyImpl: noAIp });
   ok('11 Dec: Pre-Renovation offer ended', !/22,222|Pre-Renovation/.test(p.out.reply));
 }
