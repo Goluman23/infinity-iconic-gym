@@ -162,12 +162,12 @@ const all = Object.keys(COPY).flatMap(id => Object.keys(COPY[id].variants).flatM
 ok('no exact prices in any follow-up outside the Pre-Renovation Offer', !all.some(t => /₹\s?\d|17,500|30,000|14,500/.test(t)));
 ok('no unfilled placeholders', !all.some(t => /\{\w+\}/.test(t)), all.find(t => /\{\w+\}/.test(t)));
 ok('every step has English + Hinglish', Object.values(COPY).every(c => Object.values(c.variants).every(v => v.en && v.hinglish)));
-const before = render('new_d7', 'A', lead, new Date('2026-11-10T21:00:00+05:30')), after = render('new_d7', 'A', lead, new Date('2026-12-02T09:00:00+05:30'));
+const before = render('new_d7', 'A', lead, new Date('2026-11-10T21:00:00+05:30')), after = render('new_d7', 'A', lead, new Date('2026-12-12T09:00:00+05:30'));
 ok('festive offer line runs till 10 Nov (extended) and then disappears', /Diwali.*10 Nov/.test(before) && !/Diwali/.test(after) && /new month/.test(after), before + ' | ' + after);
-ok('festive till 10 Nov, Detox 11–25 Nov, Pre-Renovation 26–30 Nov, nothing after', /10 Nov/.test(offerAt(new Date('2026-11-09T10:00:00+05:30')).line) && /Infinity Detox Offer.*25 Nov/.test(offerAt(new Date('2026-11-12T10:00:00+05:30')).line) && /Pre-Renovation Offer: 18 months for ₹22,222.*30 Nov/.test(offerAt(new Date('2026-11-27T10:00:00+05:30')).line) && !/Detox/.test(offerAt(new Date('2026-11-26T10:00:00+05:30')).line) && offerAt(new Date('2026-12-02T10:00:00+05:30')) === null);
+ok('festive till 10 Nov, Detox 11–25 Nov, Pre-Renovation 26 Nov–10 Dec, nothing after', /10 Nov/.test(offerAt(new Date('2026-11-09T10:00:00+05:30')).line) && /Infinity Detox Offer.*25 Nov/.test(offerAt(new Date('2026-11-12T10:00:00+05:30')).line) && /Pre-Renovation Offer: 18 months for ₹22,222.*10 Dec/.test(offerAt(new Date('2026-11-27T10:00:00+05:30')).line) && !/Detox/.test(offerAt(new Date('2026-11-26T10:00:00+05:30')).line) && offerAt(new Date('2026-12-12T10:00:00+05:30')) === null);
 r = simulate({ lead: { ...base, at: '2026-11-06T13:00:00+05:30' }, until: '2026-11-12T00:00:00+05:30' });
 ok('no follow-ups on Diwali (gym closed)', !bots(r).some(x => ist(x.at).startsWith('8/11')), bots(r).map(x => x.step + '@' + ist(x.at)).join(' '));
-ok('one calendar: festivals + no unverified offer after Diwali', festivalOn(new Date('2026-11-08T10:00:00+05:30'))?.key === 'diwali' && offerAt(new Date('2026-12-05T10:00:00+05:30')) === null && offerAt(new Date('2026-11-01T10:00:00+05:30'))?.endLabel === '10 Nov');
+ok('one calendar: festivals + no unverified offer after Diwali', festivalOn(new Date('2026-11-08T10:00:00+05:30'))?.key === 'diwali' && offerAt(new Date('2026-12-12T10:00:00+05:30')) === null && offerAt(new Date('2026-11-01T10:00:00+05:30'))?.endLabel === '10 Nov');
 ok('WhatsApp delivery rules', deliveryFor({ channel: 'wa', lastInbound: '2026-11-02T10:00:00Z' }, 'nurture', new Date('2026-11-04T10:00:00Z')).category === 'marketing');
 
 console.log(`${pass}/${pass + fail} follow-up checks passed`);
